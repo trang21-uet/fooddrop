@@ -1,0 +1,22 @@
+# Local dev infrastructure for Food Drop (Postgres + Redis)
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: fooddrop-postgres
+    environment:
+      POSTGRES_USER: fooddrop
+      POSTGRES_PASSWORD: fooddrop_dev
+      POSTGRES_DB: fooddrop
+    ports:
+      - "5432:5432"
+    volumes:
+      - fooddrop-pg:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    container_name: fooddrop-redis
+    ports:
+      - "6379:6379"
+
+volumes:
+  fooddrop-pg:
