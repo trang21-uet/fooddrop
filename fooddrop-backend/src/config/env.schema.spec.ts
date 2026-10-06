@@ -3,6 +3,7 @@ import { validateEnv } from './env.schema.js';
 const validEnv = {
   DATABASE_URL: 'postgres://fooddrop:pw@localhost:5432/fooddrop',
   REDIS_URL: 'redis://localhost:6379',
+  AUTH_SECRET: 'test-secret-of-sufficient-length',
 };
 
 describe('validateEnv', () => {
@@ -10,6 +11,17 @@ describe('validateEnv', () => {
     const env = validateEnv(validEnv);
     expect(env.PORT).toBe(4000);
     expect(env.NODE_ENV).toBe('development');
+    expect(env.BETTER_AUTH_URL).toBe('http://localhost:4000');
+  });
+
+  it('treats blank Google credentials as unset', () => {
+    const env = validateEnv({ ...validEnv, GOOGLE_CLIENT_ID: '', GOOGLE_CLIENT_SECRET: '' });
+    expect(env.GOOGLE_CLIENT_ID).toBeUndefined();
+    expect(env.GOOGLE_CLIENT_SECRET).toBeUndefined();
+  });
+
+  it('rejects a short AUTH_SECRET', () => {
+    expect(() => validateEnv({ ...validEnv, AUTH_SECRET: 'short' })).toThrow(/AUTH_SECRET/);
   });
 
   it('coerces PORT from string', () => {
@@ -17,11 +29,11 @@ describe('validateEnv', () => {
   });
 
   it('throws when DATABASE_URL is missing', () => {
-    expect(() => validateEnv({ REDIS_URL: validEnv.REDIS_URL })).toThrow(/DATABASE_URL/);
+    expect(() => validateEnv({ ...validEnv, DATABASE_URL: undefined })).toThrow(/DATABASE_URL/);
   });
 
   it('throws when REDIS_URL is missing', () => {
-    expect(() => validateEnv({ DATABASE_URL: validEnv.DATABASE_URL })).toThrow(/REDIS_URL/);
+    expect(() => validateEnv({ ...validEnv, REDIS_URL: undefined })).toThrow(/REDIS_URL/);
   });
 
   it('accepts the postgresql:// scheme', () => {

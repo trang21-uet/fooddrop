@@ -24,7 +24,7 @@ pnpm start:dev
 - Swagger UI: http://localhost:4000/docs
 - OpenAPI JSON: `openapi.json` (sinh bằng `pnpm openapi:generate`)
 
-## Scripts (dự kiến sau Phase 01)
+## Scripts
 
 | Script | Mô tả |
 |---|---|

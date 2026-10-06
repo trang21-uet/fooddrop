@@ -1,9 +1,11 @@
 import { Controller, Get, ServiceUnavailableException } from '@nestjs/common';
+import { AllowAnonymous } from '@thallesp/nestjs-better-auth';
 import { ApiOkResponse, ApiServiceUnavailableResponse, ApiTags } from '@nestjs/swagger';
 import { HealthService } from './health.service.js';
 import { HealthResponseDto } from './health.schemas.js';
 
 @ApiTags('health')
+@AllowAnonymous()
 @Controller('health')
 export class HealthController {
   constructor(private readonly healthService: HealthService) {}

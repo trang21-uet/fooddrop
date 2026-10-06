@@ -1,0 +1,95 @@
+export interface SeedDimension {
+  slug: string;
+  label: string;
+  tags: Array<[slug: string, label: string]>;
+}
+
+export const SEED_TAG_DIMENSIONS: SeedDimension[] = [
+  {
+    slug: 'cuisine',
+    label: 'Ẩm thực',
+    tags: [
+      ['vietnamese', 'Món Việt'],
+      ['japanese', 'Món Nhật'],
+      ['korean', 'Món Hàn'],
+      ['chinese', 'Món Trung'],
+      ['thai', 'Món Thái'],
+      ['indian', 'Món Ấn'],
+      ['italian', 'Món Ý'],
+      ['french', 'Món Pháp'],
+      ['american', 'Món Mỹ'],
+      ['mexican', 'Món Mexico'],
+      ['mediterranean', 'Địa Trung Hải'],
+      ['middle-eastern', 'Trung Đông'],
+      ['southeast-asian', 'Đông Nam Á'],
+      ['fusion', 'Fusion'],
+    ],
+  },
+  {
+    slug: 'equipment',
+    label: 'Dụng cụ',
+    tags: [
+      ['air-fryer', 'Nồi chiên không dầu'],
+      ['pressure-cooker', 'Nồi áp suất'],
+      ['oven', 'Lò nướng'],
+      ['stovetop', 'Bếp'],
+      ['rice-cooker', 'Nồi cơm điện'],
+      ['slow-cooker', 'Nồi nấu chậm'],
+      ['microwave', 'Lò vi sóng'],
+      ['grill', 'Vỉ nướng'],
+      ['steamer', 'Nồi hấp'],
+      ['blender', 'Máy xay'],
+      ['one-pot', 'Một nồi'],
+      ['no-cook', 'Không cần nấu'],
+    ],
+  },
+  {
+    slug: 'meal_type',
+    label: 'Loại bữa',
+    tags: [
+      ['breakfast', 'Bữa sáng'],
+      ['lunch', 'Bữa trưa'],
+      ['dinner', 'Bữa tối'],
+      ['snack', 'Ăn vặt'],
+      ['dessert', 'Tráng miệng'],
+      ['soup', 'Canh / Súp'],
+      ['salad', 'Salad / Gỏi'],
+      ['side-dish', 'Món phụ'],
+      ['main-dish', 'Món chính'],
+      ['drink', 'Đồ uống'],
+      ['appetizer', 'Khai vị'],
+    ],
+  },
+  {
+    slug: 'technique',
+    label: 'Kỹ thuật',
+    tags: [
+      ['fermented', 'Lên men'],
+      ['stir-fry', 'Xào'],
+      ['deep-fry', 'Chiên ngập dầu'],
+      ['pan-fry', 'Chiên / Rán'],
+      ['braise', 'Kho'],
+      ['steam', 'Hấp'],
+      ['roast-bake', 'Nướng lò'],
+      ['grill-technique', 'Nướng than'],
+      ['boil', 'Luộc'],
+      ['simmer', 'Hầm / Ninh'],
+      ['pickle', 'Muối chua'],
+      ['raw', 'Làm sống'],
+    ],
+  },
+  {
+    slug: 'diet',
+    label: 'Chế độ ăn',
+    tags: [
+      ['vegetarian', 'Ăn chay'],
+      ['vegan', 'Thuần chay'],
+      ['gluten-free', 'Không gluten'],
+      ['dairy-free', 'Không sữa'],
+      ['low-carb', 'Ít carb'],
+      ['high-protein', 'Nhiều đạm'],
+      ['low-calorie', 'Ít calo'],
+      ['kid-friendly', 'Hợp cho bé'],
+    ],
+  },
+];

@@ -6,7 +6,8 @@ import type { Env } from './config/env.schema.js';
 import { createOpenApiDocument } from './openapi/create-openapi-document.js';
 
 async function bootstrap(): Promise<void> {
-  const app = await NestFactory.create(AppModule);
+  // Better Auth reads the raw request body, so Nest's parser is off; AuthModule re-adds it for other routes.
+  const app = await NestFactory.create(AppModule, { bodyParser: false });
   const config = app.get<ConfigService<Env, true>>(ConfigService);
 
   const corsOrigins = config
@@ -14,7 +15,8 @@ async function bootstrap(): Promise<void> {
     .split(',')
     .map((origin) => origin.trim())
     .filter(Boolean);
-  app.enableCors({ origin: corsOrigins });
+  // credentials: cookie sessions on web; set-auth-token: bearer token that browser clients read at sign-in.
+  app.enableCors({ origin: corsOrigins, credentials: true, exposedHeaders: ['set-auth-token'] });
   app.enableShutdownHooks();
   if (config.get('NODE_ENV', { infer: true }) !== 'production') {
     SwaggerModule.setup('docs', app, createOpenApiDocument(app));

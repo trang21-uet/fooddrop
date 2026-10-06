@@ -1,5 +1,6 @@
 import type { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule, type OpenAPIObject } from '@nestjs/swagger';
+import { attachZodSchemas } from '../common/zod-dto.js';
 
 /** Single source for the OpenAPI contract consumed by web and mobile clients. */
 export function createOpenApiDocument(app: INestApplication): OpenAPIObject {
@@ -8,5 +9,5 @@ export function createOpenApiDocument(app: INestApplication): OpenAPIObject {
     .setVersion('0.1.0')
     .addBearerAuth()
     .build();
-  return SwaggerModule.createDocument(app, config);
+  return attachZodSchemas(SwaggerModule.createDocument(app, config));
 }
