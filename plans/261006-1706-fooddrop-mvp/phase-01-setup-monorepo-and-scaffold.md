@@ -5,7 +5,7 @@
 
 ## Overview
 - **Priority:** P0
-- **Status:** In Progress (≈85%) — blocked on GitHub repo creation + first CI run
+- **Status:** Complete (2026-10-06)
 - Scaffold the three apps inside the existing folders, wire brand assets, local infra and CI.
 
 ## Key Insights
@@ -62,12 +62,12 @@ Independent apps in one git repo (no shared JS workspace yet; YAGNI). Contract b
 9. Update `docs/project-changelog.md` and roadmap.
 
 ## Todo List
-- [ ] git init + GitHub repo — ⚠️ PARTIAL: `git init` done (branch main), no commit yet; GitHub repo creation awaits user confirmation
+- [x] git init + GitHub repo (public: https://github.com/trang21-uet/fooddrop)
 - [x] Scaffold backend, health endpoint, env validation, Swagger
 - [x] Scaffold web, favicon/manifest wired
 - [x] Scaffold mobile with `com.trangnx.fooddrop`, launcher icons generated (debug APK builds)
 - [x] OpenAPI generation scripts in all three apps
-- [ ] CI workflow green — ⚠️ PARTIAL: workflow written in `.github/workflows/ci.yml`, cannot execute until pushed to GitHub
+- [x] CI workflow green (first run on main: all jobs passed)
 - [x] Docs updated
 
 ## Implementation Notes

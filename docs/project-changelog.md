@@ -7,7 +7,7 @@ All notable changes to Food Drop. Format based on [Keep a Changelog](https://kee
 ### Added
 - 2026-10-06: Repository structure (`fooddrop-web`, `fooddrop-mobile`, `fooddrop-backend`), docs, MVP plan, brand assets (logo, favicon, app icon source), `docker-compose.yml` for Postgres and Redis.
 - 2026-10-06: **Phase 01 — Setup monorepo and scaffold apps** (Complete)
-  - Git repository initialized (monorepo root, main branch)
+  - Git repository initialized and published at https://github.com/trang21-uet/fooddrop; CI green on first run
   - **Backend (NestJS 12 ESM, TypeScript 6 strict)**
     - Health check endpoint (`GET /health`) with Postgres and Redis dependency checks
     - Swagger UI at `/docs` (non-production only)

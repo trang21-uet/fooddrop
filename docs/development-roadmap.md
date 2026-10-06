@@ -4,7 +4,7 @@ Plan: [plans/261006-1706-fooddrop-mvp](../plans/261006-1706-fooddrop-mvp/plan.md
 
 | # | Phase | Status | Progress |
 |---|---|---|---|
-| 01 | Setup monorepo and scaffold apps | In Progress | 85% |
+| 01 | Setup monorepo and scaffold apps | Complete | 100% |
 | 02 | Database and core recipe API | Pending | 0% |
 | 03 | Web Recipe Hub | Pending | 0% |
 | 04 | Mobile Recipe Hub | Pending | 0% |

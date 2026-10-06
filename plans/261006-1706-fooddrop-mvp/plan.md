@@ -14,7 +14,7 @@ Architecture: [docs/system-architecture.md](../../docs/system-architecture.md) �
 
 | # | Phase | Depends on | Status |
 |---|---|---|---|
-| 01 | [Setup monorepo and scaffold apps](phase-01-setup-monorepo-and-scaffold.md) | — | In Progress (≈85%) |
+| 01 | [Setup monorepo and scaffold apps](phase-01-setup-monorepo-and-scaffold.md) | — | Complete |
 | 02 | [Database and core recipe API](phase-02-database-and-core-recipe-api.md) | 01 | Pending |
 | 03 | [Web Recipe Hub](phase-03-web-recipe-hub.md) | 02 | Pending |
 | 04 | [Mobile Recipe Hub](phase-04-mobile-recipe-hub.md) | 02 | Pending |
