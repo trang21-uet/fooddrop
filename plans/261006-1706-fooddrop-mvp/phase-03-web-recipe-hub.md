@@ -5,7 +5,7 @@
 
 ## Overview
 - **Priority:** P0
-- **Status:** Pending
+- **Status:** Complete (2026-10-06)
 - Auth screens, recipe list with multi-dimension tag filters, recipe detail, create/edit form, app shell with Food Drop branding.
 
 ## Key Insights
@@ -23,7 +23,7 @@
 
 ## Related Code Files
 - Create: routes above, `src/features/recipes/**`, `src/components/ui/**`, `src/lib/api/**` (generated), `src/lib/auth-client.ts`
-- Modify: `tailwind.config.ts`, `src/app/layout.tsx`
+- Modify: `src/app/globals.css` (Tailwind v4 has no `tailwind.config.ts`; tokens live in `@theme`), `src/app/layout.tsx`, `next.config.ts` (API proxy)
 
 ## Implementation Steps
 1. App shell: header with logo mark, nav (Recipes, Drop, Grocery, Timers), dark theme tokens.
@@ -34,12 +34,12 @@
 6. Tests: filter bar URL sync, form validation.
 
 ## Todo List
-- [ ] Shell + theme tokens
-- [ ] Auth pages
-- [ ] Recipe list + filters
-- [ ] Recipe detail
-- [ ] Create/edit form
-- [ ] Tests
+- [x] Shell + theme tokens
+- [x] Auth pages
+- [x] Recipe list + filters
+- [x] Recipe detail
+- [x] Create/edit form
+- [x] Tests
 
 ## Success Criteria
 - User can create a recipe, tag it, find it via filters and view it on desktop and phone width.
@@ -49,6 +49,14 @@
 
 ## Security Considerations
 - Auth cookie httpOnly; no tokens in localStorage; sanitize any rendered user HTML (render steps as plain text).
+
+## Implementation Notes
+- **Auth transport:** the browser never calls the API origin directly. `next.config.ts` rewrites `/backend/*` to `API_INTERNAL_URL`, so the Better Auth session cookie is first-party and httpOnly with no CORS. Server Components call the API directly and forward the cookie (`src/lib/api/server-api-client.ts`). `src/middleware.ts` only checks the cookie exists; the backend still validates every request.
+- **Routes:** `/` redirects to `/recipes`. Nav items Drop/Grocery/Timers are inert placeholders (hidden on phones) until Phases 06/07.
+- **Deferred to Phase 06:** servings control and timer buttons on the detail page. Steps with `timerSeconds` show the duration as text only.
+- **Ingredient picker** can add a missing ingredient to the shared catalog (`POST /ingredients`), since the seed catalog is limited.
+- **Tests:** Vitest (filters + URL sync, filter bar, form schema/validation, login form, 401 sign-out) and Playwright `recipe-hub.spec.ts` (full flow against the real backend; skips itself when the backend is unreachable, so CI without a backend stays green).
+- **Measured:** Lighthouse accessibility 100 (login), 96-100 (list, form, detail) on mobile emulation after fixing logo link name and heading order.
 
 ## Next Steps
 Phase 06 (utilities on detail page), Phase 07 (gacha UI).

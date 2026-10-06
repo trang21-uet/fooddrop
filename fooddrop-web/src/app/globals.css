@@ -1,13 +1,40 @@
 @import "tailwindcss";
 
 :root {
-  --background: #1a1a1f;
-  --foreground: #ededed;
+  color-scheme: dark;
+  --background: #120e0d;
+  --surface: #1c1614;
+  --surface-raised: #261e1b;
+  --border: #3a2d28;
+  --foreground: #f4ece8;
+  --muted: #a8998f;
+  --accent: #ff8a1f;
+  --accent-hot: #ff3b30;
+  --danger: #ff5d52;
+
+  /* Rarity tiers (white → red), shared by badges, card borders and glows. */
+  --rarity-white: #d9d4d0;
+  --rarity-blue: #4b9bff;
+  --rarity-purple: #a56bff;
+  --rarity-pink: #ff5fc4;
+  --rarity-red: #ff3b30;
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-border: var(--border);
   --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-hot: var(--accent-hot);
+  --color-danger: var(--danger);
+  --color-rarity-white: var(--rarity-white);
+  --color-rarity-blue: var(--rarity-blue);
+  --color-rarity-purple: var(--rarity-purple);
+  --color-rarity-pink: var(--rarity-pink);
+  --color-rarity-red: var(--rarity-red);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -16,4 +43,31 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+/* Neon glow utilities: orange/red accent, and a rarity-coloured variant fed by --glow. */
+@utility glow-accent {
+  box-shadow: 0 0 0 1px var(--accent), 0 0 18px -2px color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
+@utility glow-rarity {
+  box-shadow: 0 0 0 1px var(--glow), 0 0 16px -4px color-mix(in srgb, var(--glow) 70%, transparent);
+}
+
+@utility text-glow {
+  text-shadow: 0 0 14px color-mix(in srgb, var(--accent) 70%, transparent);
+}
+
+/* Tailwind v4 preflight no longer sets a pointer cursor on buttons. Disabled ones keep their own cursor utility. */
+@layer base {
+  a[href],
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }

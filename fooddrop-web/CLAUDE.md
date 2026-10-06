@@ -23,6 +23,8 @@ Run `lint`, `typecheck` and `test` after every change.
 
 - Routes in `src/app/`; feature code in `src/features/<feature>/` (components, hooks, store slice, helpers).
 - API types/clients are generated into `src/lib/api/`. Do not edit generated files and do not hand-write DTO types.
+- The browser calls the API via the `/backend` proxy (`next.config.ts`), never the API origin directly; Server Components use `getServerApiClient()` so the session cookie is forwarded.
+- UI copy is Vietnamese (`<html lang="vi">`), written inline in components; there is no i18n layer. Geist loads the `latin-ext` subset for Vietnamese diacritics. Server messages (better-auth, API) are English: map them to Vietnamese or fall back to a generic line (see `features/auth/auth-error-message.ts`).
 - Server Components by default. `'use client'` only for interactive pieces (gacha reel, timers, grocery checkboxes).
 
 ## State rules

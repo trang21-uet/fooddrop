@@ -78,6 +78,10 @@ Server picks the result first so it cannot be manipulated client-side and spins 
 ### Lazy case
 Uses Google Places nearby search (cached per ~1km grid cell) plus user-defined `lazy_options`. Delivery apps (GrabFood, ShopeeFood) are opened via deep links; no partner API integration.
 
+## Web to API transport
+
+The browser calls the API through a same-origin rewrite (`/backend/*` → `API_INTERNAL_URL`, see `fooddrop-web/next.config.ts`), so the Better Auth session cookie is httpOnly and first-party; no CORS or cross-site cookie settings are needed on web. Server Components call the API directly and forward the visitor's cookie. Mobile uses bearer tokens instead.
+
 ## Client state
 
 | Concern | Web | Mobile |

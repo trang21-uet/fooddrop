@@ -5,6 +5,16 @@ All notable changes to Food Drop. Format based on [Keep a Changelog](https://kee
 ## [Unreleased]
 
 ### Added
+- 2026-10-06: **Phase 03 — Web Recipe Hub** (Complete)
+  - **Shell and theme**: dark neon theme tokens (accent, five rarity colours, glow utilities) in `globals.css`; sticky header with logo and nav; responsive down to phone width
+  - **Auth**: `/login` (sign in / create account) with Better Auth client; session cookie stays httpOnly and first-party through the `/backend` proxy rewrite; middleware redirects signed-out visitors to `/login?next=...` (same-origin paths only); expired sessions (401) sign out and return to login
+  - **Recipe list** `/recipes`: tag chips grouped by dimension, rarity and max-time filters, debounced search; all filter state lives in the URL; infinite scroll over the keyset-paginated API
+  - **Recipe detail** `/recipes/[id]` (Server Component): ingredients, steps, tags, rarity badge, edit and delete; user text rendered as plain text
+  - **Create/edit form**: React Hook Form + Zod, ingredient autocomplete (debounced, diacritic-insensitive, can add a missing ingredient), unit suggestions, steps editor with optional timer and reordering, tag picker per dimension
+  - **Login redesign and Vietnamese UI**: two-panel login from the Web-Login design board (hero image `public/auth-hero.jpg` faded into the background, password show/hide, sign-in/sign-up toggle); all UI copy is Vietnamese with `lang="vi"` and Geist `latin-ext`; better-auth error codes are mapped to Vietnamese; global pointer cursor for links and buttons
+  - Regenerated `src/lib/api/schema.d.ts` from the Phase 02 OpenAPI; added `react-hook-form`, `zod`, `@hookform/resolvers`, `better-auth`, `server-only`
+  - Tests: 50 Vitest tests; Playwright full-flow spec (sign up, create, filter, edit, delete, sign out), skipped when the backend is unreachable
+  - Fixed during verification: sign-in silently did nothing because the hidden `name` field failed validation; form errors leaked into input accessible names; logo link had no name on phones; heading order on the list page
 - 2026-10-06: **Phase 02 — Database and core recipe API** (Complete)
   - **Schema (Drizzle, migrations in `src/database/migrations`)**: all 14 tables from `docs/database-schema.md` plus Better Auth tables (`sessions`, `accounts`, `verifications`); generated `rarity` column; `unaccent` extension for diacritic-insensitive search
   - **Seed (`pnpm db:seed`, idempotent)**: 5 tag dimensions, 57 tags, 230 ingredients with aliases (vi/en), aisle, default unit, density

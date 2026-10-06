@@ -12,7 +12,7 @@ Web client của Food Drop.
 ## Chạy local
 
 ```bash
-cp .env.example .env.local
+cp .env.example .env.local   # API_INTERNAL_URL (default http://localhost:4000)
 pnpm install
 pnpm api:generate   # sinh client từ ../fooddrop-backend/openapi.json
 pnpm dev
@@ -20,7 +20,7 @@ pnpm dev
 
 Mở http://localhost:3000.
 
-## Scripts (dự kiến sau Phase 01)
+## Scripts
 
 | Script | Mô tả |
 |---|---|
@@ -28,7 +28,7 @@ Mở http://localhost:3000.
 | `pnpm build` / `pnpm start` | Build và chạy production |
 | `pnpm api:generate` | Sinh API client TS từ OpenAPI |
 | `pnpm lint` / `pnpm typecheck` / `pnpm test` | Kiểm tra chất lượng |
-| `pnpm test:e2e` | Playwright |
+| `pnpm test:e2e` | Playwright (spec `recipe-hub` cần backend + DB đã seed, tự skip nếu không có) |
 
 ## Cấu trúc
 
