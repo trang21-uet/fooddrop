@@ -16,12 +16,17 @@ tags ─< weather_boosts
 ## Tables
 
 ```sql
+-- Owned by Better Auth (name -> display_name). sessions, accounts and verifications
+-- follow Better Auth's model with uuid ids; see src/database/schema/users.schema.ts.
 CREATE TABLE users (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   email text UNIQUE NOT NULL,
-  display_name text,
+  email_verified boolean NOT NULL DEFAULT false,
+  display_name text NOT NULL DEFAULT '',
+  image text,
   locale text NOT NULL DEFAULT 'vi',
-  created_at timestamptz NOT NULL DEFAULT now()
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
 );
 
 -- Canonical ingredients: drives grocery aggregation and ingredient tags
@@ -30,6 +35,7 @@ CREATE TABLE ingredients (
   name text NOT NULL UNIQUE,
   aliases text[] NOT NULL DEFAULT '{}',   -- "hành lá", "scallion", "green onion"
   aisle text NOT NULL,                     -- produce | meat | seafood | dairy | pantry | spices | frozen | other
+  default_unit text NOT NULL DEFAULT 'g',  -- g | ml | piece; unit used when summing across recipes
   density_g_per_ml numeric,                -- for ml <-> g conversion
   is_fermented boolean NOT NULL DEFAULT false
 );
@@ -52,10 +58,11 @@ CREATE TABLE recipes (
   steps jsonb NOT NULL,                    -- [{order, text, timerSeconds?, timerLabel?}]
   source_url text,
   raw_extract jsonb,                       -- original parser output for debugging / re-parse
-  created_at timestamptz NOT NULL DEFAULT now(),
-  updated_at timestamptz NOT NULL DEFAULT now()
+  created_at timestamptz(3) NOT NULL DEFAULT now(),   -- ms precision: keyset cursors round-trip through JS Dates
+  updated_at timestamptz(3) NOT NULL DEFAULT now()
 );
 CREATE INDEX recipes_owner_rarity_idx ON recipes (owner_id, rarity);
+CREATE INDEX recipes_owner_created_idx ON recipes (owner_id, created_at DESC, id DESC);
 
 CREATE TABLE recipe_ingredients (
   recipe_id uuid NOT NULL REFERENCES recipes ON DELETE CASCADE,
@@ -134,4 +141,9 @@ CREATE TABLE parse_jobs (
 - **Rarity is a generated column**, so thresholds change in one place. Move it to app code if it ever needs per-user tuning.
 - **Gacha weight:** `rarityWeight(rarity) × Π weather_boosts.weight_multiplier` for matching tags; draw server-side.
 - **Portion scaling** is `quantity × servings / base_servings`, computed client-side; round g/ml to 5, pieces to 0.5.
+- **Normalization:** the units module maps raw `{qty, unit}` to g/ml/piece and, using `density_g_per_ml` and `default_unit`, converts mass↔volume so one ingredient sums in one unit. Unknown units become `piece` with the original wording in `note`.
+- **Quantity parsing:** a comma followed by exactly three digits is a thousands separator ("1,000" = 1000); any other comma is a decimal ("1,5" = 1.5). A bare "oz" means fluid ounces for ingredients whose default unit is ml. An unknown unit stores quantity 0 in the ingredient's default unit with the original wording in `note`, so it never inflates aggregated totals.
+- **Indexes:** every `user_id` / `ingredient_id` foreign key that is queried or cascaded has an index (migration `0002_add-foreign-key-indexes`).
+- **Search:** diacritic-insensitive matching uses the `unaccent` extension (migration `0001_enable-unaccent`).
+- **Ingredients are a shared catalog:** user-added entries (`POST /ingredients`) are visible to everyone; there is no owner column.
 - **Seed data:** tag dimensions, common tags (Vietnamese, Japanese, Korean; air fryer, pressure cooker, oven; breakfast/lunch/dinner; fermented), ~200 common ingredients with aisle and density.

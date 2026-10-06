@@ -5,7 +5,7 @@
 
 ## Overview
 - **Priority:** P0
-- **Status:** Pending
+- **Status:** Complete
 - Drizzle schema + migrations + seed, auth, and CRUD for recipes, tags and ingredients.
 
 ## Key Insights
@@ -35,13 +35,13 @@ Modules: `auth`, `recipes`, `tags`, `ingredients`, `units`. `units` exposes a pu
 8. Regenerate `openapi.json`.
 
 ## Todo List
-- [ ] Drizzle schema + migrations
-- [ ] Seed data
-- [ ] Auth + guard
-- [ ] Units module + tests
-- [ ] Recipes CRUD + filters + tests
-- [ ] Tags & ingredients endpoints
-- [ ] OpenAPI regenerated
+- [x] Drizzle schema + migrations
+- [x] Seed data
+- [x] Auth + guard
+- [x] Units module + tests
+- [x] Recipes CRUD + filters + tests
+- [x] Tags & ingredients endpoints
+- [x] OpenAPI regenerated
 
 ## Success Criteria
 - E2E test: create recipe with 3 tags → filter by two dimensions returns it; other user cannot read it.
