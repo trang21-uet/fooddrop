@@ -19,6 +19,17 @@ export const envSchema = z.object({
   // Blank in .env.example means "Google sign-in disabled".
   GOOGLE_CLIENT_ID: emptyToUndefined,
   GOOGLE_CLIENT_SECRET: emptyToUndefined,
+  // AI recipe parser. Without a key the JSON-LD path still works; the LLM fallback reports "unavailable".
+  ANTHROPIC_API_KEY: emptyToUndefined,
+  PARSER_MODEL_TEXT: z.string().default('claude-haiku-4-5-20251001'),
+  PARSER_MODEL_VISION: z.string().default('claude-sonnet-5-5'),
+  PARSER_DAILY_QUOTA: z.coerce.number().int().positive().default(30),
+  // S3-compatible storage (R2, MinIO) for cookbook photos. Blank credentials disable uploads.
+  S3_ENDPOINT: emptyToUndefined,
+  S3_REGION: z.string().default('auto'),
+  S3_BUCKET: z.string().default('fooddrop-media'),
+  S3_ACCESS_KEY_ID: emptyToUndefined,
+  S3_SECRET_ACCESS_KEY: emptyToUndefined,
 });
 
 export type Env = z.infer<typeof envSchema>;

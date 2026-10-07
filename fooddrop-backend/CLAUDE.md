@@ -10,7 +10,8 @@ NestJS, TypeScript (strict), Drizzle ORM, PostgreSQL 17, Redis + BullMQ, Zod, `@
 
 ```bash
 pnpm start:dev        # API (watch)
-pnpm worker:dev       # BullMQ worker
+pnpm worker:dev       # BullMQ worker (recipe parsing); run beside `start:dev`
+pnpm parser:eval -- --token <bearer>   # live parser eval from eval/sources.json (not CI)
 pnpm lint
 pnpm typecheck
 pnpm test             # unit
@@ -32,7 +33,9 @@ Run `lint`, `typecheck` and `test` after every change.
 - **Gacha:** server decides the result using `crypto.randomInt`-based weighted draw. Response includes the full reel and `winningIndex`; clients only animate. Persist every spin in `gacha_spins`.
 - **Weight formula:** `rarityWeight × Π weatherBoost` for tags matching the current weather condition. Rarity weights live in one config constant.
 - **Parser:** try JSON-LD `schema.org/Recipe` first, then Readability + Claude. Claude returns raw `{qty, unit, name}` via a tool schema; the `units` module converts to `g | ml | piece`. Validate with Zod before saving. Never let the LLM do arithmetic.
-- **Parser fetches are SSRF-sensitive:** allow only http/https, block private/loopback IP ranges, cap size and timeout.
+- **Parser fetches are SSRF-sensitive:** allow only http/https, block private/loopback IP ranges, cap size and timeout. All outbound parser fetches go through `fetchPublicPage` (`modules/parser/url-fetcher.ts`); never call `fetch`/`http` on a user-supplied URL elsewhere.
+- **Parser cache:** extractor output is cached in Redis under a versioned key (`URL_CACHE_VERSION`); bump it whenever JSON-LD parsing or the extraction prompt changes.
+- **Uploads:** image keys are `parser/{userId}/…`; a job may only read keys under its owner's prefix. Upload cap is 5 MB (Claude's image limit).
 - **External APIs** (Open-Meteo, Places) are cached in Redis by rounded lat/lon grid cell.
 
 ## Security

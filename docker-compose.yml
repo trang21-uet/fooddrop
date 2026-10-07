@@ -1,4 +1,4 @@
-# Local dev infrastructure for Food Drop (Postgres + Redis)
+# Local dev infrastructure for Food Drop (Postgres + Redis + SeaweedFS as an S3 stand-in for R2)
 services:
   postgres:
     image: postgres:17-alpine
@@ -18,5 +18,34 @@ services:
     ports:
       - "6379:6379"
 
+  # S3-compatible storage for cookbook photos at http://localhost:9000 (key fooddrop / fooddrop_dev).
+  s3:
+    image: chrislusf/seaweedfs:latest
+    container_name: fooddrop-s3
+    command: server -dir=/data -s3 -s3.port=8333
+    environment:
+      AWS_ACCESS_KEY_ID: fooddrop
+      AWS_SECRET_ACCESS_KEY: fooddrop_dev
+    ports:
+      - "9000:8333"
+    volumes:
+      - fooddrop-s3:/data
+
+  # One-shot: creates the bucket and the browser CORS rule for direct PUT uploads, then exits.
+  s3-init:
+    image: amazon/aws-cli:latest
+    container_name: fooddrop-s3-init
+    depends_on:
+      - s3
+    environment:
+      AWS_ACCESS_KEY_ID: fooddrop
+      AWS_SECRET_ACCESS_KEY: fooddrop_dev
+      AWS_DEFAULT_REGION: auto
+    entrypoint: >
+      /bin/sh -c "until aws --endpoint-url http://s3:8333 s3api create-bucket --bucket fooddrop-media; do sleep 2; done;
+      aws --endpoint-url http://s3:8333 s3api put-bucket-cors --bucket fooddrop-media
+      --cors-configuration '{\"CORSRules\":[{\"AllowedOrigins\":[\"*\"],\"AllowedMethods\":[\"PUT\"],\"AllowedHeaders\":[\"*\"]}]}'"
+
 volumes:
   fooddrop-pg:
+  fooddrop-s3:

@@ -8,6 +8,8 @@ import { DRIZZLE, DatabaseModule, type Database } from './database/database.modu
 import { RedisModule } from './redis/redis.module.js';
 import { createAuth } from './modules/auth/create-auth.js';
 import { HealthModule } from './modules/health/health.module.js';
+import { MediaModule } from './modules/media/media.module.js';
+import { ParserModule } from './modules/parser/parser.module.js';
 import { IngredientsModule } from './modules/ingredients/ingredients.module.js';
 import { RecipesModule } from './modules/recipes/recipes.module.js';
 import { TagsModule } from './modules/tags/tags.module.js';
@@ -40,6 +42,8 @@ import { TagsModule } from './modules/tags/tags.module.js';
     IngredientsModule,
     TagsModule,
     RecipesModule,
+    MediaModule,
+    ParserModule,
   ],
   providers: [{ provide: APP_PIPE, useClass: ZodValidationPipe }],
 })

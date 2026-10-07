@@ -1,0 +1,4 @@
+[
+  { "type": "url", "source": "https://www.bbcgoodfood.com/recipes/easy-pancakes", "label": "en blog with JSON-LD" },
+  { "type": "image", "source": "eval/images/cookbook-page-01.jpg", "label": "photo: Vietnamese cookbook page" }
+]

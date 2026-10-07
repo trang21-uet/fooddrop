@@ -20,6 +20,15 @@ describe('validateEnv', () => {
     expect(env.GOOGLE_CLIENT_SECRET).toBeUndefined();
   });
 
+  it('treats blank parser and storage credentials as unset and defaults models', () => {
+    const env = validateEnv({ ...validEnv, ANTHROPIC_API_KEY: '', S3_ACCESS_KEY_ID: '', S3_ENDPOINT: '' });
+    expect(env.ANTHROPIC_API_KEY).toBeUndefined();
+    expect(env.S3_ACCESS_KEY_ID).toBeUndefined();
+    expect(env.S3_ENDPOINT).toBeUndefined();
+    expect(env.PARSER_MODEL_TEXT).toBe('claude-haiku-4-5-20251001');
+    expect(env.PARSER_DAILY_QUOTA).toBe(30);
+  });
+
   it('rejects a short AUTH_SECRET', () => {
     expect(() => validateEnv({ ...validEnv, AUTH_SECRET: 'short' })).toThrow(/AUTH_SECRET/);
   });
