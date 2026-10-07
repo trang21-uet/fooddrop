@@ -1,15 +1,18 @@
 "use client";
 
-import { Controller, useFieldArray, useFormContext } from "react-hook-form";
+import { useState } from "react";
+import { Controller, useFieldArray, useFormContext, useWatch } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { FormField, inputClass } from "@/components/ui/form-field";
+import { defaultUnitForRowUnit, ensureIngredient } from "./ensure-ingredient";
 import { IngredientAutocomplete } from "./ingredient-autocomplete";
 import type { RecipeFormValues } from "./recipe-form-schema";
 
 const UNIT_SUGGESTIONS = ["g", "kg", "ml", "l", "tsp", "tbsp", "cup", "clove", "slice"];
 const UNIT_LIST_ID = "ingredient-unit-suggestions";
 
-export function RecipeIngredientsField() {
+/** `offerBulkAdd` is for imported drafts, where several names arrive unresolved at once. */
+export function RecipeIngredientsField({ offerBulkAdd = false }: { offerBulkAdd?: boolean }) {
   const {
     register,
     control,
@@ -18,6 +21,28 @@ export function RecipeIngredientsField() {
     formState: { errors },
   } = useFormContext<RecipeFormValues>();
   const { fields, append, remove } = useFieldArray({ control, name: "ingredients" });
+  const [addingAll, setAddingAll] = useState(false);
+  const [addAllError, setAddAllError] = useState<string | null>(null);
+
+  // Rows with a name but no catalog pick: typically ingredients an import could not match.
+  const rows = useWatch({ control, name: "ingredients" });
+  const unresolved = rows.flatMap((row, index) => (!row.ingredientId && row.ingredientName.trim() ? [{ index, row }] : []));
+
+  const addAllToCatalog = async () => {
+    setAddingAll(true);
+    setAddAllError(null);
+    try {
+      for (const { index, row } of unresolved) {
+        const ingredient = await ensureIngredient(row.ingredientName.trim(), defaultUnitForRowUnit(row.unit));
+        setValue(`ingredients.${index}.ingredientId`, ingredient.id, { shouldDirty: true, shouldValidate: true });
+        setValue(`ingredients.${index}.ingredientName`, ingredient.name);
+      }
+    } catch {
+      setAddAllError("Không thêm được một số nguyên liệu. Hãy thử lại hoặc chọn từng dòng.");
+    } finally {
+      setAddingAll(false);
+    }
+  };
 
   return (
     <section aria-labelledby="ingredients-field-heading" className="flex flex-col gap-4">
@@ -91,6 +116,22 @@ export function RecipeIngredientsField() {
           );
         })}
       </ul>
+      {offerBulkAdd && unresolved.length > 0 && (
+        <div className="flex flex-col items-start gap-2 rounded-xl border border-accent/40 bg-accent/5 p-4 text-sm">
+          <p>
+            {unresolved.length} nguyên liệu chưa có trong danh mục:{" "}
+            <span className="font-medium">{unresolved.map(({ row }) => row.ingredientName.trim()).join(", ")}</span>
+          </p>
+          <Button variant="secondary" disabled={addingAll} onClick={() => void addAllToCatalog()}>
+            {addingAll ? "Đang thêm…" : `Thêm ${unresolved.length} nguyên liệu mới vào danh mục`}
+          </Button>
+          {addAllError && (
+            <span role="alert" className="text-xs text-danger">
+              {addAllError}
+            </span>
+          )}
+        </div>
+      )}
       <Button
         variant="secondary"
         className="self-start"

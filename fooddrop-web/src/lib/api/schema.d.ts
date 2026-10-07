@@ -84,6 +84,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/media/uploads": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["MediaController_createUpload"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/parser/jobs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ParserController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/parser/jobs/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ParserController_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -98,6 +146,64 @@ export interface components {
             /** @enum {string} */
             status: "ok" | "error";
             checks: components["schemas"]["HealthChecksDto"];
+        };
+        CreateUpload: {
+            /** @enum {string} */
+            contentType: "image/jpeg" | "image/png" | "image/webp";
+            sizeBytes: number;
+        };
+        UploadTarget: {
+            key: string;
+            /** Format: uri */
+            uploadUrl: string;
+            headers: {
+                [key: string]: string;
+            };
+            expiresInSeconds: number;
+        };
+        CreateParseJob: {
+            /** Format: uri */
+            url?: string;
+            imageKey?: string;
+        };
+        ParseJob: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            status: "queued" | "running" | "succeeded" | "failed";
+            /** @enum {string} */
+            sourceType: "url" | "image";
+            /** @enum {string|null} */
+            errorCode: "url_blocked" | "fetch_failed" | "not_a_recipe" | "image_unreadable" | "parser_unavailable" | "internal_error" | null;
+            result: {
+                /** @enum {string} */
+                source: "json-ld" | "llm-text" | "llm-vision";
+                title: string;
+                description: string | null;
+                imageUrl: string | null;
+                sourceUrl: string | null;
+                baseServings: number;
+                totalMinutes: number | null;
+                difficulty: number;
+                ingredients: {
+                    name: string;
+                    quantity: number;
+                    /** @enum {string} */
+                    unit: "g" | "ml" | "piece";
+                    note: string | null;
+                    matchedName: string | null;
+                    /** Format: uuid */
+                    ingredientId: string | null;
+                    isNew: boolean;
+                }[];
+                steps: {
+                    text: string;
+                    timerSeconds?: number;
+                }[];
+                suggestedTagIds: number[];
+            } | null;
+            /** Format: date-time */
+            createdAt: string;
         };
         Ingredient: {
             /** Format: uuid */
@@ -455,6 +561,73 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    MediaController_createUpload: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateUpload"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UploadTarget"];
+                };
+            };
+        };
+    };
+    ParserController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateParseJob"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParseJob"];
+                };
+            };
+        };
+    };
+    ParserController_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParseJob"];
+                };
             };
         };
     };

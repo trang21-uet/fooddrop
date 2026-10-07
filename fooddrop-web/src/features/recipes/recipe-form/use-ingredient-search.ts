@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { apiClient } from "@/lib/api/api-client";
 import { unwrap } from "@/lib/api/api-error";
+import type { Ingredient } from "../recipe-types";
 
 const DEBOUNCE_MS = 250;
 
@@ -24,6 +25,6 @@ export function useIngredientSearch(term: string) {
   });
 }
 
-export async function createIngredient(name: string) {
-  return unwrap(await apiClient.POST("/ingredients", { body: { name, aliases: [], aisle: "other", defaultUnit: "g", densityGPerMl: null } }));
+export async function createIngredient(name: string, defaultUnit: Ingredient["defaultUnit"] = "g") {
+  return unwrap(await apiClient.POST("/ingredients", { body: { name, aliases: [], aisle: "other", defaultUnit, densityGPerMl: null } }));
 }

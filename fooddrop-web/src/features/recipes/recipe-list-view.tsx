@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react";
 import { buttonClass } from "@/components/ui/button";
 import { CubeIcon } from "@/components/ui/icons";
 import { useSignOutOnUnauthorized } from "@/features/auth/use-sign-out-on-unauthorized";
+import { InDevelopmentBadge } from "../parser/in-development-badge";
 import { RecipeCard } from "./recipe-card";
 import { RecipeFilterBar } from "./recipe-filter-bar";
 import { EMPTY_FILTERS, hasActiveFilters } from "./recipe-filters";
@@ -46,15 +47,21 @@ export function RecipeListView() {
           <h1 className="text-4xl leading-none font-extrabold tracking-tighter sm:text-[44px]">Công thức</h1>
           <p className="text-base text-muted">{countLabel}</p>
         </div>
-        {/* Gacha page lands in a later phase; mirror the disabled nav item until then. */}
-        <span
-          aria-disabled="true"
-          title="Sắp ra mắt"
-          className={`${buttonClass("neon")} min-h-12 cursor-not-allowed opacity-60`}
-        >
-          <CubeIcon width={20} height={20} className="text-accent" />
-          Quay món
-        </span>
+        <div className="flex flex-wrap items-center gap-3">
+          <Link href="/recipes/import" className={`${buttonClass("secondary")} min-h-12`}>
+            Nhập từ liên kết / ảnh
+            <InDevelopmentBadge />
+          </Link>
+          {/* Gacha page lands in a later phase; mirror the disabled nav item until then. */}
+          <span
+            aria-disabled="true"
+            title="Sắp ra mắt"
+            className={`${buttonClass("neon")} min-h-12 cursor-not-allowed opacity-60`}
+          >
+            <CubeIcon width={20} height={20} className="text-accent" />
+            Quay món
+          </span>
+        </div>
       </div>
 
       <RecipeFilterBar filters={filters} onChange={setFilters} />
@@ -97,9 +104,15 @@ function EmptyState({ filtered, onClear }: { filtered: boolean; onClear: () => v
       <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border px-6 py-16 text-center">
         <p className="text-lg font-bold">Chưa có công thức nào</p>
         <p className="text-sm text-muted">Hãy thêm công thức đầu tiên!</p>
-        <Link href="/recipes/new" className={buttonClass("primary")}>
-          Thêm công thức
-        </Link>
+        <div className="flex flex-wrap justify-center gap-3">
+          <Link href="/recipes/new" className={buttonClass("primary")}>
+            Thêm công thức
+          </Link>
+          <Link href="/recipes/import" className={buttonClass("secondary")}>
+            Nhập từ liên kết / ảnh
+            <InDevelopmentBadge />
+          </Link>
+        </div>
       </div>
     );
   }

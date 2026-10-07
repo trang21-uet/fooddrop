@@ -16,12 +16,15 @@ import { RecipeStepsField } from "./recipe-steps-field";
 import { RecipeTagPicker } from "./recipe-tag-picker";
 
 interface RecipeFormProps {
+  heading?: string;
+  /** Imported drafts arrive with unmatched ingredients; offer to add them to the catalog in one click. */
+  offerBulkIngredientAdd?: boolean;
   /** Present when editing; the form PUTs to this recipe instead of creating a new one. */
   recipeId?: string;
   initialValues?: RecipeFormValues;
 }
 
-export function RecipeForm({ recipeId, initialValues = EMPTY_RECIPE_FORM }: RecipeFormProps) {
+export function RecipeForm({ heading, offerBulkIngredientAdd, recipeId, initialValues = EMPTY_RECIPE_FORM }: RecipeFormProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [serverError, setServerError] = useState<string | null>(null);
@@ -49,9 +52,9 @@ export function RecipeForm({ recipeId, initialValues = EMPTY_RECIPE_FORM }: Reci
   return (
     <FormProvider {...methods}>
       <form onSubmit={methods.handleSubmit(onSubmit)} noValidate className="flex max-w-3xl flex-col gap-8">
-        <h1 className="text-2xl font-bold tracking-tight">{recipeId ? "Sửa công thức" : "Thêm công thức"}</h1>
+        <h1 className="text-2xl font-bold tracking-tight">{heading ?? (recipeId ? "Sửa công thức" : "Thêm công thức")}</h1>
         <RecipeBasicsFields />
-        <RecipeIngredientsField />
+        <RecipeIngredientsField offerBulkAdd={offerBulkIngredientAdd} />
         <RecipeStepsField />
         <RecipeTagPicker />
         {serverError && (
