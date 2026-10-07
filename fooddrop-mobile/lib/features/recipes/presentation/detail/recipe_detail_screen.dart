@@ -10,6 +10,8 @@ import '../../data/recipe_providers.dart';
 import '../../domain/recipe.dart';
 import '../shared/recipe_artwork.dart';
 import 'recipe_detail_sections.dart';
+import 'recipe_ingredients_section.dart';
+import 'recipe_steps_section.dart';
 
 class RecipeDetailScreen extends ConsumerStatefulWidget {
   const RecipeDetailScreen({super.key, required this.recipeId});
@@ -85,7 +87,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                     RecipeSummarySection(recipe: recipe, tags: tags),
                     if (recipe.hasDetail) ...[
                       IngredientsSection(recipe: recipe),
-                      StepsSection(steps: recipe.steps!),
+                      StepsSection(recipeTitle: recipe.title, steps: recipe.steps!),
                     ] else
                       const _DetailPending(),
                   ],

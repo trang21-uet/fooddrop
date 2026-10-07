@@ -62,3 +62,11 @@ The API client is the generated path package `packages/fooddrop_api` (dart-dio);
 - In the listener compute `(offset / cardWidth).floor()`; when it changes, play the tick via `flutter_soloud` (preloaded) and fire `HapticFeedback.selectionClick()`.
 - Wrap the reel in a `RepaintBoundary`; avoid rebuilding cards per frame.
 - Reveal effect by rarity with Rive/Lottie. Original or licensed sounds only; no Valve assets.
+
+## Utilities (resizer, grocery, timers)
+
+- Pure logic with shared vectors in `../docs/fixtures/` (flutter test runs from this folder, so tests read `../docs/fixtures/*.json`): `recipes/domain/portion_scaling.dart`, `grocery/domain/grocery_aggregation.dart`, `timers/domain/timer_math.dart`.
+- Drift tables `grocery_selections`, `grocery_checks`, `timer_entries` (schema v2). `timer_entries.id` doubles as the OS notification id. The grocery list is the derived `groceryListProvider`; mutate only through `GroceryActions` / `TimerActions`.
+- `TimerActions` keeps the OS notification in step with every change; notification errors are logged and never lose a timer. `TimerNotificationScheduler` is the seam: tests override `timerNotificationSchedulerProvider` (see `test/support/fake_timer_scheduler.dart`), `nowMsProvider` and `tickerProvider`. Never let a test reach `LocalNotificationsTimerScheduler`.
+- The dock and foreground alert live in `TimerDockShell`, a go_router `ShellRoute` around the signed-in routes. A live `tickerProvider` never settles, so widget tests with timers override it with `Stream.value(now)` instead of using `pumpAndSettle` against the real ticker.
+- Android: `POST_NOTIFICATIONS`, `RECEIVE_BOOT_COMPLETED`, `SCHEDULE_EXACT_ALARM` plus the plugin receivers are in the manifest; `ic_stat_timer` is the notification icon (kept by `res/raw/keep.xml`). Without exact-alarm permission scheduling falls back to inexact and the Timers screen shows a banner. On this Windows setup `flutter build apk` fails in `image_picker_android` unless `kotlin.incremental=false` is set in `android/gradle.properties` (not committed).

@@ -5,7 +5,7 @@
 
 ## Overview
 - **Priority:** P1
-- **Status:** Pending
+- **Status:** Implemented; on-device notification check pending (see Success Criteria)
 - Client-heavy features; backend only supplies normalized data.
 
 ## Key Insights
@@ -43,17 +43,17 @@
 7. Timer UI: floating timer dock visible across screens.
 
 ## Todo List
-- [ ] Test vectors
-- [ ] Pure functions TS + Dart
-- [ ] Resizer UI (web, mobile)
-- [ ] Grocery (web, mobile)
-- [ ] Timers (web, mobile)
-- [ ] Notifications
-- [ ] Timer dock UI
+- [x] Test vectors (`docs/fixtures/{portion-scaling,grocery-aggregation,timer-math}-cases.json`)
+- [x] Pure functions TS + Dart (same vectors pass in both)
+- [x] Resizer UI (web, mobile)
+- [x] Grocery (web, mobile)
+- [x] Timers (web, mobile)
+- [x] Notifications (web: Notification API + synthesized chime + vibration; mobile: zoned local notification, exact-alarm fallback)
+- [x] Timer dock UI (web: fixed dock; mobile: go_router `ShellRoute` dock)
 
 ## Success Criteria
-- Same test vectors pass in both languages.
-- Mobile: start 3 timers, kill the app, notifications still fire at the right time; reopening shows correct remaining time.
+- [x] Same test vectors pass in both languages.
+- [ ] Mobile: start 3 timers, kill the app, notifications still fire at the right time; reopening shows correct remaining time. **Not verified on a device**: the Dart logic is unit-tested against a fake scheduler (restart restores timers from Drift and re-arms only the running ones) and the debug APK builds, but no emulator/phone run has confirmed the OS actually fires the notifications.
 
 ## Risk Assessment
 - Android exact alarms restrictions: fall back to inexact with a warning if permission denied.
@@ -61,6 +61,17 @@
 
 ## Security Considerations
 - No sensitive data; local storage only holds user's own recipe ids.
+
+## Implementation Notes (deviations from the plan text)
+- **Rounding:** g/ml round to 5 only from 5 upward; below 5 the step is 0.5 and a positive amount never becomes 0 (a halved 2 g pinch of salt stays 0.5 g, not 0). Pieces round to 0.5. A recipe shown at its own base servings is not rounded.
+- **Aggregation:** sums unrounded scaled quantities per (ingredient, unit) and rounds only the total. Units are never converted client-side, so one ingredient in two units is two lines. Items sort by name then unit with plain code-unit comparison so TS and Dart agree.
+- **Checked state** is keyed `ingredientId|unit` (not just ingredient id) for the same reason.
+- **"Clear checked"** became two actions, because the aggregate is derived and a line cannot be deleted on its own: "Bỏ chọn hết" (untick all) and "Xóa danh sách" (remove every recipe, confirmed).
+- **Web offline:** each grocery selection also keeps a snapshot of its recipe's ingredients in IndexedDB so the list renders without the network. There is no service worker, so the page shell itself still needs a connection to load.
+- **Mobile exact alarms:** the app declares `SCHEDULE_EXACT_ALARM` and does not auto-open settings; if the OS denies it, notifications use inexact mode and the Timers screen shows a banner with an "allow" button.
+- **Mobile share** uses `share_plus`; **web share** uses `navigator.share` with a clipboard fallback.
+- **Mobile dock** lives in a `ShellRoute` around the signed-in screens and sits bottom-left so it clears the add-recipe button.
+- Web signs out → wipes IndexedDB; mobile `AppDatabase.wipe()` already clears the new tables.
 
 ## Next Steps
 Phase 07.

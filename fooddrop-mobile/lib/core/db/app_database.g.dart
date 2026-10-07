@@ -2226,6 +2226,754 @@ class OutboxCompanion extends UpdateCompanion<OutboxRow> {
   }
 }
 
+class $GrocerySelectionsTable extends GrocerySelections
+    with TableInfo<$GrocerySelectionsTable, GrocerySelectionRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $GrocerySelectionsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _recipeIdMeta = const VerificationMeta(
+    'recipeId',
+  );
+  @override
+  late final GeneratedColumn<String> recipeId = GeneratedColumn<String>(
+    'recipe_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _servingsMeta = const VerificationMeta(
+    'servings',
+  );
+  @override
+  late final GeneratedColumn<int> servings = GeneratedColumn<int>(
+    'servings',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [recipeId, servings];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'grocery_selections';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<GrocerySelectionRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('recipe_id')) {
+      context.handle(
+        _recipeIdMeta,
+        recipeId.isAcceptableOrUnknown(data['recipe_id']!, _recipeIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_recipeIdMeta);
+    }
+    if (data.containsKey('servings')) {
+      context.handle(
+        _servingsMeta,
+        servings.isAcceptableOrUnknown(data['servings']!, _servingsMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_servingsMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {recipeId};
+  @override
+  GrocerySelectionRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return GrocerySelectionRow(
+      recipeId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}recipe_id'],
+      )!,
+      servings: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}servings'],
+      )!,
+    );
+  }
+
+  @override
+  $GrocerySelectionsTable createAlias(String alias) {
+    return $GrocerySelectionsTable(attachedDatabase, alias);
+  }
+}
+
+class GrocerySelectionRow extends DataClass
+    implements Insertable<GrocerySelectionRow> {
+  final String recipeId;
+  final int servings;
+  const GrocerySelectionRow({required this.recipeId, required this.servings});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['recipe_id'] = Variable<String>(recipeId);
+    map['servings'] = Variable<int>(servings);
+    return map;
+  }
+
+  GrocerySelectionsCompanion toCompanion(bool nullToAbsent) {
+    return GrocerySelectionsCompanion(
+      recipeId: Value(recipeId),
+      servings: Value(servings),
+    );
+  }
+
+  factory GrocerySelectionRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return GrocerySelectionRow(
+      recipeId: serializer.fromJson<String>(json['recipeId']),
+      servings: serializer.fromJson<int>(json['servings']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'recipeId': serializer.toJson<String>(recipeId),
+      'servings': serializer.toJson<int>(servings),
+    };
+  }
+
+  GrocerySelectionRow copyWith({String? recipeId, int? servings}) =>
+      GrocerySelectionRow(
+        recipeId: recipeId ?? this.recipeId,
+        servings: servings ?? this.servings,
+      );
+  GrocerySelectionRow copyWithCompanion(GrocerySelectionsCompanion data) {
+    return GrocerySelectionRow(
+      recipeId: data.recipeId.present ? data.recipeId.value : this.recipeId,
+      servings: data.servings.present ? data.servings.value : this.servings,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GrocerySelectionRow(')
+          ..write('recipeId: $recipeId, ')
+          ..write('servings: $servings')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(recipeId, servings);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is GrocerySelectionRow &&
+          other.recipeId == this.recipeId &&
+          other.servings == this.servings);
+}
+
+class GrocerySelectionsCompanion extends UpdateCompanion<GrocerySelectionRow> {
+  final Value<String> recipeId;
+  final Value<int> servings;
+  final Value<int> rowid;
+  const GrocerySelectionsCompanion({
+    this.recipeId = const Value.absent(),
+    this.servings = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  GrocerySelectionsCompanion.insert({
+    required String recipeId,
+    required int servings,
+    this.rowid = const Value.absent(),
+  }) : recipeId = Value(recipeId),
+       servings = Value(servings);
+  static Insertable<GrocerySelectionRow> custom({
+    Expression<String>? recipeId,
+    Expression<int>? servings,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (recipeId != null) 'recipe_id': recipeId,
+      if (servings != null) 'servings': servings,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  GrocerySelectionsCompanion copyWith({
+    Value<String>? recipeId,
+    Value<int>? servings,
+    Value<int>? rowid,
+  }) {
+    return GrocerySelectionsCompanion(
+      recipeId: recipeId ?? this.recipeId,
+      servings: servings ?? this.servings,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (recipeId.present) {
+      map['recipe_id'] = Variable<String>(recipeId.value);
+    }
+    if (servings.present) {
+      map['servings'] = Variable<int>(servings.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GrocerySelectionsCompanion(')
+          ..write('recipeId: $recipeId, ')
+          ..write('servings: $servings, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $GroceryChecksTable extends GroceryChecks
+    with TableInfo<$GroceryChecksTable, GroceryCheckRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $GroceryChecksTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _itemKeyMeta = const VerificationMeta(
+    'itemKey',
+  );
+  @override
+  late final GeneratedColumn<String> itemKey = GeneratedColumn<String>(
+    'item_key',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [itemKey];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'grocery_checks';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<GroceryCheckRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('item_key')) {
+      context.handle(
+        _itemKeyMeta,
+        itemKey.isAcceptableOrUnknown(data['item_key']!, _itemKeyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_itemKeyMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {itemKey};
+  @override
+  GroceryCheckRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return GroceryCheckRow(
+      itemKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}item_key'],
+      )!,
+    );
+  }
+
+  @override
+  $GroceryChecksTable createAlias(String alias) {
+    return $GroceryChecksTable(attachedDatabase, alias);
+  }
+}
+
+class GroceryCheckRow extends DataClass implements Insertable<GroceryCheckRow> {
+  final String itemKey;
+  const GroceryCheckRow({required this.itemKey});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['item_key'] = Variable<String>(itemKey);
+    return map;
+  }
+
+  GroceryChecksCompanion toCompanion(bool nullToAbsent) {
+    return GroceryChecksCompanion(itemKey: Value(itemKey));
+  }
+
+  factory GroceryCheckRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return GroceryCheckRow(
+      itemKey: serializer.fromJson<String>(json['itemKey']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{'itemKey': serializer.toJson<String>(itemKey)};
+  }
+
+  GroceryCheckRow copyWith({String? itemKey}) =>
+      GroceryCheckRow(itemKey: itemKey ?? this.itemKey);
+  GroceryCheckRow copyWithCompanion(GroceryChecksCompanion data) {
+    return GroceryCheckRow(
+      itemKey: data.itemKey.present ? data.itemKey.value : this.itemKey,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GroceryCheckRow(')
+          ..write('itemKey: $itemKey')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => itemKey.hashCode;
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is GroceryCheckRow && other.itemKey == this.itemKey);
+}
+
+class GroceryChecksCompanion extends UpdateCompanion<GroceryCheckRow> {
+  final Value<String> itemKey;
+  final Value<int> rowid;
+  const GroceryChecksCompanion({
+    this.itemKey = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  GroceryChecksCompanion.insert({
+    required String itemKey,
+    this.rowid = const Value.absent(),
+  }) : itemKey = Value(itemKey);
+  static Insertable<GroceryCheckRow> custom({
+    Expression<String>? itemKey,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (itemKey != null) 'item_key': itemKey,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  GroceryChecksCompanion copyWith({Value<String>? itemKey, Value<int>? rowid}) {
+    return GroceryChecksCompanion(
+      itemKey: itemKey ?? this.itemKey,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (itemKey.present) {
+      map['item_key'] = Variable<String>(itemKey.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GroceryChecksCompanion(')
+          ..write('itemKey: $itemKey, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $TimerEntriesTable extends TimerEntries
+    with TableInfo<$TimerEntriesTable, TimerRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TimerEntriesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _labelMeta = const VerificationMeta('label');
+  @override
+  late final GeneratedColumn<String> label = GeneratedColumn<String>(
+    'label',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _endsAtMsMeta = const VerificationMeta(
+    'endsAtMs',
+  );
+  @override
+  late final GeneratedColumn<int> endsAtMs = GeneratedColumn<int>(
+    'ends_at_ms',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _pausedRemainingMsMeta = const VerificationMeta(
+    'pausedRemainingMs',
+  );
+  @override
+  late final GeneratedColumn<int> pausedRemainingMs = GeneratedColumn<int>(
+    'paused_remaining_ms',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _alertedAtMsMeta = const VerificationMeta(
+    'alertedAtMs',
+  );
+  @override
+  late final GeneratedColumn<int> alertedAtMs = GeneratedColumn<int>(
+    'alerted_at_ms',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    label,
+    endsAtMs,
+    pausedRemainingMs,
+    alertedAtMs,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'timer_entries';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<TimerRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('label')) {
+      context.handle(
+        _labelMeta,
+        label.isAcceptableOrUnknown(data['label']!, _labelMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_labelMeta);
+    }
+    if (data.containsKey('ends_at_ms')) {
+      context.handle(
+        _endsAtMsMeta,
+        endsAtMs.isAcceptableOrUnknown(data['ends_at_ms']!, _endsAtMsMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_endsAtMsMeta);
+    }
+    if (data.containsKey('paused_remaining_ms')) {
+      context.handle(
+        _pausedRemainingMsMeta,
+        pausedRemainingMs.isAcceptableOrUnknown(
+          data['paused_remaining_ms']!,
+          _pausedRemainingMsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('alerted_at_ms')) {
+      context.handle(
+        _alertedAtMsMeta,
+        alertedAtMs.isAcceptableOrUnknown(
+          data['alerted_at_ms']!,
+          _alertedAtMsMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  TimerRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TimerRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      label: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}label'],
+      )!,
+      endsAtMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}ends_at_ms'],
+      )!,
+      pausedRemainingMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}paused_remaining_ms'],
+      ),
+      alertedAtMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}alerted_at_ms'],
+      ),
+    );
+  }
+
+  @override
+  $TimerEntriesTable createAlias(String alias) {
+    return $TimerEntriesTable(attachedDatabase, alias);
+  }
+}
+
+class TimerRow extends DataClass implements Insertable<TimerRow> {
+  final int id;
+  final String label;
+  final int endsAtMs;
+  final int? pausedRemainingMs;
+  final int? alertedAtMs;
+  const TimerRow({
+    required this.id,
+    required this.label,
+    required this.endsAtMs,
+    this.pausedRemainingMs,
+    this.alertedAtMs,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['label'] = Variable<String>(label);
+    map['ends_at_ms'] = Variable<int>(endsAtMs);
+    if (!nullToAbsent || pausedRemainingMs != null) {
+      map['paused_remaining_ms'] = Variable<int>(pausedRemainingMs);
+    }
+    if (!nullToAbsent || alertedAtMs != null) {
+      map['alerted_at_ms'] = Variable<int>(alertedAtMs);
+    }
+    return map;
+  }
+
+  TimerEntriesCompanion toCompanion(bool nullToAbsent) {
+    return TimerEntriesCompanion(
+      id: Value(id),
+      label: Value(label),
+      endsAtMs: Value(endsAtMs),
+      pausedRemainingMs: pausedRemainingMs == null && nullToAbsent
+          ? const Value.absent()
+          : Value(pausedRemainingMs),
+      alertedAtMs: alertedAtMs == null && nullToAbsent
+          ? const Value.absent()
+          : Value(alertedAtMs),
+    );
+  }
+
+  factory TimerRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TimerRow(
+      id: serializer.fromJson<int>(json['id']),
+      label: serializer.fromJson<String>(json['label']),
+      endsAtMs: serializer.fromJson<int>(json['endsAtMs']),
+      pausedRemainingMs: serializer.fromJson<int?>(json['pausedRemainingMs']),
+      alertedAtMs: serializer.fromJson<int?>(json['alertedAtMs']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'label': serializer.toJson<String>(label),
+      'endsAtMs': serializer.toJson<int>(endsAtMs),
+      'pausedRemainingMs': serializer.toJson<int?>(pausedRemainingMs),
+      'alertedAtMs': serializer.toJson<int?>(alertedAtMs),
+    };
+  }
+
+  TimerRow copyWith({
+    int? id,
+    String? label,
+    int? endsAtMs,
+    Value<int?> pausedRemainingMs = const Value.absent(),
+    Value<int?> alertedAtMs = const Value.absent(),
+  }) => TimerRow(
+    id: id ?? this.id,
+    label: label ?? this.label,
+    endsAtMs: endsAtMs ?? this.endsAtMs,
+    pausedRemainingMs: pausedRemainingMs.present
+        ? pausedRemainingMs.value
+        : this.pausedRemainingMs,
+    alertedAtMs: alertedAtMs.present ? alertedAtMs.value : this.alertedAtMs,
+  );
+  TimerRow copyWithCompanion(TimerEntriesCompanion data) {
+    return TimerRow(
+      id: data.id.present ? data.id.value : this.id,
+      label: data.label.present ? data.label.value : this.label,
+      endsAtMs: data.endsAtMs.present ? data.endsAtMs.value : this.endsAtMs,
+      pausedRemainingMs: data.pausedRemainingMs.present
+          ? data.pausedRemainingMs.value
+          : this.pausedRemainingMs,
+      alertedAtMs: data.alertedAtMs.present
+          ? data.alertedAtMs.value
+          : this.alertedAtMs,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TimerRow(')
+          ..write('id: $id, ')
+          ..write('label: $label, ')
+          ..write('endsAtMs: $endsAtMs, ')
+          ..write('pausedRemainingMs: $pausedRemainingMs, ')
+          ..write('alertedAtMs: $alertedAtMs')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, label, endsAtMs, pausedRemainingMs, alertedAtMs);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TimerRow &&
+          other.id == this.id &&
+          other.label == this.label &&
+          other.endsAtMs == this.endsAtMs &&
+          other.pausedRemainingMs == this.pausedRemainingMs &&
+          other.alertedAtMs == this.alertedAtMs);
+}
+
+class TimerEntriesCompanion extends UpdateCompanion<TimerRow> {
+  final Value<int> id;
+  final Value<String> label;
+  final Value<int> endsAtMs;
+  final Value<int?> pausedRemainingMs;
+  final Value<int?> alertedAtMs;
+  const TimerEntriesCompanion({
+    this.id = const Value.absent(),
+    this.label = const Value.absent(),
+    this.endsAtMs = const Value.absent(),
+    this.pausedRemainingMs = const Value.absent(),
+    this.alertedAtMs = const Value.absent(),
+  });
+  TimerEntriesCompanion.insert({
+    this.id = const Value.absent(),
+    required String label,
+    required int endsAtMs,
+    this.pausedRemainingMs = const Value.absent(),
+    this.alertedAtMs = const Value.absent(),
+  }) : label = Value(label),
+       endsAtMs = Value(endsAtMs);
+  static Insertable<TimerRow> custom({
+    Expression<int>? id,
+    Expression<String>? label,
+    Expression<int>? endsAtMs,
+    Expression<int>? pausedRemainingMs,
+    Expression<int>? alertedAtMs,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (label != null) 'label': label,
+      if (endsAtMs != null) 'ends_at_ms': endsAtMs,
+      if (pausedRemainingMs != null) 'paused_remaining_ms': pausedRemainingMs,
+      if (alertedAtMs != null) 'alerted_at_ms': alertedAtMs,
+    });
+  }
+
+  TimerEntriesCompanion copyWith({
+    Value<int>? id,
+    Value<String>? label,
+    Value<int>? endsAtMs,
+    Value<int?>? pausedRemainingMs,
+    Value<int?>? alertedAtMs,
+  }) {
+    return TimerEntriesCompanion(
+      id: id ?? this.id,
+      label: label ?? this.label,
+      endsAtMs: endsAtMs ?? this.endsAtMs,
+      pausedRemainingMs: pausedRemainingMs ?? this.pausedRemainingMs,
+      alertedAtMs: alertedAtMs ?? this.alertedAtMs,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (label.present) {
+      map['label'] = Variable<String>(label.value);
+    }
+    if (endsAtMs.present) {
+      map['ends_at_ms'] = Variable<int>(endsAtMs.value);
+    }
+    if (pausedRemainingMs.present) {
+      map['paused_remaining_ms'] = Variable<int>(pausedRemainingMs.value);
+    }
+    if (alertedAtMs.present) {
+      map['alerted_at_ms'] = Variable<int>(alertedAtMs.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TimerEntriesCompanion(')
+          ..write('id: $id, ')
+          ..write('label: $label, ')
+          ..write('endsAtMs: $endsAtMs, ')
+          ..write('pausedRemainingMs: $pausedRemainingMs, ')
+          ..write('alertedAtMs: $alertedAtMs')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -2235,6 +2983,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $RecipeTagsTable recipeTags = $RecipeTagsTable(this);
   late final $TagsTable tags = $TagsTable(this);
   late final $OutboxTable outbox = $OutboxTable(this);
+  late final $GrocerySelectionsTable grocerySelections =
+      $GrocerySelectionsTable(this);
+  late final $GroceryChecksTable groceryChecks = $GroceryChecksTable(this);
+  late final $TimerEntriesTable timerEntries = $TimerEntriesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2245,6 +2997,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     recipeTags,
     tags,
     outbox,
+    grocerySelections,
+    groceryChecks,
+    timerEntries,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -3884,6 +4639,502 @@ typedef $$OutboxTableProcessedTableManager =
       OutboxRow,
       PrefetchHooks Function()
     >;
+typedef $$GrocerySelectionsTableCreateCompanionBuilder =
+    GrocerySelectionsCompanion Function({
+      required String recipeId,
+      required int servings,
+      Value<int> rowid,
+    });
+typedef $$GrocerySelectionsTableUpdateCompanionBuilder =
+    GrocerySelectionsCompanion Function({
+      Value<String> recipeId,
+      Value<int> servings,
+      Value<int> rowid,
+    });
+
+class $$GrocerySelectionsTableFilterComposer
+    extends Composer<_$AppDatabase, $GrocerySelectionsTable> {
+  $$GrocerySelectionsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get recipeId => $composableBuilder(
+    column: $table.recipeId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get servings => $composableBuilder(
+    column: $table.servings,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$GrocerySelectionsTableOrderingComposer
+    extends Composer<_$AppDatabase, $GrocerySelectionsTable> {
+  $$GrocerySelectionsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get recipeId => $composableBuilder(
+    column: $table.recipeId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get servings => $composableBuilder(
+    column: $table.servings,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$GrocerySelectionsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $GrocerySelectionsTable> {
+  $$GrocerySelectionsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get recipeId =>
+      $composableBuilder(column: $table.recipeId, builder: (column) => column);
+
+  GeneratedColumn<int> get servings =>
+      $composableBuilder(column: $table.servings, builder: (column) => column);
+}
+
+class $$GrocerySelectionsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $GrocerySelectionsTable,
+          GrocerySelectionRow,
+          $$GrocerySelectionsTableFilterComposer,
+          $$GrocerySelectionsTableOrderingComposer,
+          $$GrocerySelectionsTableAnnotationComposer,
+          $$GrocerySelectionsTableCreateCompanionBuilder,
+          $$GrocerySelectionsTableUpdateCompanionBuilder,
+          (
+            GrocerySelectionRow,
+            BaseReferences<
+              _$AppDatabase,
+              $GrocerySelectionsTable,
+              GrocerySelectionRow
+            >,
+          ),
+          GrocerySelectionRow,
+          PrefetchHooks Function()
+        > {
+  $$GrocerySelectionsTableTableManager(
+    _$AppDatabase db,
+    $GrocerySelectionsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$GrocerySelectionsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$GrocerySelectionsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$GrocerySelectionsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> recipeId = const Value.absent(),
+                Value<int> servings = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => GrocerySelectionsCompanion(
+                recipeId: recipeId,
+                servings: servings,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String recipeId,
+                required int servings,
+                Value<int> rowid = const Value.absent(),
+              }) => GrocerySelectionsCompanion.insert(
+                recipeId: recipeId,
+                servings: servings,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$GrocerySelectionsTable, GrocerySelectionRow>(
+                    table,
+                  ),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $GrocerySelectionsTable,
+                    GrocerySelectionRow
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$GrocerySelectionsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $GrocerySelectionsTable,
+      GrocerySelectionRow,
+      $$GrocerySelectionsTableFilterComposer,
+      $$GrocerySelectionsTableOrderingComposer,
+      $$GrocerySelectionsTableAnnotationComposer,
+      $$GrocerySelectionsTableCreateCompanionBuilder,
+      $$GrocerySelectionsTableUpdateCompanionBuilder,
+      (
+        GrocerySelectionRow,
+        BaseReferences<
+          _$AppDatabase,
+          $GrocerySelectionsTable,
+          GrocerySelectionRow
+        >,
+      ),
+      GrocerySelectionRow,
+      PrefetchHooks Function()
+    >;
+typedef $$GroceryChecksTableCreateCompanionBuilder =
+    GroceryChecksCompanion Function({
+      required String itemKey,
+      Value<int> rowid,
+    });
+typedef $$GroceryChecksTableUpdateCompanionBuilder =
+    GroceryChecksCompanion Function({Value<String> itemKey, Value<int> rowid});
+
+class $$GroceryChecksTableFilterComposer
+    extends Composer<_$AppDatabase, $GroceryChecksTable> {
+  $$GroceryChecksTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get itemKey => $composableBuilder(
+    column: $table.itemKey,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$GroceryChecksTableOrderingComposer
+    extends Composer<_$AppDatabase, $GroceryChecksTable> {
+  $$GroceryChecksTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get itemKey => $composableBuilder(
+    column: $table.itemKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$GroceryChecksTableAnnotationComposer
+    extends Composer<_$AppDatabase, $GroceryChecksTable> {
+  $$GroceryChecksTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get itemKey =>
+      $composableBuilder(column: $table.itemKey, builder: (column) => column);
+}
+
+class $$GroceryChecksTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $GroceryChecksTable,
+          GroceryCheckRow,
+          $$GroceryChecksTableFilterComposer,
+          $$GroceryChecksTableOrderingComposer,
+          $$GroceryChecksTableAnnotationComposer,
+          $$GroceryChecksTableCreateCompanionBuilder,
+          $$GroceryChecksTableUpdateCompanionBuilder,
+          (
+            GroceryCheckRow,
+            BaseReferences<_$AppDatabase, $GroceryChecksTable, GroceryCheckRow>,
+          ),
+          GroceryCheckRow,
+          PrefetchHooks Function()
+        > {
+  $$GroceryChecksTableTableManager(_$AppDatabase db, $GroceryChecksTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$GroceryChecksTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$GroceryChecksTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$GroceryChecksTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> itemKey = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => GroceryChecksCompanion(itemKey: itemKey, rowid: rowid),
+          createCompanionCallback:
+              ({
+                required String itemKey,
+                Value<int> rowid = const Value.absent(),
+              }) =>
+                  GroceryChecksCompanion.insert(itemKey: itemKey, rowid: rowid),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$GroceryChecksTable, GroceryCheckRow>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $GroceryChecksTable,
+                    GroceryCheckRow
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$GroceryChecksTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $GroceryChecksTable,
+      GroceryCheckRow,
+      $$GroceryChecksTableFilterComposer,
+      $$GroceryChecksTableOrderingComposer,
+      $$GroceryChecksTableAnnotationComposer,
+      $$GroceryChecksTableCreateCompanionBuilder,
+      $$GroceryChecksTableUpdateCompanionBuilder,
+      (
+        GroceryCheckRow,
+        BaseReferences<_$AppDatabase, $GroceryChecksTable, GroceryCheckRow>,
+      ),
+      GroceryCheckRow,
+      PrefetchHooks Function()
+    >;
+typedef $$TimerEntriesTableCreateCompanionBuilder =
+    TimerEntriesCompanion Function({
+      Value<int> id,
+      required String label,
+      required int endsAtMs,
+      Value<int?> pausedRemainingMs,
+      Value<int?> alertedAtMs,
+    });
+typedef $$TimerEntriesTableUpdateCompanionBuilder =
+    TimerEntriesCompanion Function({
+      Value<int> id,
+      Value<String> label,
+      Value<int> endsAtMs,
+      Value<int?> pausedRemainingMs,
+      Value<int?> alertedAtMs,
+    });
+
+class $$TimerEntriesTableFilterComposer
+    extends Composer<_$AppDatabase, $TimerEntriesTable> {
+  $$TimerEntriesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get label => $composableBuilder(
+    column: $table.label,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get endsAtMs => $composableBuilder(
+    column: $table.endsAtMs,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get pausedRemainingMs => $composableBuilder(
+    column: $table.pausedRemainingMs,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get alertedAtMs => $composableBuilder(
+    column: $table.alertedAtMs,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$TimerEntriesTableOrderingComposer
+    extends Composer<_$AppDatabase, $TimerEntriesTable> {
+  $$TimerEntriesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get label => $composableBuilder(
+    column: $table.label,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get endsAtMs => $composableBuilder(
+    column: $table.endsAtMs,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get pausedRemainingMs => $composableBuilder(
+    column: $table.pausedRemainingMs,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get alertedAtMs => $composableBuilder(
+    column: $table.alertedAtMs,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$TimerEntriesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $TimerEntriesTable> {
+  $$TimerEntriesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get label =>
+      $composableBuilder(column: $table.label, builder: (column) => column);
+
+  GeneratedColumn<int> get endsAtMs =>
+      $composableBuilder(column: $table.endsAtMs, builder: (column) => column);
+
+  GeneratedColumn<int> get pausedRemainingMs => $composableBuilder(
+    column: $table.pausedRemainingMs,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get alertedAtMs => $composableBuilder(
+    column: $table.alertedAtMs,
+    builder: (column) => column,
+  );
+}
+
+class $$TimerEntriesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $TimerEntriesTable,
+          TimerRow,
+          $$TimerEntriesTableFilterComposer,
+          $$TimerEntriesTableOrderingComposer,
+          $$TimerEntriesTableAnnotationComposer,
+          $$TimerEntriesTableCreateCompanionBuilder,
+          $$TimerEntriesTableUpdateCompanionBuilder,
+          (
+            TimerRow,
+            BaseReferences<_$AppDatabase, $TimerEntriesTable, TimerRow>,
+          ),
+          TimerRow,
+          PrefetchHooks Function()
+        > {
+  $$TimerEntriesTableTableManager(_$AppDatabase db, $TimerEntriesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TimerEntriesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TimerEntriesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TimerEntriesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> label = const Value.absent(),
+                Value<int> endsAtMs = const Value.absent(),
+                Value<int?> pausedRemainingMs = const Value.absent(),
+                Value<int?> alertedAtMs = const Value.absent(),
+              }) => TimerEntriesCompanion(
+                id: id,
+                label: label,
+                endsAtMs: endsAtMs,
+                pausedRemainingMs: pausedRemainingMs,
+                alertedAtMs: alertedAtMs,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String label,
+                required int endsAtMs,
+                Value<int?> pausedRemainingMs = const Value.absent(),
+                Value<int?> alertedAtMs = const Value.absent(),
+              }) => TimerEntriesCompanion.insert(
+                id: id,
+                label: label,
+                endsAtMs: endsAtMs,
+                pausedRemainingMs: pausedRemainingMs,
+                alertedAtMs: alertedAtMs,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$TimerEntriesTable, TimerRow>(table),
+                  BaseReferences<_$AppDatabase, $TimerEntriesTable, TimerRow>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$TimerEntriesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $TimerEntriesTable,
+      TimerRow,
+      $$TimerEntriesTableFilterComposer,
+      $$TimerEntriesTableOrderingComposer,
+      $$TimerEntriesTableAnnotationComposer,
+      $$TimerEntriesTableCreateCompanionBuilder,
+      $$TimerEntriesTableUpdateCompanionBuilder,
+      (TimerRow, BaseReferences<_$AppDatabase, $TimerEntriesTable, TimerRow>),
+      TimerRow,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -3897,4 +5148,10 @@ class $AppDatabaseManager {
   $$TagsTableTableManager get tags => $$TagsTableTableManager(_db, _db.tags);
   $$OutboxTableTableManager get outbox =>
       $$OutboxTableTableManager(_db, _db.outbox);
+  $$GrocerySelectionsTableTableManager get grocerySelections =>
+      $$GrocerySelectionsTableTableManager(_db, _db.grocerySelections);
+  $$GroceryChecksTableTableManager get groceryChecks =>
+      $$GroceryChecksTableTableManager(_db, _db.groceryChecks);
+  $$TimerEntriesTableTableManager get timerEntries =>
+      $$TimerEntriesTableTableManager(_db, _db.timerEntries);
 }

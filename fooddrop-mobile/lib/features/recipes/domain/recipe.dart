@@ -1,3 +1,4 @@
+import 'portion_scaling.dart';
 import 'rarity.dart';
 
 class RecipeStep {
@@ -32,16 +33,31 @@ class RecipeIngredient {
   final String? displayQuantity;
 
   /// The number alone: 250, 1.5, 2.
-  String get quantityText {
-    final rounded = double.parse(quantity.toStringAsFixed(2));
-    return rounded == rounded.roundToDouble() ? rounded.toInt().toString() : rounded.toString();
-  }
+  String get quantityText => formatQuantityNumber(quantity);
 
   /// "250 g", "2" (pieces), or the raw offline text.
   String get quantityLabel {
     if (displayQuantity != null) return displayQuantity!;
-    return unit == 'piece' ? quantityText : '$quantityText $unit';
+    return formatQuantity(quantity, unit);
   }
+
+  /// [quantityLabel] for [servings] portions. Raw offline text cannot be scaled, so it stays as typed.
+  String scaledLabel(int servings, int baseServings) {
+    if (servings == baseServings || displayQuantity != null) return quantityLabel;
+    return formatQuantity(scaleIngredientQuantity(quantity, unit, servings, baseServings), unit);
+  }
+}
+
+/// 250 → "250", 1.5 → "1.5"; trims float noise left by unit conversion and scaling.
+String formatQuantityNumber(double quantity) {
+  final rounded = double.parse(quantity.toStringAsFixed(2));
+  return rounded == rounded.roundToDouble() ? rounded.toInt().toString() : rounded.toString();
+}
+
+/// "250 g", "2" (pieces).
+String formatQuantity(double quantity, String unit) {
+  final number = formatQuantityNumber(quantity);
+  return unit == 'piece' ? number : '$number $unit';
 }
 
 class Tag {

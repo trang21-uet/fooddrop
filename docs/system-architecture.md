@@ -93,8 +93,9 @@ The browser calls the API through a same-origin rewrite (`/backend/*` → `API_I
 | Persistence | IndexedDB (Dexie) | Drift (SQLite) |
 
 - **Mobile recipe sync:** all reads come from Drift. Writes go to Drift and an `outbox` first; a sync pushes the outbox in order, then pulls tags, the recipe list and any missing details. Recipes with queued edits are never overwritten by a pull (last write to reach the server wins). Details of already-synced recipes are refreshed when opened. Sign-out wipes the database.
-- **Multi-Timer:** store `{id, label, endsAt, pausedRemainingMs?}`; one shared ticker; mobile schedules `flutter_local_notifications` at `endsAt`.
-- **Grocery list:** store only selected `{recipeId, servings}` + checked `ingredientId`s; the list is a derived selector grouped by aisle.
+- **Multi-Timer:** store `{id, label, endsAt, pausedRemainingMs?, alertedAt?}`; one shared ticker (Web Worker on web, `Stream.periodic` on mobile); mobile schedules `flutter_local_notifications` at `endsAt` and re-arms running timers on launch.
+- **Grocery list:** store only selected `{recipeId, servings}` + checked `ingredientId|unit` keys; the list is a derived selector grouped by aisle. Web also keeps a snapshot of each selected recipe's ingredients in IndexedDB so the list works offline; mobile reads recipes from Drift.
+- **Shared logic:** scaling, rounding, aggregation and timer math are implemented twice (TS and Dart) and verified against the same JSON vectors in `docs/fixtures/`. Change a rule by changing the vectors first.
 - **Gacha:** state machine `idle → spinning → revealing → done`; reel offset stays in the animation controller.
 
 ## Gacha animation implementation

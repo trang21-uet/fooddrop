@@ -140,7 +140,7 @@ CREATE TABLE parse_jobs (
 - **Ingredients are relational; steps are JSONB.** Ingredients must be joined and summed for the grocery list. Steps are always read as a whole and carry optional timers for Multi-Timer.
 - **Rarity is a generated column**, so thresholds change in one place. Move it to app code if it ever needs per-user tuning.
 - **Gacha weight:** `rarityWeight(rarity) × Π weather_boosts.weight_multiplier` for matching tags; draw server-side.
-- **Portion scaling** is `quantity × servings / base_servings`, computed client-side; round g/ml to 5, pieces to 0.5.
+- **Portion scaling** is `quantity × servings / base_servings`, computed client-side; round g/ml to 5 (to 0.5 below 5, never to 0), pieces to 0.5. Vectors: `docs/fixtures/portion-scaling-cases.json`.
 - **Normalization:** the units module maps raw `{qty, unit}` to g/ml/piece and, using `density_g_per_ml` and `default_unit`, converts mass↔volume so one ingredient sums in one unit. Unknown units become `piece` with the original wording in `note`.
 - **Quantity parsing:** a comma followed by exactly three digits is a thousands separator ("1,000" = 1000); any other comma is a decimal ("1,5" = 1.5). A bare "oz" means fluid ounces for ingredients whose default unit is ml. An unknown unit stores quantity 0 in the ingredient's default unit with the original wording in `note`, so it never inflates aggregated totals.
 - **Indexes:** every `user_id` / `ingredient_id` foreign key that is queried or cascaded has an index (migration `0002_add-foreign-key-indexes`).

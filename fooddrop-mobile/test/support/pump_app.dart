@@ -43,3 +43,6 @@ GoRoute homeThatOpens(String path) => GoRoute(
         ),
       ),
     );
+
+/// A route at `/` showing [screen], for screens that are the whole page (no `context.push` needed).
+GoRoute homeRoute(Widget screen) => GoRoute(path: '/', builder: (context, state) => screen);

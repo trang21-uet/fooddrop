@@ -74,15 +74,53 @@ class Outbox extends Table {
   DateTimeColumn get createdAt => dateTime()();
 }
 
-@DriftDatabase(tables: [Recipes, RecipeIngredients, RecipeTags, Tags, Outbox])
+/// Recipes on the grocery list. Deliberately no foreign key: a recipe's id changes from `local-…` to
+/// the server id after its first sync, and the aggregated list is derived, never stored.
+@DataClassName('GrocerySelectionRow')
+class GrocerySelections extends Table {
+  TextColumn get recipeId => text()();
+  IntColumn get servings => integer()();
+
+  @override
+  Set<Column> get primaryKey => {recipeId};
+}
+
+/// Ticked-off grocery lines, keyed `ingredientId|unit`.
+@DataClassName('GroceryCheckRow')
+class GroceryChecks extends Table {
+  TextColumn get itemKey => text()();
+
+  @override
+  Set<Column> get primaryKey => {itemKey};
+}
+
+/// Cooking timers. `id` doubles as the OS notification id. `endsAtMs` is an absolute epoch time;
+/// `pausedRemainingMs` is set only while paused. `alertedAtMs` is set once the done-alert has fired.
+@DataClassName('TimerRow')
+class TimerEntries extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get label => text()();
+  IntColumn get endsAtMs => integer()();
+  IntColumn get pausedRemainingMs => integer().nullable()();
+  IntColumn get alertedAtMs => integer().nullable()();
+}
+
+@DriftDatabase(tables: [Recipes, RecipeIngredients, RecipeTags, Tags, Outbox, GrocerySelections, GroceryChecks, TimerEntries])
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
+        onUpgrade: (m, from, to) async {
+          if (from < 2) {
+            await m.createTable(grocerySelections);
+            await m.createTable(groceryChecks);
+            await m.createTable(timerEntries);
+          }
+        },
         beforeOpen: (details) async {
           await customStatement('PRAGMA foreign_keys = ON');
         },

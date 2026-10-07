@@ -41,3 +41,10 @@ Run `lint`, `typecheck` and `test` after every change.
 - Tick: in `onUpdate`, compute `Math.floor(offset / cardWidth)`; when it changes, play a pre-decoded `AudioBuffer` via a new `AudioBufferSourceNode`. Unlock the `AudioContext` on the user's click.
 - Respect `prefers-reduced-motion`: shorten to a quick fade reveal.
 - Use only original or licensed sounds in `public/sounds/`; no Valve assets.
+
+## Utilities (resizer, grocery, timers)
+
+- Pure logic with shared vectors in `../docs/fixtures/` (the mobile app runs the same files): `features/recipes/portion-scaling.ts`, `features/grocery/aggregate-grocery.ts`, `features/timers/timer-math.ts`. Change a rule in the fixture JSON first, then both languages.
+- Persistence is Dexie (`src/lib/local-db.ts`, opened lazily so SSR never touches IndexedDB). Stores (`use-grocery-store.ts`, `use-timer-store.ts`) write through to it and log, not throw, when storage is blocked. `LocalStateBoot` (in the `(app)` layout) hydrates them, rings finished timers and renders the dock. Sign-out calls `wipeLocalData()`.
+- Start timers only through `startTimer()` (`features/timers/start-timer.ts`): it needs a click to unlock audio and ask for notification permission. The chime is synthesized; do not add sound assets without a license.
+- Tests that touch the stores import `fake-indexeddb/auto`.

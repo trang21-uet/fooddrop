@@ -5,10 +5,13 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../core/auth/auth_controller.dart';
 import '../features/auth/presentation/login_screen.dart';
 import '../features/auth/presentation/register_screen.dart';
+import '../features/grocery/presentation/grocery_screen.dart';
 import '../features/parser/presentation/recipe_import_screen.dart';
 import '../features/recipes/presentation/detail/recipe_detail_screen.dart';
 import '../features/recipes/presentation/form/recipe_form_screen.dart';
 import '../features/recipes/presentation/list/recipe_list_screen.dart';
+import '../features/timers/presentation/timer_dock_shell.dart';
+import '../features/timers/presentation/timers_screen.dart';
 import 'splash_screen.dart';
 
 part 'app_router.g.dart';
@@ -36,23 +39,49 @@ GoRouter appRouter(Ref ref) {
     routes: [
       GoRoute(path: '/', builder: (context, state) => const SplashScreen()),
       GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
-      GoRoute(path: '/register', builder: (context, state) => const RegisterScreen()),
       GoRoute(
-        path: '/recipes',
-        builder: (context, state) => const RecipeListScreen(),
+        path: '/register',
+        builder: (context, state) => const RegisterScreen(),
+      ),
+      // Signed-in screens share the floating timer dock.
+      ShellRoute(
+        builder: (context, state, child) =>
+            TimerDockShell(location: state.uri.path, child: child),
         routes: [
-          // Declared before ':id' so "new" and "import" are not read as recipe ids.
-          GoRoute(path: 'import', builder: (context, state) => const RecipeImportScreen()),
-          GoRoute(path: 'new', builder: (context, state) => const RecipeFormScreen()),
           GoRoute(
-            path: ':id',
-            builder: (context, state) => RecipeDetailScreen(recipeId: state.pathParameters['id']!),
+            path: '/recipes',
+            builder: (context, state) => const RecipeListScreen(),
             routes: [
+              // Declared before ':id' so "new" and "import" are not read as recipe ids.
               GoRoute(
-                path: 'edit',
-                builder: (context, state) => RecipeFormScreen(recipeId: state.pathParameters['id']),
+                path: 'import',
+                builder: (context, state) => const RecipeImportScreen(),
+              ),
+              GoRoute(
+                path: 'new',
+                builder: (context, state) => const RecipeFormScreen(),
+              ),
+              GoRoute(
+                path: ':id',
+                builder: (context, state) =>
+                    RecipeDetailScreen(recipeId: state.pathParameters['id']!),
+                routes: [
+                  GoRoute(
+                    path: 'edit',
+                    builder: (context, state) =>
+                        RecipeFormScreen(recipeId: state.pathParameters['id']),
+                  ),
+                ],
               ),
             ],
+          ),
+          GoRoute(
+            path: '/grocery',
+            builder: (context, state) => const GroceryScreen(),
+          ),
+          GoRoute(
+            path: '/timers',
+            builder: (context, state) => const TimersScreen(),
           ),
         ],
       ),

@@ -48,6 +48,8 @@ dependencies:
   drift_flutter: ^0.3.1
   google_fonts: ^8.2.1
   image_picker: ^1.2.4
+  timezone: ^0.11.1
+  share_plus: ^13.3.1
 
 dev_dependencies:
   flutter_test:

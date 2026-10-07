@@ -35,7 +35,24 @@ class RecipeListHeader extends ConsumerWidget {
           ),
           const SizedBox(width: 12),
           const Expanded(
-            child: Text('Công thức', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800, letterSpacing: -0.84)),
+            // Shrinks a little on narrow phones instead of wrapping beside the action icons.
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text('Công thức', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800, letterSpacing: -0.84)),
+            ),
+          ),
+          IconButton(
+            tooltip: 'Đi chợ',
+            constraints: const BoxConstraints.tightFor(width: 44, height: 44),
+            onPressed: () => context.push('/grocery'),
+            icon: Icon(Icons.shopping_basket_outlined, color: colors.text),
+          ),
+          IconButton(
+            tooltip: 'Hẹn giờ',
+            constraints: const BoxConstraints.tightFor(width: 44, height: 44),
+            onPressed: () => context.push('/timers'),
+            icon: Icon(Icons.timer_outlined, color: colors.text),
           ),
           IconButton(
             tooltip: 'Nhập công thức từ liên kết hoặc ảnh (đang phát triển)',
