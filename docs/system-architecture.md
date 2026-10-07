@@ -75,6 +75,8 @@ Server picks the result first so it cannot be manipulated client-side and spins 
 3. LLM returns raw ingredients via a strict tool schema; `units` module normalizes; result validated with Zod.
 4. Client polls `GET /parser/jobs/:id` (or SSE) and shows an editable draft before saving.
 
+Implementation notes: the API process only validates, applies the per-user quota and enqueues; a separate worker process (`src/worker.ts`) runs the pipeline and writes the result (or a stable error code) onto `parse_jobs`. Photos are uploaded directly to object storage with a presigned PUT from `POST /media/uploads`, then referenced by key. Unmatched ingredients come back with `ingredientId = null`; clients add them to the shared catalog (user-added, aisle `other`) before saving the recipe.
+
 ### Lazy case
 Uses Google Places nearby search (cached per ~1km grid cell) plus user-defined `lazy_options`. Delivery apps (GrabFood, ShopeeFood) are opened via deep links; no partner API integration.
 

@@ -5,7 +5,7 @@
 
 ## Overview
 - **Priority:** P1
-- **Status:** Pending
+- **Status:** In progress — implementation complete; live LLM checks and the 30-source eval are outstanding
 - Paste a URL or upload a cookbook photo → editable recipe draft with normalized units.
 
 ## Key Insights
@@ -34,14 +34,14 @@
 7. Test set: 30 fixtures stored as HTML/images; snapshot tests for JSON-LD path; live eval script for LLM path (not in CI).
 
 ## Todo List
-- [ ] Media upload
-- [ ] SSRF-safe fetcher
-- [ ] JSON-LD extractor + tests
-- [ ] Claude extractor + Zod validation
-- [ ] Normalization + matching
-- [ ] Web UI
-- [ ] Mobile UI (incl. camera)
-- [ ] Eval on 30 sources
+- [x] Media upload (5 MB cap instead of 10 MB: Claude rejects larger images; clients downscale to 2000 px)
+- [x] SSRF-safe fetcher
+- [x] JSON-LD extractor + tests (4 fixtures; the 30-fixture set is still to be curated)
+- [x] Claude extractor + Zod validation (unit-tested with a fake client; no live call yet)
+- [x] Normalization + matching
+- [x] Web UI
+- [x] Mobile UI (incl. camera)
+- [ ] Eval on 30 sources (`pnpm parser:eval` exists; needs the curated list and an ANTHROPIC_API_KEY)
 
 ## Success Criteria
 - ≥85% of test sources produce a savable draft with no manual unit fixes.

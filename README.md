@@ -29,7 +29,7 @@ fooddrop/
 ├── assets/brand/        # Logo gốc và các bản xuất
 ├── docs/                # Kiến trúc, chuẩn code, roadmap, changelog
 ├── plans/               # Kế hoạch triển khai theo phase
-└── docker-compose.yml   # Postgres + Redis cho môi trường dev
+└── docker-compose.yml   # Postgres + Redis + S3 (SeaweedFS) cho môi trường dev
 ```
 
 ## Tech stack

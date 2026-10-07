@@ -42,7 +42,7 @@ Food Drop is a cross-platform (web + mobile) app for choosing meals and cooking:
 ## Local infrastructure
 
 ```bash
-docker compose up -d   # Postgres :5432, Redis :6379
+docker compose up -d   # Postgres :5432, Redis :6379, S3-compatible storage :9000
 ```
 
 ## Current plan
