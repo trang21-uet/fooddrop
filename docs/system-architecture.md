@@ -90,6 +90,7 @@ The browser calls the API through a same-origin rewrite (`/backend/*` → `API_I
 | Client logic (timers, gacha, cart) | Zustand | Riverpod `Notifier` |
 | Persistence | IndexedDB (Dexie) | Drift (SQLite) |
 
+- **Mobile recipe sync:** all reads come from Drift. Writes go to Drift and an `outbox` first; a sync pushes the outbox in order, then pulls tags, the recipe list and any missing details. Recipes with queued edits are never overwritten by a pull (last write to reach the server wins). Details of already-synced recipes are refreshed when opened. Sign-out wipes the database.
 - **Multi-Timer:** store `{id, label, endsAt, pausedRemainingMs?}`; one shared ticker; mobile schedules `flutter_local_notifications` at `endsAt`.
 - **Grocery list:** store only selected `{recipeId, servings}` + checked `ingredientId`s; the list is a derived selector grouped by aisle.
 - **Gacha:** state machine `idle → spinning → revealing → done`; reel offset stays in the animation controller.

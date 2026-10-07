@@ -66,12 +66,36 @@ All URIs are relative to *http://localhost*
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
 [*HealthApi*](doc/HealthApi.md) | [**healthControllerGetHealth**](doc/HealthApi.md#healthcontrollergethealth) | **GET** /health | 
+[*IngredientsApi*](doc/IngredientsApi.md) | [**ingredientsControllerCreate**](doc/IngredientsApi.md#ingredientscontrollercreate) | **POST** /ingredients | 
+[*IngredientsApi*](doc/IngredientsApi.md) | [**ingredientsControllerSearch**](doc/IngredientsApi.md#ingredientscontrollersearch) | **GET** /ingredients | 
+[*RecipesApi*](doc/RecipesApi.md) | [**recipesControllerCreate**](doc/RecipesApi.md#recipescontrollercreate) | **POST** /recipes | 
+[*RecipesApi*](doc/RecipesApi.md) | [**recipesControllerGet**](doc/RecipesApi.md#recipescontrollerget) | **GET** /recipes/{id} | 
+[*RecipesApi*](doc/RecipesApi.md) | [**recipesControllerList**](doc/RecipesApi.md#recipescontrollerlist) | **GET** /recipes | 
+[*RecipesApi*](doc/RecipesApi.md) | [**recipesControllerRemove**](doc/RecipesApi.md#recipescontrollerremove) | **DELETE** /recipes/{id} | 
+[*RecipesApi*](doc/RecipesApi.md) | [**recipesControllerUpdate**](doc/RecipesApi.md#recipescontrollerupdate) | **PUT** /recipes/{id} | 
+[*TagsApi*](doc/TagsApi.md) | [**tagsControllerList**](doc/TagsApi.md#tagscontrollerlist) | **GET** /tags | 
 
 
 ## Documentation For Models
 
+ - [CreateIngredient](doc/CreateIngredient.md)
  - [HealthChecksDto](doc/HealthChecksDto.md)
  - [HealthResponseDto](doc/HealthResponseDto.md)
+ - [Ingredient](doc/Ingredient.md)
+ - [ListRecipesQuery](doc/ListRecipesQuery.md)
+ - [RecipeDetail](doc/RecipeDetail.md)
+ - [RecipeDetailIngredientsInner](doc/RecipeDetailIngredientsInner.md)
+ - [RecipeDetailIngredientsInnerIngredient](doc/RecipeDetailIngredientsInnerIngredient.md)
+ - [RecipeDetailStepsInner](doc/RecipeDetailStepsInner.md)
+ - [RecipeDetailTagsInner](doc/RecipeDetailTagsInner.md)
+ - [RecipeInput](doc/RecipeInput.md)
+ - [RecipeInputIngredientsInner](doc/RecipeInputIngredientsInner.md)
+ - [RecipeInputStepsInner](doc/RecipeInputStepsInner.md)
+ - [RecipeList](doc/RecipeList.md)
+ - [RecipeListItemsInner](doc/RecipeListItemsInner.md)
+ - [SearchIngredientsQuery](doc/SearchIngredientsQuery.md)
+ - [TagDimension](doc/TagDimension.md)
+ - [TagDimensionTagsInner](doc/TagDimensionTagsInner.md)
 
 
 ## Documentation For Authorization

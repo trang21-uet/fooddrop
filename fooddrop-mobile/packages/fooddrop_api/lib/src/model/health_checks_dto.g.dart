@@ -37,7 +37,6 @@ class _$HealthChecksDtoCWProxyImpl implements _$HealthChecksDtoCWProxy {
   HealthChecksDto redis(HealthChecksDtoRedisEnum redis) => this(redis: redis);
 
   @override
-
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `HealthChecksDto(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
   /// Usage
@@ -72,23 +71,20 @@ extension $HealthChecksDtoCopyWith on HealthChecksDto {
 // **************************************************************************
 
 HealthChecksDto _$HealthChecksDtoFromJson(Map<String, dynamic> json) =>
-    $checkedCreate(
-      'HealthChecksDto',
-      json,
-      ($checkedConvert) {
-        $checkKeys(
-          json,
-          requiredKeys: const ['postgres', 'redis'],
-        );
-        final val = HealthChecksDto(
-          postgres: $checkedConvert('postgres',
-              (v) => $enumDecode(_$HealthChecksDtoPostgresEnumEnumMap, v)),
-          redis: $checkedConvert('redis',
-              (v) => $enumDecode(_$HealthChecksDtoRedisEnumEnumMap, v)),
-        );
-        return val;
-      },
-    );
+    $checkedCreate('HealthChecksDto', json, ($checkedConvert) {
+      $checkKeys(json, requiredKeys: const ['postgres', 'redis']);
+      final val = HealthChecksDto(
+        postgres: $checkedConvert(
+          'postgres',
+          (v) => $enumDecode(_$HealthChecksDtoPostgresEnumEnumMap, v),
+        ),
+        redis: $checkedConvert(
+          'redis',
+          (v) => $enumDecode(_$HealthChecksDtoRedisEnumEnumMap, v),
+        ),
+      );
+      return val;
+    });
 
 Map<String, dynamic> _$HealthChecksDtoToJson(HealthChecksDto instance) =>
     <String, dynamic>{

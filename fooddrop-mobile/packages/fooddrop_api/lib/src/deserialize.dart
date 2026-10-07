@@ -1,5 +1,21 @@
+import 'package:fooddrop_api/src/model/create_ingredient.dart';
 import 'package:fooddrop_api/src/model/health_checks_dto.dart';
 import 'package:fooddrop_api/src/model/health_response_dto.dart';
+import 'package:fooddrop_api/src/model/ingredient.dart';
+import 'package:fooddrop_api/src/model/list_recipes_query.dart';
+import 'package:fooddrop_api/src/model/recipe_detail.dart';
+import 'package:fooddrop_api/src/model/recipe_detail_ingredients_inner.dart';
+import 'package:fooddrop_api/src/model/recipe_detail_ingredients_inner_ingredient.dart';
+import 'package:fooddrop_api/src/model/recipe_detail_steps_inner.dart';
+import 'package:fooddrop_api/src/model/recipe_detail_tags_inner.dart';
+import 'package:fooddrop_api/src/model/recipe_input.dart';
+import 'package:fooddrop_api/src/model/recipe_input_ingredients_inner.dart';
+import 'package:fooddrop_api/src/model/recipe_input_steps_inner.dart';
+import 'package:fooddrop_api/src/model/recipe_list.dart';
+import 'package:fooddrop_api/src/model/recipe_list_items_inner.dart';
+import 'package:fooddrop_api/src/model/search_ingredients_query.dart';
+import 'package:fooddrop_api/src/model/tag_dimension.dart';
+import 'package:fooddrop_api/src/model/tag_dimension_tags_inner.dart';
 
 final _regList = RegExp(r'^List<(.*)>$');
 final _regSet = RegExp(r'^Set<(.*)>$');
@@ -19,10 +35,42 @@ final _regMap = RegExp(r'^Map<String,(.*)>$');
           return (valueString == 'true' || valueString == '1') as ReturnType;
         case 'double':
           return (value is double ? value : double.parse('$value')) as ReturnType;
+        case 'CreateIngredient':
+          return CreateIngredient.fromJson(value as Map<String, dynamic>) as ReturnType;
         case 'HealthChecksDto':
           return HealthChecksDto.fromJson(value as Map<String, dynamic>) as ReturnType;
         case 'HealthResponseDto':
           return HealthResponseDto.fromJson(value as Map<String, dynamic>) as ReturnType;
+        case 'Ingredient':
+          return Ingredient.fromJson(value as Map<String, dynamic>) as ReturnType;
+        case 'ListRecipesQuery':
+          return ListRecipesQuery.fromJson(value as Map<String, dynamic>) as ReturnType;
+        case 'RecipeDetail':
+          return RecipeDetail.fromJson(value as Map<String, dynamic>) as ReturnType;
+        case 'RecipeDetailIngredientsInner':
+          return RecipeDetailIngredientsInner.fromJson(value as Map<String, dynamic>) as ReturnType;
+        case 'RecipeDetailIngredientsInnerIngredient':
+          return RecipeDetailIngredientsInnerIngredient.fromJson(value as Map<String, dynamic>) as ReturnType;
+        case 'RecipeDetailStepsInner':
+          return RecipeDetailStepsInner.fromJson(value as Map<String, dynamic>) as ReturnType;
+        case 'RecipeDetailTagsInner':
+          return RecipeDetailTagsInner.fromJson(value as Map<String, dynamic>) as ReturnType;
+        case 'RecipeInput':
+          return RecipeInput.fromJson(value as Map<String, dynamic>) as ReturnType;
+        case 'RecipeInputIngredientsInner':
+          return RecipeInputIngredientsInner.fromJson(value as Map<String, dynamic>) as ReturnType;
+        case 'RecipeInputStepsInner':
+          return RecipeInputStepsInner.fromJson(value as Map<String, dynamic>) as ReturnType;
+        case 'RecipeList':
+          return RecipeList.fromJson(value as Map<String, dynamic>) as ReturnType;
+        case 'RecipeListItemsInner':
+          return RecipeListItemsInner.fromJson(value as Map<String, dynamic>) as ReturnType;
+        case 'SearchIngredientsQuery':
+          return SearchIngredientsQuery.fromJson(value as Map<String, dynamic>) as ReturnType;
+        case 'TagDimension':
+          return TagDimension.fromJson(value as Map<String, dynamic>) as ReturnType;
+        case 'TagDimensionTagsInner':
+          return TagDimensionTagsInner.fromJson(value as Map<String, dynamic>) as ReturnType;
         default:
           RegExpMatch? match;
 

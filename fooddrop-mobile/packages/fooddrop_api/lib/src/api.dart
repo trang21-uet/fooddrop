@@ -8,6 +8,9 @@ import 'package:fooddrop_api/src/auth/basic_auth.dart';
 import 'package:fooddrop_api/src/auth/bearer_auth.dart';
 import 'package:fooddrop_api/src/auth/oauth.dart';
 import 'package:fooddrop_api/src/api/health_api.dart';
+import 'package:fooddrop_api/src/api/ingredients_api.dart';
+import 'package:fooddrop_api/src/api/recipes_api.dart';
+import 'package:fooddrop_api/src/api/tags_api.dart';
 
 class FooddropApi {
   static const String basePath = r'http://localhost';
@@ -104,5 +107,23 @@ class FooddropApi {
   /// by doing that all interceptors will not be executed
   HealthApi getHealthApi() {
     return HealthApi(dio);
+  }
+
+  /// Get IngredientsApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  IngredientsApi getIngredientsApi() {
+    return IngredientsApi(dio);
+  }
+
+  /// Get RecipesApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  RecipesApi getRecipesApi() {
+    return RecipesApi(dio);
+  }
+
+  /// Get TagsApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  TagsApi getTagsApi() {
+    return TagsApi(dio);
   }
 }

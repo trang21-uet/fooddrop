@@ -1,0 +1,105 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'recipe_input_steps_inner.dart';
+
+// **************************************************************************
+// CopyWithGenerator
+// **************************************************************************
+
+abstract class _$RecipeInputStepsInnerCWProxy {
+  RecipeInputStepsInner text(String text);
+
+  RecipeInputStepsInner timerSeconds(int? timerSeconds);
+
+  RecipeInputStepsInner timerLabel(String? timerLabel);
+
+  /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `RecipeInputStepsInner(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
+  ///
+  /// Usage
+  /// ```dart
+  /// RecipeInputStepsInner(...).copyWith(id: 12, name: "My name")
+  /// ````
+  RecipeInputStepsInner call({
+    String text,
+    int? timerSeconds,
+    String? timerLabel,
+  });
+}
+
+/// Proxy class for `copyWith` functionality. This is a callable class and can be used as follows: `instanceOfRecipeInputStepsInner.copyWith(...)`. Additionally contains functions for specific fields e.g. `instanceOfRecipeInputStepsInner.copyWith.fieldName(...)`
+class _$RecipeInputStepsInnerCWProxyImpl
+    implements _$RecipeInputStepsInnerCWProxy {
+  const _$RecipeInputStepsInnerCWProxyImpl(this._value);
+
+  final RecipeInputStepsInner _value;
+
+  @override
+  RecipeInputStepsInner text(String text) => this(text: text);
+
+  @override
+  RecipeInputStepsInner timerSeconds(int? timerSeconds) =>
+      this(timerSeconds: timerSeconds);
+
+  @override
+  RecipeInputStepsInner timerLabel(String? timerLabel) =>
+      this(timerLabel: timerLabel);
+
+  @override
+  /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `RecipeInputStepsInner(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
+  ///
+  /// Usage
+  /// ```dart
+  /// RecipeInputStepsInner(...).copyWith(id: 12, name: "My name")
+  /// ````
+  RecipeInputStepsInner call({
+    Object? text = const $CopyWithPlaceholder(),
+    Object? timerSeconds = const $CopyWithPlaceholder(),
+    Object? timerLabel = const $CopyWithPlaceholder(),
+  }) {
+    return RecipeInputStepsInner(
+      text: text == const $CopyWithPlaceholder()
+          ? _value.text
+          // ignore: cast_nullable_to_non_nullable
+          : text as String,
+      timerSeconds: timerSeconds == const $CopyWithPlaceholder()
+          ? _value.timerSeconds
+          // ignore: cast_nullable_to_non_nullable
+          : timerSeconds as int?,
+      timerLabel: timerLabel == const $CopyWithPlaceholder()
+          ? _value.timerLabel
+          // ignore: cast_nullable_to_non_nullable
+          : timerLabel as String?,
+    );
+  }
+}
+
+extension $RecipeInputStepsInnerCopyWith on RecipeInputStepsInner {
+  /// Returns a callable class that can be used as follows: `instanceOfRecipeInputStepsInner.copyWith(...)` or like so:`instanceOfRecipeInputStepsInner.copyWith.fieldName(...)`.
+  // ignore: library_private_types_in_public_api
+  _$RecipeInputStepsInnerCWProxy get copyWith =>
+      _$RecipeInputStepsInnerCWProxyImpl(this);
+}
+
+// **************************************************************************
+// JsonSerializableGenerator
+// **************************************************************************
+
+RecipeInputStepsInner _$RecipeInputStepsInnerFromJson(
+  Map<String, dynamic> json,
+) => $checkedCreate('RecipeInputStepsInner', json, ($checkedConvert) {
+  $checkKeys(json, requiredKeys: const ['text']);
+  final val = RecipeInputStepsInner(
+    text: $checkedConvert('text', (v) => v as String),
+    timerSeconds: $checkedConvert('timerSeconds', (v) => (v as num?)?.toInt()),
+    timerLabel: $checkedConvert('timerLabel', (v) => v as String?),
+  );
+  return val;
+});
+
+Map<String, dynamic> _$RecipeInputStepsInnerToJson(
+  RecipeInputStepsInner instance,
+) => <String, dynamic>{
+  'text': instance.text,
+  'timerSeconds': ?instance.timerSeconds,
+  'timerLabel': ?instance.timerLabel,
+};

@@ -26,6 +26,7 @@ flutter run --dart-define=API_BASE_URL=http://10.0.2.2:4000
 | `flutter analyze` | Lint |
 | `flutter test` | Unit/widget test |
 | `dart run build_runner watch` | Sinh code Riverpod/Drift/API client |
+| `bash tool/generate-api-client.sh` | Sinh lại API client từ `openapi.json` (cần JDK 11+) |
 | `dart run flutter_launcher_icons` | Sinh icon từ `assets/icon/` |
 
 ## Cấu trúc

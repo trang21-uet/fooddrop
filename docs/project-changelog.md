@@ -5,6 +5,15 @@ All notable changes to Food Drop. Format based on [Keep a Changelog](https://kee
 ## [Unreleased]
 
 ### Added
+- 2026-10-06: **Phase 04 — Mobile Recipe Hub** (Complete)
+  - **Theme and shell**: neon dark `FoodDropColors` theme extension (accent, five rarity colours, glow) with Geist via `google_fonts`; go_router with auth redirects (splash while the stored session loads); all copy in Vietnamese
+  - **Auth**: login and register screens from the design boards; Better Auth email + password with the signed bearer token from `set-auth-token` kept in `flutter_secure_storage`; stored session trusted at launch (works offline); a 401 or sign-out clears the token and wipes the local database
+  - **Local-first recipes (Drift)**: `recipes`, `recipe_ingredients`, `recipe_tags`, `tags` and an `outbox`; list, search (diacritic-insensitive, titles and ingredients), rarity chips and the tag/max-time filter sheet all run on-device so they work offline
+  - **Sync**: push the outbox (create/update/delete, repeated edits coalesced), then pull tags, list and missing details; runs on sign-in, pull-to-refresh, app resume and after every local edit; permanently rejected changes are dropped with a notice; offline notice banner and a "not synced" marker on cards
+  - **Screens**: recipe list, detail (ingredients, steps with timer durations, edit/delete), create/edit form (tags by dimension, ingredient picker with search and add-new, steps with reorder and optional timer)
+  - **API client**: regenerated for Recipes/Tags/Ingredients; `tool/generate-api-client.sh` now normalizes the spec for dart-dio and needs JDK 11+
+  - Not included: Google sign-in, bottom navigation to later features, recipe photos
+  - Tests: 71 (incl. a real-backend end-to-end flow that skips itself when the API is down); `flutter analyze` clean; debug APK builds
 - 2026-10-06: **Phase 03 — Web Recipe Hub** (Complete)
   - **Shell and theme**: dark neon theme tokens (accent, five rarity colours, glow utilities) in `globals.css`; sticky header with logo and nav; responsive down to phone width
   - **Auth**: `/login` (sign in / create account) with Better Auth client; session cookie stays httpOnly and first-party through the `/backend` proxy rewrite; middleware redirects signed-out visitors to `/login?next=...` (same-origin paths only); expired sessions (401) sign out and return to login

@@ -17,7 +17,7 @@ Architecture: [docs/system-architecture.md](../../docs/system-architecture.md) Â
 | 01 | [Setup monorepo and scaffold apps](phase-01-setup-monorepo-and-scaffold.md) | â€” | Complete |
 | 02 | [Database and core recipe API](phase-02-database-and-core-recipe-api.md) | 01 | Complete |
 | 03 | [Web Recipe Hub](phase-03-web-recipe-hub.md) | 02 | Complete |
-| 04 | [Mobile Recipe Hub](phase-04-mobile-recipe-hub.md) | 02 | Pending |
+| 04 | [Mobile Recipe Hub](phase-04-mobile-recipe-hub.md) | 02 | Complete |
 | 05 | [AI Recipe Parser](phase-05-ai-recipe-parser.md) | 02 (UI: 03, 04) | Pending |
 | 06 | [Smart Utilities](phase-06-smart-utilities.md) | 03, 04 | Pending |
 | 07 | [Food Drop gacha](phase-07-food-drop-gacha.md) | 02 (UI: 03, 04) | Pending |

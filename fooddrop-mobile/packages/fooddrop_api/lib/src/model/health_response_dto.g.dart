@@ -37,7 +37,6 @@ class _$HealthResponseDtoCWProxyImpl implements _$HealthResponseDtoCWProxy {
   HealthResponseDto checks(HealthChecksDto checks) => this(checks: checks);
 
   @override
-
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `HealthResponseDto(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
   /// Usage
@@ -73,23 +72,20 @@ extension $HealthResponseDtoCopyWith on HealthResponseDto {
 // **************************************************************************
 
 HealthResponseDto _$HealthResponseDtoFromJson(Map<String, dynamic> json) =>
-    $checkedCreate(
-      'HealthResponseDto',
-      json,
-      ($checkedConvert) {
-        $checkKeys(
-          json,
-          requiredKeys: const ['status', 'checks'],
-        );
-        final val = HealthResponseDto(
-          status: $checkedConvert('status',
-              (v) => $enumDecode(_$HealthResponseDtoStatusEnumEnumMap, v)),
-          checks: $checkedConvert('checks',
-              (v) => HealthChecksDto.fromJson(v as Map<String, dynamic>)),
-        );
-        return val;
-      },
-    );
+    $checkedCreate('HealthResponseDto', json, ($checkedConvert) {
+      $checkKeys(json, requiredKeys: const ['status', 'checks']);
+      final val = HealthResponseDto(
+        status: $checkedConvert(
+          'status',
+          (v) => $enumDecode(_$HealthResponseDtoStatusEnumEnumMap, v),
+        ),
+        checks: $checkedConvert(
+          'checks',
+          (v) => HealthChecksDto.fromJson(v as Map<String, dynamic>),
+        ),
+      );
+      return val;
+    });
 
 Map<String, dynamic> _$HealthResponseDtoToJson(HealthResponseDto instance) =>
     <String, dynamic>{

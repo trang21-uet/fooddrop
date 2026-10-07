@@ -7,7 +7,7 @@ Plan: [plans/261006-1706-fooddrop-mvp](../plans/261006-1706-fooddrop-mvp/plan.md
 | 01 | Setup monorepo and scaffold apps | Complete | 100% |
 | 02 | Database and core recipe API | Complete | 100% |
 | 03 | Web Recipe Hub | Complete | 100% |
-| 04 | Mobile Recipe Hub | Pending | 0% |
+| 04 | Mobile Recipe Hub | Complete | 100% |
 | 05 | AI Recipe Parser | Pending | 0% |
 | 06 | Smart Utilities (resizer, grocery, multi-timer) | Pending | 0% |
 | 07 | Food Drop gacha (cook case) | Pending | 0% |
