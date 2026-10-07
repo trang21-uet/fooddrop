@@ -1,19 +1,16 @@
-import type { ButtonHTMLAttributes, CSSProperties } from "react";
+import type { ButtonHTMLAttributes } from "react";
 
-/** Toggle chip. `color` tints the pressed state (used by rarity chips); defaults to the accent. */
+/** Toggle chip for tags: filled accent when pressed, raised surface otherwise. */
 export function Chip({
   pressed,
-  color = "var(--accent)",
   className = "",
   ...props
-}: ButtonHTMLAttributes<HTMLButtonElement> & { pressed: boolean; color?: string }) {
-  const style = { "--chip": color } as CSSProperties;
+}: ButtonHTMLAttributes<HTMLButtonElement> & { pressed: boolean }) {
   return (
     <button
       type="button"
       aria-pressed={pressed}
-      style={style}
-      className={`min-h-8 rounded-full border px-3 text-xs font-medium transition aria-pressed:border-(--chip) aria-pressed:bg-(--chip)/15 aria-pressed:text-(--chip) border-border text-muted hover:text-foreground ${className}`}
+      className={`min-h-9 rounded-full border border-border bg-surface-raised px-3.5 text-[13px] font-semibold text-foreground transition hover:border-accent aria-pressed:border-accent aria-pressed:bg-accent aria-pressed:text-background ${className}`}
       {...props}
     />
   );

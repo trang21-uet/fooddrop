@@ -14,12 +14,12 @@ export function rarityGlowStyle(rarity: Rarity): CSSProperties {
   return { "--glow": RARITY_STYLES[rarity].color } as CSSProperties;
 }
 
-export function RarityBadge({ rarity }: { rarity: Rarity }) {
+export function RarityBadge({ rarity, className = "" }: { rarity: Rarity; className?: string }) {
   const { label, color } = RARITY_STYLES[rarity];
   return (
     <span
-      className="inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-xs font-semibold"
-      style={{ color, borderColor: color }}
+      className={`inline-flex items-center gap-1.5 rounded-full border bg-background/80 px-2.5 py-1 text-xs font-semibold text-foreground ${className}`}
+      style={{ borderColor: color }}
     >
       <span aria-hidden className="size-1.5 rounded-full" style={{ backgroundColor: color }} />
       {label}

@@ -1,7 +1,11 @@
 import type { Rarity } from "./recipe-types";
 
 export const RARITY_ORDER: readonly Rarity[] = ["white", "blue", "purple", "pink", "red"];
-export const MAX_MINUTES_OPTIONS = [15, 30, 60] as const;
+export const MAX_MINUTES_OPTIONS = [
+  { minutes: 30, label: "30 phút" },
+  { minutes: 60, label: "60 phút" },
+  { minutes: 120, label: "2 giờ" },
+] as const;
 
 export interface RecipeFilters {
   tagIds: number[];
@@ -9,6 +13,8 @@ export interface RecipeFilters {
   maxMinutes?: number;
   q: string;
 }
+
+export const EMPTY_FILTERS: RecipeFilters = { tagIds: [], rarities: [], q: "" };
 
 type ParamReader = { get(name: string): string | null };
 

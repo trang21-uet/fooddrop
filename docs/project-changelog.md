@@ -4,6 +4,13 @@ All notable changes to Food Drop. Format based on [Keep a Changelog](https://kee
 
 ## [Unreleased]
 
+### Changed
+- 2026-10-07: **Web recipe list aligned with the "Web — Thư viện công thức" design board**
+  - Header: full-width surface bar with active-nav underline, "Thêm công thức" button and initials avatar (sign-out kept as a ghost button)
+  - List page: 44px title with result count, search + max-time select (30 / 60 / 120 phút), rarity pills with "Tất cả", tag sidebar ("Xóa tất cả" clears every filter; collapsible below `lg`), image cards with rarity badge, duration and tags, empty states with clear action
+  - Shared UI: buttons are 44px / radius 12 with a `neon` variant; tag `Chip` is accent-filled when pressed; rarity badge uses neutral text with a rarity-coloured border and dot
+  - Not changed: search still matches title/description only (the design placeholder mentions ingredients); "Quay món" stays disabled until the gacha phase
+
 ### Added
 - 2026-10-06: **Phase 04 — Mobile Recipe Hub** (Complete)
   - **Theme and shell**: neon dark `FoodDropColors` theme extension (accent, five rarity colours, glow) with Geist via `google_fonts`; go_router with auth redirects (splash while the stored session loads); all copy in Vietnamese
