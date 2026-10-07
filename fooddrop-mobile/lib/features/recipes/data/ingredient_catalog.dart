@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/api/api_error.dart';
@@ -41,9 +42,21 @@ class IngredientCatalog {
   }
 
   /// Adds a missing ingredient to the shared catalog (needs a connection).
-  Future<IngredientOption> create(String name) async {
-    final created = await _remote.createIngredient(name.trim());
+  Future<IngredientOption> create(String name, {String defaultUnit = 'g'}) async {
+    final created = await _remote.createIngredient(name.trim(), defaultUnit: defaultUnit);
     return IngredientOption(id: created.id, name: created.name, aisle: created.aisle.value);
+  }
+
+  /// Creates the ingredient, or returns the existing entry when its name or an alias is taken (HTTP 409).
+  Future<IngredientOption> ensure(String name, {String defaultUnit = 'g'}) async {
+    try {
+      return await create(name, defaultUnit: defaultUnit);
+    } on DioException catch (error) {
+      if (error.response?.statusCode != 409) rethrow;
+      final matches = await search(name);
+      if (matches.isEmpty) rethrow;
+      return matches.first;
+    }
   }
 }
 

@@ -5,6 +5,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../core/auth/auth_controller.dart';
 import '../features/auth/presentation/login_screen.dart';
 import '../features/auth/presentation/register_screen.dart';
+import '../features/parser/presentation/recipe_import_screen.dart';
 import '../features/recipes/presentation/detail/recipe_detail_screen.dart';
 import '../features/recipes/presentation/form/recipe_form_screen.dart';
 import '../features/recipes/presentation/list/recipe_list_screen.dart';
@@ -40,7 +41,8 @@ GoRouter appRouter(Ref ref) {
         path: '/recipes',
         builder: (context, state) => const RecipeListScreen(),
         routes: [
-          // Declared before ':id' so "new" is not read as a recipe id.
+          // Declared before ':id' so "new" and "import" are not read as recipe ids.
+          GoRoute(path: 'import', builder: (context, state) => const RecipeImportScreen()),
           GoRoute(path: 'new', builder: (context, state) => const RecipeFormScreen()),
           GoRoute(
             path: ':id',

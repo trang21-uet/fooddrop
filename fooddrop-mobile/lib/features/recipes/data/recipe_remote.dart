@@ -39,8 +39,14 @@ class RecipeRemote {
   Future<List<api.Ingredient>> searchIngredients(String query) async =>
       (await _api.getIngredientsApi().ingredientsControllerSearch(q: query, limit: 20)).data!;
 
-  Future<api.Ingredient> createIngredient(String name) async => (await _api
+  /// [defaultUnit] is `g`, `ml` or `piece`: the dimension recipes of this ingredient are summed in.
+  Future<api.Ingredient> createIngredient(String name, {String defaultUnit = 'g'}) async => (await _api
           .getIngredientsApi()
-          .ingredientsControllerCreate(createIngredient: api.CreateIngredient(name: name)))
+          .ingredientsControllerCreate(
+            createIngredient: api.CreateIngredient(
+              name: name,
+              defaultUnit: api.CreateIngredientDefaultUnitEnum.values.firstWhere((unit) => unit.value == defaultUnit),
+            ),
+          ))
       .data!;
 }

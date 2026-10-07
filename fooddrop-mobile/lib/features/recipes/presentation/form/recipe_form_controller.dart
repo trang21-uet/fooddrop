@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../parser/data/parser_providers.dart';
 import '../../data/ingredient_catalog.dart';
 import '../../data/recipe_providers.dart';
 import '../../domain/recipe_draft.dart';
@@ -7,7 +8,14 @@ import '../../domain/recipe_draft.dart';
 part 'recipe_form_controller.g.dart';
 
 class RecipeFormState {
-  const RecipeFormState({required this.draft, this.errors, this.saving = false, this.saveError});
+  const RecipeFormState({
+    required this.draft,
+    this.errors,
+    this.saving = false,
+    this.saveError,
+    this.addingIngredients = false,
+    this.ingredientError,
+  });
 
   final RecipeDraft draft;
 
@@ -16,12 +24,25 @@ class RecipeFormState {
   final bool saving;
   final String? saveError;
 
-  RecipeFormState copyWith({RecipeDraft? draft, DraftErrors? errors, bool? saving, String? saveError}) =>
+  /// True while unmatched (imported) ingredients are being added to the shared catalog.
+  final bool addingIngredients;
+  final String? ingredientError;
+
+  RecipeFormState copyWith({
+    RecipeDraft? draft,
+    DraftErrors? errors,
+    bool? saving,
+    String? saveError,
+    bool? addingIngredients,
+    String? ingredientError,
+  }) =>
       RecipeFormState(
         draft: draft ?? this.draft,
         errors: errors ?? this.errors,
         saving: saving ?? this.saving,
         saveError: saveError,
+        addingIngredients: addingIngredients ?? this.addingIngredients,
+        ingredientError: ingredientError,
       );
 }
 
@@ -34,7 +55,11 @@ class RecipeFormController extends _$RecipeFormController {
   @override
   RecipeFormState build(String? recipeId) {
     final recipe = recipeId == null ? null : ref.read(recipeProvider(recipeId)).value;
-    final initial = recipe == null ? const RecipeDraft() : RecipeDraft.fromRecipe(recipe);
+    // A new recipe may start from an import; the form screen clears it once shown.
+    final imported = recipeId == null ? ref.read(importedDraftProvider) : null;
+    final initial = recipe != null
+        ? RecipeDraft.fromRecipe(recipe)
+        : imported ?? const RecipeDraft();
     return RecipeFormState(
       draft: initial.copyWith(
         steps: [for (final step in initial.steps) step.copyWith(uid: _nextUid++)],
@@ -76,6 +101,36 @@ class RecipeFormController extends _$RecipeFormController {
           ],
         ),
       );
+
+  /// Adds every named-but-unmatched row (typically from an import) to the shared catalog in one go.
+  Future<void> addUnresolvedIngredientsToCatalog() async {
+    final pending = _draft.ingredients.where((row) => row.ingredientId.isEmpty && row.name.trim().isNotEmpty).toList();
+    if (pending.isEmpty) return;
+    state = state.copyWith(addingIngredients: true);
+    final catalog = ref.read(ingredientCatalogProvider);
+    try {
+      for (final row in pending) {
+        final option = await catalog.ensure(row.name, defaultUnit: defaultUnitForRowUnit(row.unitText));
+        if (!ref.mounted) return;
+        _edit(
+          _draft.copyWith(
+            ingredients: [
+              for (final item in _draft.ingredients)
+                item.uid == row.uid ? item.copyWith(ingredientId: option.id, name: option.name, aisle: option.aisle) : item,
+            ],
+          ),
+        );
+      }
+      state = state.copyWith(addingIngredients: false);
+    } catch (_) {
+      if (ref.mounted) {
+        state = state.copyWith(
+          addingIngredients: false,
+          ingredientError: 'Không thêm được một số nguyên liệu. Kiểm tra mạng rồi thử lại.',
+        );
+      }
+    }
+  }
 
   void removeIngredient(int uid) =>
       _edit(_draft.copyWith(ingredients: _draft.ingredients.where((row) => row.uid != uid).toList()));

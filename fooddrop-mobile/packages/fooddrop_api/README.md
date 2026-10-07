@@ -68,6 +68,9 @@ Class | Method | HTTP request | Description
 [*HealthApi*](doc/HealthApi.md) | [**healthControllerGetHealth**](doc/HealthApi.md#healthcontrollergethealth) | **GET** /health | 
 [*IngredientsApi*](doc/IngredientsApi.md) | [**ingredientsControllerCreate**](doc/IngredientsApi.md#ingredientscontrollercreate) | **POST** /ingredients | 
 [*IngredientsApi*](doc/IngredientsApi.md) | [**ingredientsControllerSearch**](doc/IngredientsApi.md#ingredientscontrollersearch) | **GET** /ingredients | 
+[*MediaApi*](doc/MediaApi.md) | [**mediaControllerCreateUpload**](doc/MediaApi.md#mediacontrollercreateupload) | **POST** /media/uploads | 
+[*ParserApi*](doc/ParserApi.md) | [**parserControllerCreate**](doc/ParserApi.md#parsercontrollercreate) | **POST** /parser/jobs | 
+[*ParserApi*](doc/ParserApi.md) | [**parserControllerGet**](doc/ParserApi.md#parsercontrollerget) | **GET** /parser/jobs/{id} | 
 [*RecipesApi*](doc/RecipesApi.md) | [**recipesControllerCreate**](doc/RecipesApi.md#recipescontrollercreate) | **POST** /recipes | 
 [*RecipesApi*](doc/RecipesApi.md) | [**recipesControllerGet**](doc/RecipesApi.md#recipescontrollerget) | **GET** /recipes/{id} | 
 [*RecipesApi*](doc/RecipesApi.md) | [**recipesControllerList**](doc/RecipesApi.md#recipescontrollerlist) | **GET** /recipes | 
@@ -79,10 +82,16 @@ Class | Method | HTTP request | Description
 ## Documentation For Models
 
  - [CreateIngredient](doc/CreateIngredient.md)
+ - [CreateParseJob](doc/CreateParseJob.md)
+ - [CreateUpload](doc/CreateUpload.md)
  - [HealthChecksDto](doc/HealthChecksDto.md)
  - [HealthResponseDto](doc/HealthResponseDto.md)
  - [Ingredient](doc/Ingredient.md)
  - [ListRecipesQuery](doc/ListRecipesQuery.md)
+ - [ParseJob](doc/ParseJob.md)
+ - [ParseJobResult](doc/ParseJobResult.md)
+ - [ParseJobResultIngredientsInner](doc/ParseJobResultIngredientsInner.md)
+ - [ParseJobResultStepsInner](doc/ParseJobResultStepsInner.md)
  - [RecipeDetail](doc/RecipeDetail.md)
  - [RecipeDetailIngredientsInner](doc/RecipeDetailIngredientsInner.md)
  - [RecipeDetailIngredientsInnerIngredient](doc/RecipeDetailIngredientsInnerIngredient.md)
@@ -96,6 +105,7 @@ Class | Method | HTTP request | Description
  - [SearchIngredientsQuery](doc/SearchIngredientsQuery.md)
  - [TagDimension](doc/TagDimension.md)
  - [TagDimensionTagsInner](doc/TagDimensionTagsInner.md)
+ - [UploadTarget](doc/UploadTarget.md)
 
 
 ## Documentation For Authorization

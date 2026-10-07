@@ -18,10 +18,20 @@ class RecipeFormIngredients extends ConsumerWidget {
     final provider = recipeFormControllerProvider(recipeId);
     final rows = ref.watch(provider.select((s) => s.draft.ingredients));
     final rowErrors = ref.watch(provider.select((s) => s.errors?.ingredientRows)) ?? const {};
+    final adding = ref.watch(provider.select((s) => s.addingIngredients));
+    final addError = ref.watch(provider.select((s) => s.ingredientError));
+    final unresolved = rows.where((row) => row.ingredientId.isEmpty && row.name.trim().isNotEmpty).toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        if (unresolved.isNotEmpty)
+          _UnresolvedBanner(
+            names: [for (final row in unresolved) row.name.trim()],
+            adding: adding,
+            error: addError,
+            onAdd: ref.read(provider.notifier).addUnresolvedIngredientsToCatalog,
+          ),
         for (final (index, row) in rows.indexed)
           _IngredientRow(
             key: ValueKey(row.uid),
@@ -109,6 +119,52 @@ class _IngredientRow extends ConsumerWidget {
             initialValue: row.note,
             hint: 'thái nhỏ',
             onChanged: (value) => controller.updateIngredient(row.uid, note: value),
+          ),
+          if (error != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(error!, style: TextStyle(fontSize: 13, color: colors.danger)),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Imported ingredients that are not in the shared catalog yet; one tap adds them all.
+class _UnresolvedBanner extends StatelessWidget {
+  const _UnresolvedBanner({required this.names, required this.adding, required this.error, required this.onAdd});
+
+  final List<String> names;
+  final bool adding;
+  final String? error;
+  final VoidCallback onAdd;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: colors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: colors.accent.withValues(alpha: 0.5)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            '${names.length} nguyên liệu chưa có trong danh mục: ${names.join(', ')}',
+            style: const TextStyle(fontSize: 14),
+          ),
+          const SizedBox(height: 10),
+          NeonButton(
+            label: 'Thêm ${names.length} nguyên liệu mới vào danh mục',
+            style: NeonButtonStyle.outline,
+            height: 48,
+            loading: adding,
+            onPressed: onAdd,
           ),
           if (error != null)
             Padding(

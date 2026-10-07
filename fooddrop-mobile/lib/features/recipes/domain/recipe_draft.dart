@@ -200,3 +200,11 @@ DraftErrors validateDraft(RecipeDraft draft) {
     stepRows: stepRows,
   );
 }
+
+/// How a new catalog ingredient should be summed, from the unit text in the form:
+/// blank = counted pieces, ml/l = volume, anything else = weight.
+String defaultUnitForRowUnit(String unit) {
+  final folded = unit.trim().toLowerCase();
+  if (folded.isEmpty) return 'piece';
+  return folded == 'ml' || folded == 'l' ? 'ml' : 'g';
+}

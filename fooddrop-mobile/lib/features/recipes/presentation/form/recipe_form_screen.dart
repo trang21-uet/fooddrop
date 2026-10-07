@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/food_drop_colors.dart';
 import '../../../../core/widgets/neon_button.dart';
+import '../../../parser/data/parser_providers.dart';
 import '../../data/recipe_providers.dart';
 import 'recipe_form_basics.dart';
 import 'recipe_form_controller.dart';
@@ -31,11 +32,27 @@ class RecipeFormScreen extends ConsumerWidget {
   }
 }
 
-class _FormBody extends ConsumerWidget {
+class _FormBody extends ConsumerStatefulWidget {
   const _FormBody({required this.recipeId, required this.title});
 
   final String? recipeId;
   final String title;
+
+  @override
+  ConsumerState<_FormBody> createState() => _FormBodyState();
+}
+
+class _FormBodyState extends ConsumerState<_FormBody> {
+  String? get recipeId => widget.recipeId;
+  String get title => widget.title;
+
+  @override
+  void initState() {
+    super.initState();
+    // The controller reads an imported draft while building (first frame); drop it afterwards so
+    // the next plain "new recipe" starts empty.
+    if (recipeId == null) Future.microtask(() => ref.read(importedDraftProvider.notifier).clear());
+  }
 
   Future<void> _save(BuildContext context, WidgetRef ref) async {
     final savedId = await ref.read(recipeFormControllerProvider(recipeId).notifier).submit();
@@ -45,7 +62,7 @@ class _FormBody extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final colors = context.colors;
     final provider = recipeFormControllerProvider(recipeId);
     final saving = ref.watch(provider.select((s) => s.saving));

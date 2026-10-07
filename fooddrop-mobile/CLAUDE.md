@@ -49,6 +49,13 @@ The API client is the generated path package `packages/fooddrop_api` (dart-dio);
 - Quantities typed offline are shown raw (`displayQuantity`) until the server normalizes them; never convert units in the app.
 - Tests: Drift in-memory (`test/support/test_database.dart`), a fake `RecipeRemote`, a stubbed Dio adapter for auth. `test/integration/backend_sync_test.dart` hits a real backend and skips itself when it is down. In widget tests use `tester.runAsync` for anything that needs real HTTP-stack futures, and `pump(Duration.zero)` after leaving a screen that watched a Drift stream.
 
+## Recipe import (parser)
+
+- `features/parser/`: `ParserRemote` (generated client + a plain Dio for the signed storage PUT, no bearer header), `RecipeImportController` (start → poll → store draft in `ImportedDraft`), import screen. The draft opens in the normal `RecipeFormScreen` via `/recipes/new`, which clears `ImportedDraft` after its first frame.
+- Import needs a connection (the parser runs server-side); it is not part of the offline-first outbox.
+- Signed upload URLs point at `S3_ENDPOINT`. On the Android emulator run `adb reverse tcp:9000 tcp:9000` (and `tcp:4000` if not using 10.0.2.2) so the local storage URL resolves.
+- Tests override `parserRemoteProvider`, `photoPickerProvider` and `importPollIntervalProvider` (see `test/support/parser_fixtures.dart`).
+
 ## Gacha reel
 
 - `AnimationController` (6–8s) + `CurvedAnimation(curve: Cubic(0.1, 0.7, 0.1, 1))` driving `Transform.translate` on a strip of ~70 cards inside a `ClipRect`.

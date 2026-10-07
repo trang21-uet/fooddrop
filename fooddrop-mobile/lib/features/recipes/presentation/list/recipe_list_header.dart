@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../app/food_drop_colors.dart';
 import '../../../../core/auth/auth_controller.dart';
@@ -36,6 +37,13 @@ class RecipeListHeader extends ConsumerWidget {
           const Expanded(
             child: Text('Công thức', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800, letterSpacing: -0.84)),
           ),
+          IconButton(
+            tooltip: 'Nhập công thức từ liên kết hoặc ảnh (đang phát triển)',
+            constraints: const BoxConstraints.tightFor(width: 44, height: 44),
+            onPressed: () => context.push('/recipes/import'),
+            icon: Icon(Icons.auto_awesome_outlined, color: colors.accent),
+          ),
+          const SizedBox(width: 4),
           Semantics(
             button: true,
             label: 'Tài khoản${session == null ? '' : ': ${session.name}'}',

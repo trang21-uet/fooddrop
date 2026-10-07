@@ -1,8 +1,14 @@
 import 'package:fooddrop_api/src/model/create_ingredient.dart';
+import 'package:fooddrop_api/src/model/create_parse_job.dart';
+import 'package:fooddrop_api/src/model/create_upload.dart';
 import 'package:fooddrop_api/src/model/health_checks_dto.dart';
 import 'package:fooddrop_api/src/model/health_response_dto.dart';
 import 'package:fooddrop_api/src/model/ingredient.dart';
 import 'package:fooddrop_api/src/model/list_recipes_query.dart';
+import 'package:fooddrop_api/src/model/parse_job.dart';
+import 'package:fooddrop_api/src/model/parse_job_result.dart';
+import 'package:fooddrop_api/src/model/parse_job_result_ingredients_inner.dart';
+import 'package:fooddrop_api/src/model/parse_job_result_steps_inner.dart';
 import 'package:fooddrop_api/src/model/recipe_detail.dart';
 import 'package:fooddrop_api/src/model/recipe_detail_ingredients_inner.dart';
 import 'package:fooddrop_api/src/model/recipe_detail_ingredients_inner_ingredient.dart';
@@ -16,6 +22,7 @@ import 'package:fooddrop_api/src/model/recipe_list_items_inner.dart';
 import 'package:fooddrop_api/src/model/search_ingredients_query.dart';
 import 'package:fooddrop_api/src/model/tag_dimension.dart';
 import 'package:fooddrop_api/src/model/tag_dimension_tags_inner.dart';
+import 'package:fooddrop_api/src/model/upload_target.dart';
 
 final _regList = RegExp(r'^List<(.*)>$');
 final _regSet = RegExp(r'^Set<(.*)>$');
@@ -37,6 +44,10 @@ final _regMap = RegExp(r'^Map<String,(.*)>$');
           return (value is double ? value : double.parse('$value')) as ReturnType;
         case 'CreateIngredient':
           return CreateIngredient.fromJson(value as Map<String, dynamic>) as ReturnType;
+        case 'CreateParseJob':
+          return CreateParseJob.fromJson(value as Map<String, dynamic>) as ReturnType;
+        case 'CreateUpload':
+          return CreateUpload.fromJson(value as Map<String, dynamic>) as ReturnType;
         case 'HealthChecksDto':
           return HealthChecksDto.fromJson(value as Map<String, dynamic>) as ReturnType;
         case 'HealthResponseDto':
@@ -45,6 +56,14 @@ final _regMap = RegExp(r'^Map<String,(.*)>$');
           return Ingredient.fromJson(value as Map<String, dynamic>) as ReturnType;
         case 'ListRecipesQuery':
           return ListRecipesQuery.fromJson(value as Map<String, dynamic>) as ReturnType;
+        case 'ParseJob':
+          return ParseJob.fromJson(value as Map<String, dynamic>) as ReturnType;
+        case 'ParseJobResult':
+          return ParseJobResult.fromJson(value as Map<String, dynamic>) as ReturnType;
+        case 'ParseJobResultIngredientsInner':
+          return ParseJobResultIngredientsInner.fromJson(value as Map<String, dynamic>) as ReturnType;
+        case 'ParseJobResultStepsInner':
+          return ParseJobResultStepsInner.fromJson(value as Map<String, dynamic>) as ReturnType;
         case 'RecipeDetail':
           return RecipeDetail.fromJson(value as Map<String, dynamic>) as ReturnType;
         case 'RecipeDetailIngredientsInner':
@@ -71,6 +90,8 @@ final _regMap = RegExp(r'^Map<String,(.*)>$');
           return TagDimension.fromJson(value as Map<String, dynamic>) as ReturnType;
         case 'TagDimensionTagsInner':
           return TagDimensionTagsInner.fromJson(value as Map<String, dynamic>) as ReturnType;
+        case 'UploadTarget':
+          return UploadTarget.fromJson(value as Map<String, dynamic>) as ReturnType;
         default:
           RegExpMatch? match;
 

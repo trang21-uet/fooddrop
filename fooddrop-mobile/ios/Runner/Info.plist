@@ -2,6 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NSCameraUsageDescription</key>
+	<string>Food Drop dùng máy ảnh để chụp công thức nấu ăn và đọc thành bản nháp.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Food Drop cần truy cập ảnh để đọc công thức từ ảnh bạn chọn.</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsLocalNetworking</key>

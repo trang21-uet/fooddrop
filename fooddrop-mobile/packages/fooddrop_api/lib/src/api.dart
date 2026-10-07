@@ -9,6 +9,8 @@ import 'package:fooddrop_api/src/auth/bearer_auth.dart';
 import 'package:fooddrop_api/src/auth/oauth.dart';
 import 'package:fooddrop_api/src/api/health_api.dart';
 import 'package:fooddrop_api/src/api/ingredients_api.dart';
+import 'package:fooddrop_api/src/api/media_api.dart';
+import 'package:fooddrop_api/src/api/parser_api.dart';
 import 'package:fooddrop_api/src/api/recipes_api.dart';
 import 'package:fooddrop_api/src/api/tags_api.dart';
 
@@ -113,6 +115,18 @@ class FooddropApi {
   /// by doing that all interceptors will not be executed
   IngredientsApi getIngredientsApi() {
     return IngredientsApi(dio);
+  }
+
+  /// Get MediaApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  MediaApi getMediaApi() {
+    return MediaApi(dio);
+  }
+
+  /// Get ParserApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  ParserApi getParserApi() {
+    return ParserApi(dio);
   }
 
   /// Get RecipesApi instance, base route and serializer can be overridden by a given but be careful,
