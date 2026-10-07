@@ -68,11 +68,13 @@ class _AlertWatcher extends ConsumerStatefulWidget {
 }
 
 class _AlertWatcherState extends ConsumerState<_AlertWatcher> {
-  final _alerting = <int>{};
+  /// (timer id, endsAt) pairs already rung. Keyed on endsAt so extending or resuming a timer re-arms it,
+  /// and a tick that lands before the database stream catches up cannot ring it twice.
+  final _alerting = <(int, int)>{};
 
   void _check(int now) {
     for (final timer in widget.timers) {
-      if (timer.alertedAtMs != null || !timer.isDone(now) || !_alerting.add(timer.id)) continue;
+      if (timer.alertedAtMs != null || !timer.isDone(now) || !_alerting.add((timer.id, timer.clock.endsAtMs))) continue;
       ref.read(timerActionsProvider).markAlerted(timer.id);
       if (now - timer.clock.endsAtMs < _staleAlertMs) {
         HapticFeedback.vibrate();

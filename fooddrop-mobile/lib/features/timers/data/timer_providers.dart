@@ -71,6 +71,13 @@ class TimerActions {
     await _guard('cancel notification', () => _scheduler.cancel(id));
   }
 
+  /// Sign-out: pending OS notifications outlive the database rows, so cancel them before the wipe.
+  Future<void> cancelAllNotifications() async {
+    for (final timer in await _store.getAll()) {
+      await _guard('cancel notification', () => _scheduler.cancel(timer.id));
+    }
+  }
+
   /// Re-arms the OS notification of every running timer (app start, exact-alarm permission granted).
   Future<void> restore() async {
     for (final timer in await _store.getAll()) {

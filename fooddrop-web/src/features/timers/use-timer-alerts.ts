@@ -4,6 +4,9 @@ import { timerRemainingMs } from "./timer-math";
 import { useNow } from "./ticker";
 import { useTimerStore } from "./use-timer-store";
 
+/** A timer that ended longer ago than this rang while the app was closed; alerting now would be noise. */
+const STALE_ALERT_MS = 15_000;
+
 /** Mounted once for the whole app: rings each timer the first time a tick finds it at zero. */
 export function useTimerAlerts(): void {
   const now = useNow();
@@ -16,7 +19,7 @@ export function useTimerAlerts(): void {
     for (const timer of timers) {
       if (timer.alertedAt === null && timerRemainingMs(timer, now) === 0) {
         void markAlerted(timer.id);
-        alertTimerDone(timer.label);
+        if (now - timer.endsAt < STALE_ALERT_MS) alertTimerDone(timer);
       }
     }
   }, [hydrated, now, timers, markAlerted]);

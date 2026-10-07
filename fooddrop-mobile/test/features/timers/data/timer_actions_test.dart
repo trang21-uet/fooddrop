@@ -124,6 +124,16 @@ void main() {
     expect(scheduler.scheduled, isEmpty);
   });
 
+  test('cancelAllNotifications clears every pending notification (sign-out)', () async {
+    await actions().start('a', const Duration(minutes: 5));
+    await actions().start('b', const Duration(minutes: 9));
+    expect(scheduler.scheduled, hasLength(2));
+
+    await actions().cancelAllNotifications();
+
+    expect(scheduler.scheduled, isEmpty);
+  });
+
   test('a notification failure never loses the timer', () async {
     scheduler.failScheduling = true;
     await actions().start('a', const Duration(minutes: 5));

@@ -40,12 +40,13 @@ function playChime() {
 }
 
 /** Sound + vibration + a system notification (shown when the tab is in the background). */
-export function alertTimerDone(label: string): void {
+export function alertTimerDone(timer: { id: string; label: string }): void {
   playChime();
   navigator.vibrate?.([200, 100, 200]);
   if (typeof Notification !== "undefined" && Notification.permission === "granted") {
     try {
-      new Notification("Hết giờ!", { body: label, tag: `timer-${label}` });
+      // Tagged by id: timers often share a label, and a shared tag would make one notification replace another.
+      new Notification("Hết giờ!", { body: timer.label, tag: `timer-${timer.id}` });
     } catch (error) {
       console.error("Could not show timer notification", error);
     }

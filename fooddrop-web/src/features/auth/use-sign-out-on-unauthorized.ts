@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { ApiError } from "@/lib/api/api-error";
 import { authClient } from "@/lib/auth-client";
+import { clearLocalUserData } from "@/lib/clear-local-user-data";
 
 /**
  * A 401 while the session cookie is still present means the session expired server-side.
@@ -13,6 +14,6 @@ export function useSignOutOnUnauthorized(error: unknown) {
   const router = useRouter();
   useEffect(() => {
     if (!(error instanceof ApiError) || error.status !== 401) return;
-    void authClient.signOut().finally(() => router.replace("/login"));
+    void Promise.all([authClient.signOut(), clearLocalUserData()]).finally(() => router.replace("/login"));
   }, [error, router]);
 }

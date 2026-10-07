@@ -13,11 +13,12 @@ beforeEach(() => {
 });
 
 describe("useTimerAlerts", () => {
-  it("rings an expired timer exactly once, including one that ended while the app was closed", async () => {
+  it("rings a just-expired timer exactly once and silently retires one that ended long ago", async () => {
     useTimerStore.setState({
       hydrated: true,
       timers: [
         { id: "late", label: "Hầm xương", endsAt: Date.now() - 5000, pausedRemainingMs: null, alertedAt: null },
+        { id: "stale", label: "Hôm qua", endsAt: Date.now() - 3_600_000, pausedRemainingMs: null, alertedAt: null },
         { id: "later", label: "Đang chạy", endsAt: Date.now() + 600_000, pausedRemainingMs: null, alertedAt: null },
         { id: "paused", label: "Tạm dừng", endsAt: 0, pausedRemainingMs: 30_000, alertedAt: null },
       ],
@@ -28,7 +29,10 @@ describe("useTimerAlerts", () => {
     await act(async () => {});
 
     expect(alertTimerDone).toHaveBeenCalledTimes(1);
-    expect(alertTimerDone).toHaveBeenCalledWith("Hầm xương");
-    expect(useTimerStore.getState().timers.find((t) => t.id === "late")!.alertedAt).not.toBeNull();
+    expect(alertTimerDone).toHaveBeenCalledWith(expect.objectContaining({ id: "late", label: "Hầm xương" }));
+    const alertedAt = (id: string) => useTimerStore.getState().timers.find((t) => t.id === id)!.alertedAt;
+    expect(alertedAt("late")).not.toBeNull();
+    expect(alertedAt("stale")).not.toBeNull();
+    expect(alertedAt("later")).toBeNull();
   });
 });

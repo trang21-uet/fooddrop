@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../features/timers/data/timer_providers.dart';
 import '../api/api_client_provider.dart';
 import '../db/database_provider.dart';
 import 'auth_remote.dart';
@@ -46,6 +47,8 @@ class AuthController extends _$AuthController {
     if (state.value == null) return;
     ref.read(apiClientProvider).removeBearerAuth(bearerSchemeName);
     await ref.read(sessionStorageProvider).clear();
+    // Scheduled timer notifications would otherwise still fire for the account that just left.
+    await ref.read(timerActionsProvider).cancelAllNotifications();
     await ref.read(appDatabaseProvider).wipe();
     state = const AsyncData(null);
   }

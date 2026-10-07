@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
@@ -47,9 +49,16 @@ void main() {
 
   setUp(() => log = []);
 
-  List<Override> overrides(List<TimerEntry> timers, {bool exactAllowed = true, FakeTimerScheduler? scheduler}) => [
-        timersProvider.overrideWith((ref) => Stream.value(timers)),
-        tickerProvider.overrideWith((ref) => Stream.value(_now)),
+  /// [fixedStreams] false leaves `timersProvider` and `tickerProvider` for the test to drive by hand.
+  List<Override> overrides(
+    List<TimerEntry> timers, {
+    bool exactAllowed = true,
+    FakeTimerScheduler? scheduler,
+    bool fixedStreams = true,
+  }) =>
+      [
+        if (fixedStreams) timersProvider.overrideWith((ref) => Stream.value(timers)),
+        if (fixedStreams) tickerProvider.overrideWith((ref) => Stream.value(_now)),
         nowMsProvider.overrideWithValue(() => _now),
         exactAlarmsAllowedProvider.overrideWith((ref) async => exactAllowed),
         timerNotificationSchedulerProvider.overrideWithValue(scheduler ?? FakeTimerScheduler()),
@@ -164,6 +173,45 @@ void main() {
       ]);
       await tester.pump();
       expect(log, isNot(contains('alerted 1')));
+    });
+
+    testWidgets('a timer that is extended after ringing rings again when it finishes again', (tester) async {
+      final timers = StreamController<List<TimerEntry>>();
+      final ticks = StreamController<int>();
+      // Not awaited: closing a controller whose listener is already gone never completes.
+      addTearDown(() {
+        timers.close();
+        ticks.close();
+      });
+      await pumpRoutes(
+        tester,
+        overrides: [
+          ...overrides(const [], fixedStreams: false),
+          timersProvider.overrideWith((ref) => timers.stream),
+          tickerProvider.overrideWith((ref) => ticks.stream),
+        ],
+        routes: [homeRoute(const TimerDockShell(location: '/recipes', child: Scaffold(body: Text('màn hình'))))],
+      );
+      int rings() => log.where((entry) => entry == 'alerted 1').length;
+
+      timers.add([TimerEntry(id: 1, label: 'a', clock: const TimerClock(endsAtMs: _now - 1000))]);
+      ticks.add(_now);
+      await tester.pump();
+      await tester.pump();
+      expect(rings(), 1);
+
+      // "+1 phút": alert re-armed, timer running again.
+      timers.add([_running(1, 'a', 60000)]);
+      ticks.add(_now);
+      await tester.pump();
+      await tester.pump();
+      expect(rings(), 1);
+
+      // The minute passes.
+      ticks.add(_now + 61000);
+      await tester.pump();
+      await tester.pump();
+      expect(rings(), 2);
     });
 
     testWidgets('is hidden on the timers screen, which lists them itself', (tester) async {

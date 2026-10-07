@@ -125,7 +125,10 @@ class RecipeLocalStore {
   Future<void> removeMissing(Set<String> remoteIds, {required Set<String> keepIds}) async {
     final rows = await _db.select(_db.recipes).get();
     final stale = rows.map((r) => r.id).where((id) => !remoteIds.contains(id) && !keepIds.contains(id));
-    await (_db.delete(_db.recipes)..where((t) => t.id.isIn(stale.toList()))).go();
+    await _db.transaction(() async {
+      await (_db.delete(_db.recipes)..where((t) => t.id.isIn(stale.toList()))).go();
+      await _dropFromGroceryList(stale);
+    });
   }
 
   Future<void> upsertDetail(api.RecipeDetail detail) => _writeRows(rowsFromDetail(detail));
@@ -133,6 +136,8 @@ class RecipeLocalStore {
   /// A create was accepted: swap the local placeholder for the server's recipe.
   Future<void> replaceLocal(String localId, api.RecipeDetail detail, int outboxId) => _db.transaction(() async {
         await (_db.delete(_db.recipes)..where((t) => t.id.equals(localId))).go();
+        // The grocery list refers to recipes by id, so it follows the placeholder to its server id.
+        await _renameInGroceryList(localId, detail.id);
         await upsertDetail(detail);
         await removeOp(outboxId);
       });
@@ -163,6 +168,7 @@ class RecipeLocalStore {
         final queued = await _opsFor(id);
         await (_db.delete(_db.outbox)..where((t) => t.recipeId.equals(id))).go();
         await (_db.delete(_db.recipes)..where((t) => t.id.equals(id))).go();
+        await _dropFromGroceryList([id]);
         // A recipe the server never saw needs no delete request.
         final neverSynced = isLocalId(id) || queued.any((op) => op.kind == 'create');
         if (!neverSynced) await _enqueue('delete', id, null);
@@ -171,6 +177,21 @@ class RecipeLocalStore {
   Future<void> removeOp(int outboxId) => (_db.delete(_db.outbox)..where((t) => t.id.equals(outboxId))).go();
 
   // ---- Helpers ------------------------------------------------------------------------------
+
+  /// Grocery selections have no foreign key (see [GrocerySelections]), so recipe removal and id
+  /// changes keep them consistent here, in the same transaction as the recipe write.
+  Future<void> _dropFromGroceryList(Iterable<String> recipeIds) =>
+      (_db.delete(_db.grocerySelections)..where((t) => t.recipeId.isIn(recipeIds.toList()))).go();
+
+  Future<void> _renameInGroceryList(String fromId, String toId) async {
+    final alreadyListed = await (_db.select(_db.grocerySelections)..where((t) => t.recipeId.equals(toId))).getSingleOrNull();
+    if (alreadyListed != null) {
+      await _dropFromGroceryList([fromId]);
+      return;
+    }
+    await (_db.update(_db.grocerySelections)..where((t) => t.recipeId.equals(fromId)))
+        .write(GrocerySelectionsCompanion(recipeId: Value(toId)));
+  }
 
   Future<List<OutboxRow>> _opsFor(String recipeId) =>
       (_db.select(_db.outbox)..where((t) => t.recipeId.equals(recipeId))).get();
