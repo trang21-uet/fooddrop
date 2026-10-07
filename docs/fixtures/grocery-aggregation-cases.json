@@ -1,0 +1,116 @@
+{
+  "_doc": "Shared by fooddrop-web (aggregate-grocery.test.ts) and fooddrop-mobile (grocery_aggregation_test.dart). Rules: scale each ingredient by servings/baseServings, sum per (ingredientId, unit) WITHOUT rounding, round the sum with roundForUnit, group by aisle in the order produce, meat, seafood, dairy, pantry, spices, frozen, other (empty aisles omitted), sort items by name then unit using plain code-unit comparison. Units are never converted; mixed units of one ingredient stay separate lines. Selections whose recipe is unknown are skipped.",
+  "cases": [
+    {
+      "name": "sums the same ingredient across recipes and scales by servings",
+      "selections": [
+        { "recipeId": "r1", "servings": 4 },
+        { "recipeId": "r2", "servings": 2 }
+      ],
+      "recipes": [
+        {
+          "id": "r1", "title": "Canh cà chua", "baseServings": 2,
+          "ingredients": [
+            { "ingredientId": "tomato", "name": "Cà chua", "aisle": "produce", "quantity": 200, "unit": "g" },
+            { "ingredientId": "soy", "name": "Nước tương", "aisle": "pantry", "quantity": 30, "unit": "ml" }
+          ]
+        },
+        {
+          "id": "r2", "title": "Trứng sốt cà", "baseServings": 4,
+          "ingredients": [
+            { "ingredientId": "tomato", "name": "Cà chua", "aisle": "produce", "quantity": 300, "unit": "g" },
+            { "ingredientId": "egg", "name": "Trứng gà", "aisle": "dairy", "quantity": 4, "unit": "piece" }
+          ]
+        }
+      ],
+      "expected": [
+        { "aisle": "produce", "items": [{ "ingredientId": "tomato", "name": "Cà chua", "unit": "g", "quantity": 550 }] },
+        { "aisle": "dairy", "items": [{ "ingredientId": "egg", "name": "Trứng gà", "unit": "piece", "quantity": 2 }] },
+        { "aisle": "pantry", "items": [{ "ingredientId": "soy", "name": "Nước tương", "unit": "ml", "quantity": 60 }] }
+      ]
+    },
+    {
+      "name": "keeps mixed units of one ingredient on separate lines",
+      "selections": [
+        { "recipeId": "r1", "servings": 1 },
+        { "recipeId": "r2", "servings": 1 }
+      ],
+      "recipes": [
+        { "id": "r1", "title": "A", "baseServings": 1, "ingredients": [{ "ingredientId": "butter", "name": "Bơ", "aisle": "dairy", "quantity": 50, "unit": "g" }] },
+        { "id": "r2", "title": "B", "baseServings": 1, "ingredients": [{ "ingredientId": "butter", "name": "Bơ", "aisle": "dairy", "quantity": 2, "unit": "piece" }] }
+      ],
+      "expected": [
+        {
+          "aisle": "dairy",
+          "items": [
+            { "ingredientId": "butter", "name": "Bơ", "unit": "g", "quantity": 50 },
+            { "ingredientId": "butter", "name": "Bơ", "unit": "piece", "quantity": 2 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "rounds after summing, not before",
+      "selections": [
+        { "recipeId": "r1", "servings": 1 },
+        { "recipeId": "r2", "servings": 2 }
+      ],
+      "recipes": [
+        { "id": "r1", "title": "A", "baseServings": 3, "ingredients": [{ "ingredientId": "garlic", "name": "Tỏi", "aisle": "produce", "quantity": 10, "unit": "g" }] },
+        { "id": "r2", "title": "B", "baseServings": 3, "ingredients": [{ "ingredientId": "garlic", "name": "Tỏi", "aisle": "produce", "quantity": 10, "unit": "g" }] }
+      ],
+      "expected": [
+        { "aisle": "produce", "items": [{ "ingredientId": "garlic", "name": "Tỏi", "unit": "g", "quantity": 10 }] }
+      ]
+    },
+    {
+      "name": "sorts items by name within an aisle and follows the fixed aisle order",
+      "selections": [{ "recipeId": "r1", "servings": 2 }],
+      "recipes": [
+        {
+          "id": "r1", "title": "Salad", "baseServings": 2,
+          "ingredients": [
+            { "ingredientId": "chili", "name": "Ớt", "aisle": "produce", "quantity": 10, "unit": "g" },
+            { "ingredientId": "pork", "name": "Thịt ba chỉ", "aisle": "meat", "quantity": 300, "unit": "g" },
+            { "ingredientId": "scallion", "name": "Hành lá", "aisle": "produce", "quantity": 20, "unit": "g" },
+            { "ingredientId": "tomato", "name": "Cà chua", "aisle": "produce", "quantity": 200, "unit": "g" },
+            { "ingredientId": "peas", "name": "Đậu Hà Lan đông lạnh", "aisle": "frozen", "quantity": 100, "unit": "g" },
+            { "ingredientId": "salt", "name": "Muối", "aisle": "spices", "quantity": 4, "unit": "g" }
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "aisle": "produce",
+          "items": [
+            { "ingredientId": "tomato", "name": "Cà chua", "unit": "g", "quantity": 200 },
+            { "ingredientId": "scallion", "name": "Hành lá", "unit": "g", "quantity": 20 },
+            { "ingredientId": "chili", "name": "Ớt", "unit": "g", "quantity": 10 }
+          ]
+        },
+        { "aisle": "meat", "items": [{ "ingredientId": "pork", "name": "Thịt ba chỉ", "unit": "g", "quantity": 300 }] },
+        { "aisle": "spices", "items": [{ "ingredientId": "salt", "name": "Muối", "unit": "g", "quantity": 4 }] },
+        { "aisle": "frozen", "items": [{ "ingredientId": "peas", "name": "Đậu Hà Lan đông lạnh", "unit": "g", "quantity": 100 }] }
+      ]
+    },
+    {
+      "name": "keeps zero-quantity items and skips unknown recipes",
+      "selections": [
+        { "recipeId": "gone", "servings": 2 },
+        { "recipeId": "r1", "servings": 2 }
+      ],
+      "recipes": [
+        { "id": "r1", "title": "A", "baseServings": 2, "ingredients": [{ "ingredientId": "sambal", "name": "Tương ớt", "aisle": "other", "quantity": 0, "unit": "g" }] }
+      ],
+      "expected": [
+        { "aisle": "other", "items": [{ "ingredientId": "sambal", "name": "Tương ớt", "unit": "g", "quantity": 0 }] }
+      ]
+    },
+    {
+      "name": "empty selection gives no groups",
+      "selections": [],
+      "recipes": [],
+      "expected": []
+    }
+  ]
+}

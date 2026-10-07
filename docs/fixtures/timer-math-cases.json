@@ -1,0 +1,23 @@
+{
+  "_doc": "Shared by fooddrop-web (timer-math.test.ts) and fooddrop-mobile (timer_math_test.dart). All values are epoch milliseconds / milliseconds. A paused timer has pausedRemainingMs set and ignores endsAt.",
+  "remaining": [
+    { "timer": { "endsAt": 10000, "pausedRemainingMs": null }, "now": 4000, "expected": 6000 },
+    { "timer": { "endsAt": 10000, "pausedRemainingMs": null }, "now": 10000, "expected": 0 },
+    { "timer": { "endsAt": 10000, "pausedRemainingMs": null }, "now": 12000, "expected": 0 },
+    { "timer": { "endsAt": 99999, "pausedRemainingMs": 5000 }, "now": 1, "expected": 5000 }
+  ],
+  "pause": [
+    { "timer": { "endsAt": 10000, "pausedRemainingMs": null }, "now": 4000, "expected": { "endsAt": 10000, "pausedRemainingMs": 6000 } },
+    { "timer": { "endsAt": 10000, "pausedRemainingMs": null }, "now": 12000, "expected": { "endsAt": 10000, "pausedRemainingMs": 0 } },
+    { "timer": { "endsAt": 99999, "pausedRemainingMs": 5000 }, "now": 7000, "expected": { "endsAt": 99999, "pausedRemainingMs": 5000 } }
+  ],
+  "resume": [
+    { "timer": { "endsAt": 10000, "pausedRemainingMs": 6000 }, "now": 20000, "expected": { "endsAt": 26000, "pausedRemainingMs": null } },
+    { "timer": { "endsAt": 10000, "pausedRemainingMs": null }, "now": 20000, "expected": { "endsAt": 10000, "pausedRemainingMs": null } }
+  ],
+  "add": [
+    { "timer": { "endsAt": 10000, "pausedRemainingMs": null }, "now": 4000, "addMs": 60000, "expected": { "endsAt": 70000, "pausedRemainingMs": null } },
+    { "timer": { "endsAt": 10000, "pausedRemainingMs": 5000 }, "now": 4000, "addMs": 60000, "expected": { "endsAt": 10000, "pausedRemainingMs": 65000 } },
+    { "timer": { "endsAt": 10000, "pausedRemainingMs": null }, "now": 12000, "addMs": 60000, "expected": { "endsAt": 72000, "pausedRemainingMs": null } }
+  ]
+}

@@ -3,12 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-// Only Recipes exists yet; the rest are placeholders for later phases (not links, so no 404s).
+// "Quay món" is a placeholder for a later phase (not a link, so no 404).
 const NAV_ITEMS = [
   { label: "Công thức", href: "/recipes" },
   { label: "Quay món" },
-  { label: "Đi chợ" },
-  { label: "Hẹn giờ" },
+  { label: "Đi chợ", href: "/grocery" },
+  { label: "Hẹn giờ", href: "/timers" },
 ] as const;
 
 const itemClass = "flex min-h-11 items-center border-b-2 px-3.5 text-[15px] whitespace-nowrap";

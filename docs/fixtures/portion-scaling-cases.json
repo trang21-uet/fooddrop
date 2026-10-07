@@ -1,0 +1,27 @@
+{
+  "_doc": "Shared by fooddrop-web (portion-scaling.test.ts) and fooddrop-mobile (portion_scaling_test.dart). roundForUnit: g/ml step 5 (step 0.5 below 5 so small spice amounts never vanish), piece step 0.5, positive values never round to 0. scaleIngredientQuantity leaves the quantity untouched when servings equals baseServings.",
+  "round": [
+    { "quantity": 0, "unit": "g", "expected": 0 },
+    { "quantity": 0.2, "unit": "g", "expected": 0.5 },
+    { "quantity": 4.2, "unit": "g", "expected": 4 },
+    { "quantity": 4.8, "unit": "g", "expected": 5 },
+    { "quantity": 12, "unit": "g", "expected": 10 },
+    { "quantity": 13, "unit": "g", "expected": 15 },
+    { "quantity": 250, "unit": "g", "expected": 250 },
+    { "quantity": 331, "unit": "ml", "expected": 330 },
+    { "quantity": 1.3, "unit": "piece", "expected": 1.5 },
+    { "quantity": 2.2, "unit": "piece", "expected": 2 },
+    { "quantity": 0.2, "unit": "piece", "expected": 0.5 },
+    { "quantity": 3, "unit": "piece", "expected": 3 }
+  ],
+  "scale": [
+    { "quantity": 200, "unit": "g", "servings": 4, "baseServings": 2, "expected": 400 },
+    { "quantity": 150, "unit": "g", "servings": 3, "baseServings": 2, "expected": 225 },
+    { "quantity": 100, "unit": "g", "servings": 1, "baseServings": 3, "expected": 35 },
+    { "quantity": 12, "unit": "g", "servings": 2, "baseServings": 2, "expected": 12 },
+    { "quantity": 1, "unit": "piece", "servings": 3, "baseServings": 2, "expected": 1.5 },
+    { "quantity": 1, "unit": "piece", "servings": 1, "baseServings": 5, "expected": 0.5 },
+    { "quantity": 500, "unit": "ml", "servings": 1, "baseServings": 4, "expected": 125 },
+    { "quantity": 2, "unit": "g", "servings": 1, "baseServings": 4, "expected": 0.5 }
+  ]
+}

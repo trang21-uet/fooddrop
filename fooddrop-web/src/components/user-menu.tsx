@@ -2,7 +2,10 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import { resetGroceryStore } from "@/features/grocery/use-grocery-store";
+import { resetTimerStore } from "@/features/timers/use-timer-store";
 import { authClient } from "@/lib/auth-client";
+import { wipeLocalData } from "@/lib/local-db";
 import { Button } from "./ui/button";
 
 /** First letter of the first and last word, e.g. "Peter Parker" → "PP". */
@@ -21,6 +24,10 @@ export function UserMenu() {
     await authClient.signOut();
     // Cached recipes belong to the previous user.
     queryClient.clear();
+    // Same for the grocery list and timers kept in this browser.
+    resetGroceryStore();
+    resetTimerStore();
+    await wipeLocalData().catch((error: unknown) => console.error("Could not wipe local data", error));
     router.replace("/login");
     router.refresh();
   };

@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { buttonClass } from "@/components/ui/button";
 import { DeleteRecipeButton } from "./delete-recipe-button";
-import { formatQuantity } from "./format-quantity";
+import { StartStepTimerButton } from "../timers/start-step-timer-button";
 import { RarityBadge, rarityGlowStyle } from "./rarity-badge";
+import { RecipeIngredientsPanel } from "./recipe-ingredients-panel";
 import type { RecipeDetail } from "./recipe-types";
 
 /** Server Component: steps and notes are user text, rendered as plain text nodes (React escapes them). */
@@ -51,26 +52,7 @@ export function RecipeDetailView({ recipe }: { recipe: RecipeDetail }) {
       </header>
 
       <div className="grid gap-8 md:grid-cols-[1fr_2fr]">
-        <section aria-labelledby="ingredients-heading">
-          <h2 id="ingredients-heading" className="mb-3 text-lg font-semibold">
-            Nguyên liệu
-          </h2>
-          {recipe.ingredients.length === 0 ? (
-            <p className="text-sm text-muted">Chưa có nguyên liệu.</p>
-          ) : (
-            <ul className="flex flex-col divide-y divide-border rounded-xl border border-border bg-surface">
-              {recipe.ingredients.map((item) => (
-                <li key={item.ingredient.id} className="flex justify-between gap-3 px-4 py-2.5 text-sm">
-                  <span>
-                    {item.ingredient.name}
-                    {item.note && <span className="text-muted"> ({item.note})</span>}
-                  </span>
-                  <span className="shrink-0 font-mono text-muted">{formatQuantity(item.quantity, item.unit)}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
+        <RecipeIngredientsPanel recipe={recipe} />
 
         <section aria-labelledby="steps-heading">
           <h2 id="steps-heading" className="mb-3 text-lg font-semibold">
@@ -85,9 +67,10 @@ export function RecipeDetailView({ recipe }: { recipe: RecipeDetail }) {
                 <div className="flex flex-col gap-1">
                   <p className="whitespace-pre-line">{step.text}</p>
                   {step.timerSeconds && (
-                    <p className="text-xs text-muted">
-                      Hẹn giờ: {Math.round(step.timerSeconds / 60)} phút{step.timerLabel ? ` · ${step.timerLabel}` : ""}
-                    </p>
+                    <StartStepTimerButton
+                      seconds={step.timerSeconds}
+                      label={step.timerLabel ?? `${recipe.title} · bước ${step.order}`}
+                    />
                   )}
                 </div>
               </li>
