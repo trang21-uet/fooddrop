@@ -17,17 +17,19 @@ export function draftToFormValues(draft: ParsedRecipeDraft): RecipeFormValues {
       ingredientId: item.ingredientId ?? "",
       // Show the catalog's name for matches so the visible text is what will be saved.
       ingredientName: item.matchedName ?? item.name,
-      quantity: String(Number.parseFloat(item.quantity.toFixed(2))),
-      unit: item.unit === "piece" ? "" : item.unit,
+      quantity: item.quantity === null ? "" : String(Number.parseFloat(item.quantity.toFixed(2))),
+      unit: item.unit ?? "",
       note: item.note ?? "",
     })),
     steps:
       draft.steps.length > 0
         ? draft.steps.map((step) => ({
+            name: "",
             text: step.text,
+            images: [],
             timerMinutes: step.timerSeconds ? Math.min(1440, Math.ceil(step.timerSeconds / 60)) : undefined,
           }))
-        : [{ text: "" }],
+        : [{ name: "", text: "", images: [] }],
     tagIds: draft.suggestedTagIds,
   };
 }

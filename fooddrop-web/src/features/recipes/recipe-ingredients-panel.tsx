@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { AddToGroceryButton } from "../grocery/add-to-grocery-button";
-import { formatQuantity } from "./format-quantity";
+import { formatAmount } from "./format-quantity";
 import { scaleIngredientQuantity } from "./portion-scaling";
 import type { RecipeDetail } from "./recipe-types";
 import { ServingsStepper } from "./servings-stepper";
@@ -31,7 +31,12 @@ export function RecipeIngredientsPanel({ recipe }: { recipe: RecipeDetail }) {
                 {item.note && <span className="text-muted"> ({item.note})</span>}
               </span>
               <span className="shrink-0 font-mono text-muted">
-                {formatQuantity(scaleIngredientQuantity(item.quantity, item.unit, servings, recipe.baseServings), item.unit)}
+                {formatAmount(
+                  item.quantity === null
+                    ? null
+                    : scaleIngredientQuantity(item.quantity, item.unit?.code ?? null, servings, recipe.baseServings),
+                  item.unit,
+                )}
               </span>
             </li>
           ))}

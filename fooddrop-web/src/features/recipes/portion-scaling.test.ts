@@ -2,11 +2,10 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import { roundForUnit, scaleIngredientQuantity } from "./portion-scaling";
-import type { IngredientUnit } from "./recipe-types";
 
 interface Cases {
-  round: { quantity: number; unit: IngredientUnit; expected: number }[];
-  scale: { quantity: number; unit: IngredientUnit; servings: number; baseServings: number; expected: number }[];
+  round: { quantity: number; unit: string; expected: number }[];
+  scale: { quantity: number; unit: string; servings: number; baseServings: number; expected: number }[];
 }
 
 const cases = JSON.parse(readFileSync(resolve(process.cwd(), "../docs/fixtures/portion-scaling-cases.json"), "utf8")) as Cases;

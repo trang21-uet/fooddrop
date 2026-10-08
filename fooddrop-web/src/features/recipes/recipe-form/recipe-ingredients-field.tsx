@@ -5,11 +5,9 @@ import { Controller, useFieldArray, useFormContext, useWatch } from "react-hook-
 import { Button } from "@/components/ui/button";
 import { FormField, inputClass } from "@/components/ui/form-field";
 import { defaultUnitForRowUnit, ensureIngredient } from "./ensure-ingredient";
+import { useUnitsQuery } from "../use-units-query";
 import { IngredientAutocomplete } from "./ingredient-autocomplete";
 import type { RecipeFormValues } from "./recipe-form-schema";
-
-const UNIT_SUGGESTIONS = ["g", "kg", "ml", "l", "tsp", "tbsp", "cup", "clove", "slice"];
-const UNIT_LIST_ID = "ingredient-unit-suggestions";
 
 /** `offerBulkAdd` is for imported drafts, where several names arrive unresolved at once. */
 export function RecipeIngredientsField({ offerBulkAdd = false }: { offerBulkAdd?: boolean }) {
@@ -21,6 +19,7 @@ export function RecipeIngredientsField({ offerBulkAdd = false }: { offerBulkAdd?
     formState: { errors },
   } = useFormContext<RecipeFormValues>();
   const { fields, append, remove } = useFieldArray({ control, name: "ingredients" });
+  const units = useUnitsQuery().data ?? [];
   const [addingAll, setAddingAll] = useState(false);
   const [addAllError, setAddAllError] = useState<string | null>(null);
 
@@ -33,7 +32,7 @@ export function RecipeIngredientsField({ offerBulkAdd = false }: { offerBulkAdd?
     setAddAllError(null);
     try {
       for (const { index, row } of unresolved) {
-        const ingredient = await ensureIngredient(row.ingredientName.trim(), defaultUnitForRowUnit(row.unit));
+        const ingredient = await ensureIngredient(row.ingredientName.trim(), defaultUnitForRowUnit(row.unit, units));
         setValue(`ingredients.${index}.ingredientId`, ingredient.id, { shouldDirty: true, shouldValidate: true });
         setValue(`ingredients.${index}.ingredientName`, ingredient.name);
       }
@@ -49,11 +48,6 @@ export function RecipeIngredientsField({ offerBulkAdd = false }: { offerBulkAdd?
       <h2 id="ingredients-field-heading" className="text-lg font-semibold">
         Nguyên liệu
       </h2>
-      <datalist id={UNIT_LIST_ID}>
-        {UNIT_SUGGESTIONS.map((unit) => (
-          <option key={unit} value={unit} />
-        ))}
-      </datalist>
       <ul className="flex flex-col gap-4">
         {fields.map((field, index) => {
           const rowErrors = errors.ingredients?.[index];
@@ -93,7 +87,7 @@ export function RecipeIngredientsField({ offerBulkAdd = false }: { offerBulkAdd?
                   </span>
                 )}
               </div>
-              <FormField label="Số lượng" error={rowErrors?.quantity?.message}>
+              <FormField label="Số lượng (không bắt buộc)" error={rowErrors?.quantity?.message}>
                 <input
                   {...register(`ingredients.${index}.quantity`)}
                   placeholder="ví dụ 1 1/2"
@@ -101,8 +95,26 @@ export function RecipeIngredientsField({ offerBulkAdd = false }: { offerBulkAdd?
                   className={inputClass}
                 />
               </FormField>
-              <FormField label="Đơn vị" hint="Để trống = cái" error={rowErrors?.unit?.message}>
-                <input {...register(`ingredients.${index}.unit`)} list={UNIT_LIST_ID} className={inputClass} />
+              <FormField label="Đơn vị (không bắt buộc)" hint="Chỉ lưu khi có số lượng" error={rowErrors?.unit?.message}>
+                {/* Controlled, so a saved unit is selected once the catalog finishes loading. */}
+                <Controller
+                  control={control}
+                  name={`ingredients.${index}.unit`}
+                  render={({ field: unitField }) => (
+                    <select {...unitField} className={inputClass}>
+                      <option value="">Không có</option>
+                      {/* Catalog still loading (or failed): keep a saved unit visible instead of showing "Không có". */}
+                      {unitField.value && !units.some((unit) => unit.code === unitField.value) && (
+                        <option value={unitField.value}>{unitField.value}</option>
+                      )}
+                      {units.map((unit) => (
+                        <option key={unit.code} value={unit.code}>
+                          {unit.nameVi}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                />
               </FormField>
               <FormField label="Ghi chú (không bắt buộc)" error={rowErrors?.note?.message}>
                 <input {...register(`ingredients.${index}.note`)} className={inputClass} />

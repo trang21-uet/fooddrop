@@ -1,5 +1,5 @@
 import { roundForUnit, scaleQuantity } from "../recipes/portion-scaling";
-import type { Aisle, IngredientUnit } from "../recipes/recipe-types";
+import type { Aisle, BaseUnit } from "../recipes/recipe-types";
 
 export const AISLE_ORDER: readonly Aisle[] = ["produce", "meat", "seafood", "dairy", "pantry", "spices", "frozen", "other"];
 
@@ -12,7 +12,7 @@ export interface GroceryRecipe {
     name: string;
     aisle: Aisle;
     quantity: number;
-    unit: IngredientUnit;
+    unit: BaseUnit;
   }[];
 }
 
@@ -24,7 +24,7 @@ export interface GrocerySelection {
 export interface GroceryItem {
   ingredientId: string;
   name: string;
-  unit: IngredientUnit;
+  unit: BaseUnit;
   quantity: number;
 }
 

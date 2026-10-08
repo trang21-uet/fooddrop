@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { apiClient } from "@/lib/api/api-client";
@@ -14,6 +14,7 @@ import { EMPTY_RECIPE_FORM, recipeFormSchema, toRecipeInput, type RecipeFormValu
 import { RecipeIngredientsField } from "./recipe-ingredients-field";
 import { RecipeStepsField } from "./recipe-steps-field";
 import { RecipeTagPicker } from "./recipe-tag-picker";
+import { UploadActivityContext } from "./upload-activity";
 
 interface RecipeFormProps {
   heading?: string;
@@ -28,6 +29,11 @@ export function RecipeForm({ heading, offerBulkIngredientAdd, recipeId, initialV
   const router = useRouter();
   const queryClient = useQueryClient();
   const [serverError, setServerError] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(0);
+  const uploadActivity = useMemo(
+    () => ({ begin: (count: number) => setUploading((n) => n + count), end: (count: number) => setUploading((n) => n - count) }),
+    [],
+  );
   const methods = useForm<RecipeFormValues>({
     resolver: zodResolver(recipeFormSchema),
     defaultValues: initialValues,
@@ -35,6 +41,7 @@ export function RecipeForm({ heading, offerBulkIngredientAdd, recipeId, initialV
 
   const onSubmit = async (values: RecipeFormValues) => {
     setServerError(null);
+    if (uploading > 0) return;
     const body = toRecipeInput(values);
     try {
       const saved = recipeId
@@ -51,6 +58,7 @@ export function RecipeForm({ heading, offerBulkIngredientAdd, recipeId, initialV
   const { isSubmitting } = methods.formState;
   return (
     <FormProvider {...methods}>
+      <UploadActivityContext.Provider value={uploadActivity}>
       <form onSubmit={methods.handleSubmit(onSubmit)} noValidate className="flex max-w-3xl flex-col gap-8">
         <h1 className="text-2xl font-bold tracking-tight">{heading ?? (recipeId ? "Sửa công thức" : "Thêm công thức")}</h1>
         <RecipeBasicsFields />
@@ -63,14 +71,15 @@ export function RecipeForm({ heading, offerBulkIngredientAdd, recipeId, initialV
           </p>
         )}
         <div className="flex gap-3">
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Đang lưu…" : "Lưu công thức"}
+          <Button type="submit" disabled={isSubmitting || uploading > 0}>
+            {isSubmitting ? "Đang lưu…" : uploading > 0 ? "Đang tải ảnh…" : "Lưu công thức"}
           </Button>
           <Button variant="secondary" onClick={() => router.back()}>
             Hủy
           </Button>
         </div>
       </form>
+      </UploadActivityContext.Provider>
     </FormProvider>
   );
 }

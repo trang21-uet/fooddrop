@@ -7,7 +7,7 @@ const validValues: RecipeFormValues = {
   ...EMPTY_RECIPE_FORM,
   title: "Phở bò",
   ingredients: [{ ingredientId: INGREDIENT_ID, ingredientName: "Beef", quantity: "1 1/2", unit: "kg", note: "" }],
-  steps: [{ text: "Simmer the broth", timerMinutes: 90 }],
+  steps: [{ name: "Hầm", text: "Simmer the broth", timerMinutes: 90, images: [{ key: "recipes/u1/a.jpg", url: "blob:a" }] }],
   tagIds: [3],
 };
 
@@ -32,12 +32,18 @@ describe("recipeFormSchema", () => {
   it("rejects blank step text and unpicked ingredients", () => {
     const issues = issuesFor({
       ...validValues,
-      steps: [{ text: " " }],
+      steps: [{ name: "", text: " ", images: [] }],
       ingredients: [{ ingredientId: "", ingredientName: "beef", quantity: "", unit: "", note: "" }],
     });
     expect(issues["steps.0.text"]).toBe("Hãy mô tả bước này");
     expect(issues["ingredients.0.ingredientId"]).toBe("Chọn một nguyên liệu trong danh sách");
-    expect(issues["ingredients.0.quantity"]).toBe("Bắt buộc");
+    // Quantity and unit are optional ("muối, tùy khẩu vị").
+    expect(issues["ingredients.0.quantity"]).toBeUndefined();
+  });
+
+  it("allows at most 10 photos per step", () => {
+    const images = Array.from({ length: 11 }, (_, i) => ({ key: `recipes/u1/${i}.jpg`, url: null }));
+    expect(issuesFor({ ...validValues, steps: [{ name: "", text: "x", images }] })["steps.0.images"]).toBeDefined();
   });
 
   it("rejects non-http image URLs", () => {
@@ -54,15 +60,36 @@ describe("recipeFormSchema", () => {
 describe("toRecipeInput", () => {
   it("converts minutes to seconds and blanks to null", () => {
     const input = toRecipeInput(validValues);
-    expect(input.steps).toEqual([{ text: "Simmer the broth", timerSeconds: 5400 }]);
+    expect(input.steps).toEqual([
+      { name: "Hầm", text: "Simmer the broth", images: ["recipes/u1/a.jpg"], timerSeconds: 5400 },
+    ]);
     expect(input.description).toBeNull();
     expect(input.imageUrl).toBeNull();
     expect(input.ingredients).toEqual([{ ingredientId: INGREDIENT_ID, quantity: "1 1/2", unit: "kg", note: null }]);
   });
 
   it("drops a timer label when the timer is cleared", () => {
-    const input = toRecipeInput({ ...validValues, steps: [{ text: "Stir", timerLabel: "Rest" }] });
-    expect(input.steps).toEqual([{ text: "Stir" }]);
+    const input = toRecipeInput({ ...validValues, steps: [{ name: "", text: "Stir", timerLabel: "Rest", images: [] }] });
+    expect(input.steps).toEqual([{ text: "Stir", images: [] }]);
+  });
+
+  it("sends a unit only together with a quantity, and a blank quantity as null", () => {
+    const row = { ingredientId: INGREDIENT_ID, ingredientName: "Salt", note: "" };
+    const input = toRecipeInput({
+      ...validValues,
+      ingredients: [
+        { ...row, quantity: "2", unit: "tbsp" },
+        { ...row, quantity: "2", unit: "" },
+        { ...row, quantity: "", unit: "tbsp" },
+        { ...row, quantity: "", unit: "" },
+      ],
+    });
+    expect(input.ingredients.map((item) => [item.quantity, item.unit])).toEqual([
+      ["2", "tbsp"],
+      ["2", null],
+      [null, null],
+      [null, null],
+    ]);
   });
 });
 
@@ -80,10 +107,26 @@ describe("toFormValues", () => {
     createdAt: "2026-10-06T00:00:00.000Z",
     updatedAt: "2026-10-06T00:00:00.000Z",
     tags: [{ id: 5, slug: "breakfast", label: "Breakfast", dimension: "meal_type" }],
-    steps: [{ order: 1, text: "Fry the egg", timerSeconds: 90, timerLabel: "Egg" }],
+    steps: [
+      {
+        order: 1,
+        name: "Chiên",
+        text: "Fry the egg",
+        images: [{ key: "recipes/u1/a.jpg", url: "https://cdn.example/a.jpg" }],
+        timerSeconds: 90,
+        timerLabel: "Egg",
+      },
+    ],
     ingredients: [
-      { ingredient: { id: INGREDIENT_ID, name: "Egg", aisle: "dairy" }, quantity: 2, unit: "piece", note: null },
-      { ingredient: { id: INGREDIENT_ID, name: "Oil", aisle: "pantry" }, quantity: 14.79, unit: "ml", note: "any" },
+      { ingredient: { id: INGREDIENT_ID, name: "Egg", aisle: "dairy" }, quantity: 2, unit: null, note: null, base: { quantity: 2, unit: "piece" } },
+      {
+        ingredient: { id: INGREDIENT_ID, name: "Oil", aisle: "pantry" },
+        quantity: 1,
+        unit: { code: "tbsp", nameVi: "thìa canh", nameEn: "tablespoon", kind: "volume" },
+        note: "any",
+        base: { quantity: 15, unit: "ml" },
+      },
+      { ingredient: { id: INGREDIENT_ID, name: "Salt", aisle: "spices" }, quantity: null, unit: null, note: null, base: { quantity: 0, unit: "g" } },
     ],
   };
 
@@ -91,10 +134,19 @@ describe("toFormValues", () => {
     const values = toFormValues(detail);
     expect(values.description).toBe("");
     expect(values.tagIds).toEqual([5]);
-    expect(values.steps).toEqual([{ text: "Fry the egg", timerMinutes: 2, timerLabel: "Egg" }]);
+    expect(values.steps).toEqual([
+      {
+        name: "Chiên",
+        text: "Fry the egg",
+        images: [{ key: "recipes/u1/a.jpg", url: "https://cdn.example/a.jpg" }],
+        timerMinutes: 2,
+        timerLabel: "Egg",
+      },
+    ]);
     expect(values.ingredients.map((row) => [row.quantity, row.unit])).toEqual([
       ["2", ""],
-      ["14.79", "ml"],
+      ["1", "tbsp"],
+      ["", ""],
     ]);
     expect(recipeFormSchema.safeParse(values).success).toBe(true);
   });

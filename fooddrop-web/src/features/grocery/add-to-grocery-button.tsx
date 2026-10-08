@@ -16,8 +16,9 @@ export function toGroceryRecipe(recipe: RecipeDetail): GroceryRecipe {
       ingredientId: item.ingredient.id,
       name: item.ingredient.name,
       aisle: item.ingredient.aisle,
-      quantity: item.quantity,
-      unit: item.unit,
+      // The server's g | ml | piece conversion, so recipes written in different units still sum.
+      quantity: item.base.quantity,
+      unit: item.base.unit,
     })),
   };
 }

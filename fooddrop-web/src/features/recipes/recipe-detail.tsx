@@ -64,8 +64,28 @@ export function RecipeDetailView({ recipe }: { recipe: RecipeDetail }) {
                 <span aria-hidden className="font-mono text-lg font-bold text-accent">
                   {step.order}
                 </span>
-                <div className="flex flex-col gap-1">
+                <div className="flex min-w-0 flex-col gap-2">
+                  {step.name && <h3 className="font-semibold">{step.name}</h3>}
                   <p className="whitespace-pre-line">{step.text}</p>
+                  {step.images.length > 0 && (
+                    <ul className="flex flex-wrap gap-2">
+                      {step.images.map((image, index) =>
+                        image.url ? (
+                          <li key={image.key}>
+                            <a href={image.url} target="_blank" rel="noopener noreferrer">
+                              {/* eslint-disable-next-line @next/next/no-img-element -- signed storage URLs, not optimizable */}
+                              <img
+                                src={image.url}
+                                alt={`Ảnh ${index + 1} của bước ${step.order}`}
+                                loading="lazy"
+                                className="h-32 w-auto max-w-full rounded-lg border border-border object-cover"
+                              />
+                            </a>
+                          </li>
+                        ) : null,
+                      )}
+                    </ul>
+                  )}
                   {step.timerSeconds && (
                     <StartStepTimerButton
                       seconds={step.timerSeconds}

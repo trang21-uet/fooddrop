@@ -1,15 +1,15 @@
 import { apiClient } from "@/lib/api/api-client";
 import { ApiError, unwrap } from "@/lib/api/api-error";
-import type { Ingredient } from "../recipe-types";
+import type { Ingredient, Unit } from "../recipe-types";
 import { createIngredient } from "./use-ingredient-search";
 
 type DefaultUnit = Ingredient["defaultUnit"];
 
-/** The form's unit text decides how a new catalog entry is summed later: blank = counted pieces. */
-export function defaultUnitForRowUnit(unit: string): DefaultUnit {
-  const folded = unit.trim().toLowerCase();
-  if (folded === "") return "piece";
-  return folded === "ml" || folded === "l" ? "ml" : "g";
+/** The row's unit decides how a new catalog entry is summed later: volume → ml, counts or no unit → pieces, else g. */
+export function defaultUnitForRowUnit(unitCode: string, units: readonly Unit[]): DefaultUnit {
+  const kind = units.find((unit) => unit.code === unitCode)?.kind;
+  if (!kind || kind === "count") return "piece";
+  return kind === "volume" ? "ml" : "g";
 }
 
 /** Creates the ingredient, or returns the existing catalog entry when the name or an alias is already taken. */

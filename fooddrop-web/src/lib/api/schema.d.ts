@@ -52,6 +52,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/units": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["UnitsController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/recipes": {
         parameters: {
             query?: never;
@@ -148,6 +164,11 @@ export interface components {
             checks: components["schemas"]["HealthChecksDto"];
         };
         CreateUpload: {
+            /**
+             * @default parser
+             * @enum {string}
+             */
+            purpose: "parser" | "recipe-step";
             /** @enum {string} */
             contentType: "image/jpeg" | "image/png" | "image/webp";
             sizeBytes: number;
@@ -187,9 +208,8 @@ export interface components {
                 difficulty: number;
                 ingredients: {
                     name: string;
-                    quantity: number;
-                    /** @enum {string} */
-                    unit: "g" | "ml" | "piece";
+                    quantity: number | null;
+                    unit: string | null;
                     note: string | null;
                     matchedName: string | null;
                     /** Format: uuid */
@@ -239,6 +259,13 @@ export interface components {
             /** @default null */
             densityGPerMl: number | null;
         };
+        Unit: {
+            code: string;
+            nameVi: string;
+            nameEn: string;
+            /** @enum {string} */
+            kind: "mass" | "volume" | "count" | "other";
+        };
         TagDimension: {
             id: number;
             slug: string;
@@ -261,7 +288,10 @@ export interface components {
             totalMinutes: number;
             difficulty: number;
             steps: {
+                name?: string | null;
                 text: string;
+                /** @default [] */
+                images: string[];
                 timerSeconds?: number;
                 timerLabel?: string;
             }[];
@@ -269,7 +299,7 @@ export interface components {
             ingredients: {
                 /** Format: uuid */
                 ingredientId: string;
-                quantity: number | string;
+                quantity?: (number | string) | null;
                 unit?: string | null;
                 note?: string | null;
             }[];
@@ -309,7 +339,12 @@ export interface components {
             updatedAt: string;
             steps: {
                 order: number;
+                name?: string;
                 text: string;
+                images: {
+                    key: string;
+                    url: string | null;
+                }[];
                 timerSeconds?: number;
                 timerLabel?: string;
             }[];
@@ -321,10 +356,20 @@ export interface components {
                     /** @enum {string} */
                     aisle: "produce" | "meat" | "seafood" | "dairy" | "pantry" | "spices" | "frozen" | "other";
                 };
-                quantity: number;
-                /** @enum {string} */
-                unit: "g" | "ml" | "piece";
+                quantity: number | null;
+                unit: {
+                    code: string;
+                    nameVi: string;
+                    nameEn: string;
+                    /** @enum {string} */
+                    kind: "mass" | "volume" | "count" | "other";
+                } | null;
                 note: string | null;
+                base: {
+                    quantity: number;
+                    /** @enum {string} */
+                    unit: "g" | "ml" | "piece";
+                };
             }[];
         };
         RecipeList: {
@@ -446,6 +491,25 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TagDimension"][];
+                };
+            };
+        };
+    };
+    UnitsController_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Unit"][];
                 };
             };
         };

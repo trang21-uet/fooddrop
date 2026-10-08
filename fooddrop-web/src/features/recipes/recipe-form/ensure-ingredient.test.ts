@@ -10,12 +10,24 @@ const ingredient = (name: string, aliases: string[] = []) => ({
 });
 const ok = (data: unknown, status = 200) => ({ data, response: new Response(null, { status }) });
 
+const units = [
+  { code: "g", nameVi: "g", nameEn: "g", kind: "mass" },
+  { code: "tbsp", nameVi: "thìa canh", nameEn: "tablespoon", kind: "volume" },
+  { code: "fruit", nameVi: "quả", nameEn: "fruit", kind: "count" },
+  { code: "pinch", nameVi: "nhúm", nameEn: "pinch", kind: "other" },
+] as const;
+
 describe("defaultUnitForRowUnit", () => {
   it("maps the row unit to how the ingredient is aggregated", () => {
-    expect(defaultUnitForRowUnit("")).toBe("piece");
-    expect(defaultUnitForRowUnit(" ML ")).toBe("ml");
-    expect(defaultUnitForRowUnit("l")).toBe("ml");
-    expect(defaultUnitForRowUnit("kg")).toBe("g");
+    expect(defaultUnitForRowUnit("", units)).toBe("piece");
+    expect(defaultUnitForRowUnit("fruit", units)).toBe("piece");
+    expect(defaultUnitForRowUnit("tbsp", units)).toBe("ml");
+    expect(defaultUnitForRowUnit("g", units)).toBe("g");
+    expect(defaultUnitForRowUnit("pinch", units)).toBe("g");
+  });
+
+  it("falls back to pieces while the unit catalog is still loading", () => {
+    expect(defaultUnitForRowUnit("tbsp", [])).toBe("piece");
   });
 });
 

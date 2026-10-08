@@ -1,5 +1,11 @@
 import { expect, test } from "@playwright/test";
 
+// A real 1x1 PNG: the form downscales photos in the browser before uploading them.
+const TINY_PNG = Buffer.from(
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+  "base64",
+);
+
 // Needs the backend (Postgres + seed data) behind the /backend proxy; skipped when it is not running.
 test.beforeAll(async ({ request }) => {
   const health = await request.get("/backend/health").catch(() => null);
@@ -21,13 +27,17 @@ test("sign up, create, filter, edit and delete a recipe", async ({ page }) => {
   await expect(page.getByText("Chưa có công thức nào")).toBeVisible();
 
   // Create: ingredient autocomplete (diacritic-insensitive), a step with timer, a tag
-  await page.getByRole("link", { name: "Thêm công thức" }).click();
+  await page.getByRole("link", { name: "Thêm công thức" }).first().click();
   await page.getByLabel("Tiêu đề").fill(title);
   await page.getByRole("button", { name: "Thêm nguyên liệu" }).click();
   await page.getByRole("combobox", { name: "Tên nguyên liệu 1" }).fill("trung");
   await page.getByRole("listbox").getByRole("option").first().click();
   await page.getByLabel("Số lượng").fill("2");
-  await page.getByRole("textbox", { name: "Bước 1" }).fill("Fry the egg <b>not bold</b>");
+  await page.getByLabel("Đơn vị").selectOption({ label: "quả" });
+  await page.getByLabel("Tên bước 1 (không bắt buộc)").fill("Chiên trứng");
+  await page.getByRole("textbox", { name: "Nội dung bước 1" }).fill("Fry the egg <b>not bold</b>");
+  await page.getByLabel("Chọn ảnh cho bước 1").setInputFiles({ name: "step.png", mimeType: "image/png", buffer: TINY_PNG });
+  await expect(page.getByAltText("Ảnh 1 của bước 1")).toBeVisible();
   await page.getByLabel("Hẹn giờ (phút, không bắt buộc)").fill("3");
   await page.getByRole("button", { name: "Món Việt" }).click();
   await page.getByRole("button", { name: "Lưu công thức" }).click();
@@ -35,7 +45,10 @@ test("sign up, create, filter, edit and delete a recipe", async ({ page }) => {
   // Detail: user text is rendered literally, not as HTML
   await expect(page.getByRole("heading", { level: 1, name: title })).toBeVisible();
   await expect(page.getByText("Fry the egg <b>not bold</b>")).toBeVisible();
-  await expect(page.getByText("Hẹn giờ: 3 phút")).toBeVisible();
+  await expect(page.getByRole("heading", { level: 3, name: "Chiên trứng" })).toBeVisible();
+  await expect(page.getByText("2 quả")).toBeVisible();
+  await expect(page.getByAltText("Ảnh 1 của bước 1")).toBeVisible();
+  await expect(page.getByText("Hẹn giờ 3 phút")).toBeVisible();
 
   // List + URL-synced filters
   await page.goto("/recipes");

@@ -7,15 +7,23 @@ const optionalUrl = z.union([z.literal(""), z.url({ protocol: /^https?$/, error:
 export const ingredientRowSchema = z.object({
   ingredientId: z.string().min(1, "Chọn một nguyên liệu trong danh sách"),
   ingredientName: z.string(),
-  // Raw text ("1 1/2", "2-3"); the backend parses and normalizes it to g | ml | piece.
-  quantity: z.string().trim().min(1, "Bắt buộc").max(20),
-  // Blank means pieces.
+  // Optional ("muối, tùy khẩu vị"). Raw text ("1 1/2", "2-3"); the backend parses it.
+  quantity: z.string().trim().max(20),
+  // A unit code from the catalog ("tbsp"); blank = none. Only sent together with a quantity.
   unit: z.string().trim().max(30),
   note: z.string().trim().max(200),
 });
 
+export const MAX_STEP_IMAGES = 10;
+
+/** `url` is a local preview for a photo uploaded in this session, or the server's URL for a saved one. */
+export const stepImageSchema = z.object({ key: z.string().min(1), url: z.string().nullable() });
+export type StepImage = z.infer<typeof stepImageSchema>;
+
 export const stepRowSchema = z.object({
+  name: z.string().trim().max(100, "Tên bước tối đa 100 ký tự"),
   text: z.string().trim().min(1, "Hãy mô tả bước này").max(2000),
+  images: z.array(stepImageSchema).max(MAX_STEP_IMAGES),
   timerMinutes: numberField("Nhập số phút").int("Chỉ nhập số phút nguyên").min(1).max(1440).optional(),
   // Not editable in the UI yet; carried through so editing a recipe never drops an existing label.
   timerLabel: z.string().optional(),
@@ -45,7 +53,7 @@ export const EMPTY_RECIPE_FORM: RecipeFormValues = {
   totalMinutes: 30,
   difficulty: 2,
   ingredients: [],
-  steps: [{ text: "" }],
+  steps: [{ name: "", text: "", images: [] }],
   tagIds: [],
 };
 
@@ -60,14 +68,16 @@ export function toRecipeInput(values: RecipeFormValues): RecipeInput {
     totalMinutes: values.totalMinutes,
     difficulty: values.difficulty,
     steps: values.steps.map((step) => ({
+      ...(step.name ? { name: step.name } : {}),
       text: step.text,
+      images: step.images.map((image) => image.key),
       ...(step.timerMinutes ? { timerSeconds: step.timerMinutes * 60 } : {}),
       ...(step.timerMinutes && step.timerLabel ? { timerLabel: step.timerLabel } : {}),
     })),
     ingredients: values.ingredients.map((row) => ({
       ingredientId: row.ingredientId,
-      quantity: row.quantity,
-      unit: row.unit || null,
+      quantity: row.quantity || null,
+      unit: row.quantity && row.unit ? row.unit : null,
       note: row.note || null,
     })),
     tagIds: values.tagIds,
@@ -87,12 +97,14 @@ export function toFormValues(recipe: RecipeDetail): RecipeFormValues {
     ingredients: recipe.ingredients.map((item) => ({
       ingredientId: item.ingredient.id,
       ingredientName: item.ingredient.name,
-      quantity: String(Number.parseFloat(item.quantity.toFixed(2))),
-      unit: item.unit === "piece" ? "" : item.unit,
+      quantity: item.quantity === null ? "" : String(Number.parseFloat(item.quantity.toFixed(2))),
+      unit: item.unit?.code ?? "",
       note: item.note ?? "",
     })),
     steps: recipe.steps.map((step) => ({
+      name: step.name ?? "",
       text: step.text,
+      images: step.images,
       // Timers are stored in seconds; the form edits whole minutes (ceil keeps a sub-minute timer non-zero).
       timerMinutes: step.timerSeconds ? Math.ceil(step.timerSeconds / 60) : undefined,
       timerLabel: step.timerLabel,
