@@ -455,6 +455,24 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Import cooldown (`parse_cooldown`, with `retryAfterSeconds`) or daily quota (`parse_daily_quota`)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until the cooldown ends (cooldown only)",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParseRateLimitError"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -810,6 +828,11 @@
             "type": "string",
             "format": "date-time",
             "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+          },
+          "cooldownSeconds": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
           }
         },
         "required": [
@@ -818,7 +841,40 @@
           "sourceType",
           "errorCode",
           "result",
-          "createdAt"
+          "createdAt",
+          "cooldownSeconds"
+        ],
+        "additionalProperties": false
+      },
+      "ParseRateLimitError": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "parse_cooldown",
+              "parse_daily_quota"
+            ]
+          },
+          "message": {
+            "type": "string"
+          },
+          "retryAfterSeconds": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "statusCode",
+          "code",
+          "message"
         ],
         "additionalProperties": false
       },

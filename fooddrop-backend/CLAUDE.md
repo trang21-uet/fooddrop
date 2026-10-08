@@ -42,5 +42,5 @@ Run `lint`, `typecheck` and `test` after every change.
 ## Security
 
 - Every recipe/spin/job query is scoped by `owner_id`/`user_id` from the auth context.
-- Rate-limit `/parser/*` and `/gacha/*` per user (`@nestjs/throttler`).
+- Rate-limit `/parser/*` and `/gacha/*` per user. Parser: one job per user per `PARSER_COOLDOWN_SECONDS` (Redis `SET NX`, `ParseCooldown`). The created job carries `cooldownSeconds`; the 429 body (`ParseRateLimitError`) carries `retryAfterSeconds` plus a `Retry-After` header. Clients take the countdown length only from these, never a constant. Plus `PARSER_DAILY_QUOTA`. e2e specs turn the cooldown off by importing `test/support/disable-parse-cooldown.ts` first (assigning `process.env` in the spec body is too late), except `parser-cooldown.e2e-spec.ts`. Gacha: not built yet; add a per-user limit when it is.
 - Secrets only from env (`src/config/env.schema.ts`); fail fast on missing vars.

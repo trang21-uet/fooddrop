@@ -1,5 +1,5 @@
 import { applyDecorators } from '@nestjs/common';
-import { ApiBody, ApiCreatedResponse, ApiOkResponse, ApiQuery } from '@nestjs/swagger';
+import { ApiBody, ApiCreatedResponse, ApiOkResponse, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import type { OpenAPIObject, SchemaObject } from '@nestjs/swagger';
 import { z } from 'zod';
 
@@ -39,6 +39,10 @@ export const ApiZodOk = (dto: ZodDto, options: { isArray?: boolean } = {}) =>
   ApiOkResponse({ schema: options.isArray ? { type: 'array', items: ref(dto) } : ref(dto) });
 
 export const ApiZodCreated = (dto: ZodDto) => ApiCreatedResponse({ schema: ref(dto) });
+
+/** Documents an error status whose body has its own shape, so clients get a generated type for it too. */
+export const ApiZodError = (status: number, dto: ZodDto, description: string, headers?: Record<string, { description: string; schema: SchemaObject }>) =>
+  ApiResponse({ status, description, schema: ref(dto), headers });
 
 /** Declares each field of an object-shaped query schema as an OpenAPI query parameter. */
 export function ApiZodQuery(dto: { schema: z.ZodObject }) {

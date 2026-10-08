@@ -24,6 +24,8 @@ export const envSchema = z.object({
   PARSER_MODEL_TEXT: z.string().default('claude-haiku-4-5-20251001'),
   PARSER_MODEL_VISION: z.string().default('claude-sonnet-5-5'),
   PARSER_DAILY_QUOTA: z.coerce.number().int().positive().default(30),
+  // Minimum gap between two imports by the same user; 0 disables it (e2e tests).
+  PARSER_COOLDOWN_SECONDS: z.coerce.number().int().min(0).default(60),
   // S3-compatible storage (R2, MinIO) for cookbook photos. Blank credentials disable uploads.
   S3_ENDPOINT: emptyToUndefined,
   S3_REGION: z.string().default('auto'),

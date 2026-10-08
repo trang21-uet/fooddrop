@@ -86,10 +86,21 @@ export const parseJobSchema = z.object({
   errorCode: z.enum(PARSE_ERROR_CODES).nullable(),
   result: parsedRecipeDraftSchema.nullable(),
   createdAt: z.iso.datetime(),
+  // Clients start their countdown from this on create, so the wait is defined in one place (PARSER_COOLDOWN_SECONDS).
+  cooldownSeconds: z.number().int().min(0),
+});
+
+/** 429 body of `POST /parser/jobs`: the per-user cooldown (with `retryAfterSeconds`) or the daily quota. */
+export const parseRateLimitErrorSchema = z.object({
+  statusCode: z.number().int(),
+  code: z.enum(['parse_cooldown', 'parse_daily_quota']),
+  message: z.string(),
+  retryAfterSeconds: z.number().int().positive().optional(),
 });
 
 export class CreateParseJobDto extends createZodDto('CreateParseJob', createParseJobSchema) {}
 export class ParseJobDto extends createZodDto('ParseJob', parseJobSchema, 'output') {}
+export class ParseRateLimitErrorDto extends createZodDto('ParseRateLimitError', parseRateLimitErrorSchema, 'output') {}
 
 export type ParsedRecipeDraft = z.output<typeof parsedRecipeDraftSchema>;
 export type ParseJobView = z.output<typeof parseJobSchema>;

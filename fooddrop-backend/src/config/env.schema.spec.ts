@@ -27,6 +27,7 @@ describe('validateEnv', () => {
     expect(env.S3_ENDPOINT).toBeUndefined();
     expect(env.PARSER_MODEL_TEXT).toBe('claude-haiku-4-5-20251001');
     expect(env.PARSER_DAILY_QUOTA).toBe(30);
+    expect(env.PARSER_COOLDOWN_SECONDS).toBe(60);
   });
 
   it('rejects a short AUTH_SECRET', () => {

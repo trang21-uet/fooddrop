@@ -1,3 +1,5 @@
+// The per-user cooldown is covered by parser-cooldown.e2e-spec.ts; off here so one user can import repeatedly.
+import './support/disable-parse-cooldown.js';
 import type { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
