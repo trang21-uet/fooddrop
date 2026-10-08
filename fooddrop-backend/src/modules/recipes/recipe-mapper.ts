@@ -18,16 +18,22 @@ export function toRecipeSummary(row: RecipeRow, tags: RecipeTagView[]): RecipeSu
   };
 }
 
+/** `imageUrls` maps a stored object key to the URL clients load it from. */
 export function toRecipeDetail(
   row: RecipeRow,
   tags: RecipeTagView[],
   ingredients: RecipeDetail['ingredients'],
+  imageUrls: ReadonlyMap<string, string | null>,
 ): RecipeDetail {
   return {
     ...toRecipeSummary(row, tags),
     sourceUrl: row.sourceUrl,
     updatedAt: row.updatedAt.toISOString(),
-    steps: row.steps,
+    // Rows saved before step names and photos existed have neither field.
+    steps: row.steps.map((step) => ({
+      ...step,
+      images: (step.images ?? []).map((key) => ({ key, url: imageUrls.get(key) ?? null })),
+    })),
     ingredients,
   };
 }

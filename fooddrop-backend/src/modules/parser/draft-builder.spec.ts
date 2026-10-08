@@ -21,12 +21,12 @@ const raw = (overrides: Partial<RawRecipe> = {}): RawRecipe => ({
 });
 
 describe('buildDraft', () => {
-  it('normalizes units with the matched ingredient density and keeps unmatched ones flagged as new', () => {
+  it('keeps the units the cook used, converts only what the catalog lacks, and flags unmatched ingredients', () => {
     const draft = buildDraft(
       raw({
         ingredients: [
           { name: 'flour', quantity: '2', unit: 'cups', note: 'sifted' },
-          { name: 'milk', quantity: '1', unit: 'cup' },
+          { name: 'milk', quantity: '1', unit: 'tbsp' },
           { name: 'eggs', quantity: 3 },
           { name: 'dragon fruit', quantity: '100', unit: 'g' },
         ],
@@ -34,9 +34,9 @@ describe('buildDraft', () => {
       context,
     );
     expect(draft.ingredients).toEqual([
-      { name: 'flour', quantity: 250.78, unit: 'g', note: 'sifted', ingredientId: 'flour-id', matchedName: 'Bột mì', isNew: false },
-      { name: 'milk', quantity: 236.59, unit: 'ml', note: null, ingredientId: 'milk-id', matchedName: 'Sữa tươi', isNew: false },
-      { name: 'eggs', quantity: 3, unit: 'piece', note: null, ingredientId: 'egg-id', matchedName: 'Trứng gà', isNew: false },
+      { name: 'flour', quantity: 473.18, unit: 'ml', note: 'sifted', ingredientId: 'flour-id', matchedName: 'Bột mì', isNew: false },
+      { name: 'milk', quantity: 1, unit: 'tbsp', note: null, ingredientId: 'milk-id', matchedName: 'Sữa tươi', isNew: false },
+      { name: 'eggs', quantity: 3, unit: null, note: null, ingredientId: 'egg-id', matchedName: 'Trứng gà', isNew: false },
       { name: 'dragon fruit', quantity: 100, unit: 'g', note: null, ingredientId: null, matchedName: null, isNew: true },
     ]);
   });
@@ -45,7 +45,7 @@ describe('buildDraft', () => {
     const draft = buildDraft(
       raw({
         ingredients: [
-          { name: 'flour', quantity: '1', unit: 'handful' },
+          { name: 'flour', quantity: '1', unit: 'sachet' },
           { name: 'milk', quantity: 'a splash' },
           { name: 'eggs', quantity: null },
         ],
@@ -53,9 +53,9 @@ describe('buildDraft', () => {
       context,
     );
     expect(draft.ingredients.map(({ quantity, unit, note }) => ({ quantity, unit, note }))).toEqual([
-      { quantity: 0, unit: 'g', note: '1 handful' },
-      { quantity: 0, unit: 'ml', note: 'a splash' },
-      { quantity: 0, unit: 'piece', note: null },
+      { quantity: null, unit: null, note: '1 sachet' },
+      { quantity: null, unit: null, note: 'a splash' },
+      { quantity: null, unit: null, note: null },
     ]);
   });
 

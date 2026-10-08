@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import { createZodDto } from '../../common/zod-dto.js';
-import { QUANTITY_UNITS } from '../../database/schema/ingredients.schema.js';
 import { PARSE_ERROR_CODES } from './parse-job-error.js';
 
 // ---- Extractor output (JSON-LD and Claude both produce this) --------------------------------
@@ -65,8 +64,10 @@ export const parsedRecipeDraftSchema = z.object({
     z.object({
       /** Name as written in the source, without quantity or preparation. */
       name: z.string(),
-      quantity: z.number(),
-      unit: z.enum(QUANTITY_UNITS),
+      /** Null when the source gave no amount ("to taste") or one that could not be read; the wording then lives in `note`. */
+      quantity: z.number().nullable(),
+      /** Catalog unit code from `GET /units`; null for a bare count ("2 eggs") or no amount. */
+      unit: z.string().nullable(),
       note: z.string().nullable(),
       /** Catalog match (id and its canonical name); null means the client must create the ingredient (`isNew`). */
       matchedName: z.string().nullable(),

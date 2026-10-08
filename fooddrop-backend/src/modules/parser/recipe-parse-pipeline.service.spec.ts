@@ -66,8 +66,8 @@ describe('RecipeParsePipeline', () => {
       suggestedTagIds: [1],
       imageUrl: 'https://blog.example/img/pancakes.jpg',
     });
-    // "all-purpose flour" is a catalog alias, so it matches and 1.5 cups becomes grams via density.
-    expect(draft.ingredients[0]).toMatchObject({ ingredientId: 'flour-id', unit: 'g', isNew: false });
+    // "all-purpose flour" is a catalog alias, so it matches; cups are outside the catalog, so 1.5 cups becomes ml.
+    expect(draft.ingredients[0]).toMatchObject({ ingredientId: 'flour-id', quantity: 354.88, unit: 'ml', isNew: false });
     expect(redis.set).toHaveBeenCalledWith(expect.stringMatching(/^parser:url:v\d+:[0-9a-f]{64}$/), expect.any(String), 'EX', 604800);
   });
 

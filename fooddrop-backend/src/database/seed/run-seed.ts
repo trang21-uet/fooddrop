@@ -6,6 +6,7 @@ import * as schema from '../schema/index.js';
 import { SEED_FRESH_INGREDIENTS } from './seed-ingredients-fresh.js';
 import { SEED_PANTRY_INGREDIENTS } from './seed-ingredients-pantry.js';
 import { SEED_TAG_DIMENSIONS } from './seed-tags.js';
+import { SEED_UNITS } from './seed-units.js';
 
 // CI passes DATABASE_URL directly; locally it comes from .env.
 if (existsSync('.env')) process.loadEnvFile();
@@ -41,6 +42,29 @@ async function seed(): Promise<void> {
           });
       }
 
+      await tx
+        .insert(schema.units)
+        .values(
+          SEED_UNITS.map(([code, nameVi, nameEn, kind, toBase], sortOrder) => ({
+            code,
+            nameVi,
+            nameEn,
+            kind,
+            toBase,
+            sortOrder,
+          })),
+        )
+        .onConflictDoUpdate({
+          target: schema.units.code,
+          set: {
+            nameVi: sql`excluded.name_vi`,
+            nameEn: sql`excluded.name_en`,
+            kind: sql`excluded.kind`,
+            toBase: sql`excluded.to_base`,
+            sortOrder: sql`excluded.sort_order`,
+          },
+        });
+
       const catalog = [...SEED_FRESH_INGREDIENTS, ...SEED_PANTRY_INGREDIENTS];
       for (let i = 0; i < catalog.length; i += 100) {
         await tx
@@ -70,7 +94,7 @@ async function seed(): Promise<void> {
       }
     });
     console.log(
-      `Seeded ${SEED_TAG_DIMENSIONS.length} tag dimensions and ${SEED_FRESH_INGREDIENTS.length + SEED_PANTRY_INGREDIENTS.length} ingredients`,
+      `Seeded ${SEED_UNITS.length} units, ${SEED_TAG_DIMENSIONS.length} tag dimensions and ${SEED_FRESH_INGREDIENTS.length + SEED_PANTRY_INGREDIENTS.length} ingredients`,
     );
   } finally {
     await pool.end();

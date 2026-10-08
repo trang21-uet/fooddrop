@@ -1,4 +1,4 @@
-import { lookupUnit } from '../units/unit-table.js';
+import { lookupUnitAlias } from '../units/unit-aliases.js';
 
 export interface ParsedIngredientLine {
   name: string;
@@ -26,7 +26,7 @@ function takeUnit(text: string): { unit: string; rest: string } | null {
   for (const count of [2, 1]) {
     if (words.length < count) continue;
     const candidate = words.slice(0, count).join(' ').replace(/[.,]$/, '');
-    if (lookupUnit(candidate)) return { unit: candidate, rest: words.slice(count).join(' ') };
+    if (lookupUnitAlias(candidate)) return { unit: candidate, rest: words.slice(count).join(' ') };
   }
   return null;
 }
@@ -76,7 +76,7 @@ export function parseIngredientLine(line: string): ParsedIngredientLine {
     name = rest.replace(/^(?:of|của)\s+/i, '');
   } else {
     const trailing = TRAILING_AMOUNT.exec(text);
-    if (trailing && (!trailing[3] || lookupUnit(trailing[3]))) {
+    if (trailing && (!trailing[3] || lookupUnitAlias(trailing[3]))) {
       name = trailing[1]!.replace(/[:\-–]$/, '');
       quantity = trailing[2]!;
       unit = trailing[3] ?? null;

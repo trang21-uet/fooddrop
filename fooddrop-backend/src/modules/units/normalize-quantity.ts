@@ -1,17 +1,21 @@
+import type { UnitKind } from '../../database/schema/units.schema.js';
 import type { QuantityUnit } from '../../database/schema/ingredients.schema.js';
 import { parseQuantity } from './parse-quantity.js';
-import { isBareOunce, lookupUnit } from './unit-table.js';
 
 export interface IngredientUnitInfo {
   defaultUnit: QuantityUnit;
   densityGPerMl: number | null;
 }
 
-export interface NormalizedQuantity {
+/** The part of a catalog unit the conversion needs. */
+export interface UnitConversion {
+  kind: UnitKind;
+  toBase: number | null;
+}
+
+export interface BaseQuantity {
   quantity: number;
   unit: QuantityUnit;
-  /** Set when the original unit could not be converted (quantity is then 0); keeps the user's wording. */
-  note?: string;
 }
 
 export class InvalidQuantityError extends Error {
@@ -23,32 +27,34 @@ export class InvalidQuantityError extends Error {
 
 const round2 = (value: number): number => Math.round(value * 100) / 100;
 
-/**
- * Deterministically maps a raw `{qty, unit}` to g | ml | piece. Mass becomes g, volume ml, counts
- * piece; when the ingredient has a density and prefers the other dimension (e.g. milk in g -> ml)
- * the value is converted so recipes sum cleanly. Unknown units become quantity 0 with the original
- * wording kept in `note` — never guessed.
- */
-export function normalizeQuantity(
-  quantity: number | string,
-  unit: string | null | undefined,
-  ingredient: IngredientUnitInfo,
-): NormalizedQuantity {
+/** Raw text ("1 1/2", "2-3") or a number -> a non-negative number; throws on anything else. */
+export function parseAmount(quantity: number | string): number {
   const amount = typeof quantity === 'number' ? quantity : parseQuantity(quantity);
   if (amount === null || !Number.isFinite(amount) || amount < 0) throw new InvalidQuantityError(quantity);
+  return amount;
+}
 
-  const rawUnit = unit?.trim() ?? '';
-  if (!rawUnit) return { quantity: round2(amount), unit: 'piece' };
+/**
+ * The amount a recipe line contributes to the grocery list, in g | ml | piece. Display quantity and
+ * unit stay as the cook wrote them; this is derived on read so a change here fixes old recipes too.
+ * Mass becomes g, volume ml, counts piece; when the ingredient has a density and is summed in the
+ * other dimension (milk in g -> ml) the value is converted so recipes sum cleanly. A line with no
+ * quantity, or a unit that cannot be summed ("a pinch"), contributes 0 in the ingredient's own unit.
+ */
+export function toBaseQuantity(
+  quantity: number | null,
+  unit: UnitConversion | null,
+  ingredient: IngredientUnitInfo,
+): BaseQuantity {
+  const none: BaseQuantity = { quantity: 0, unit: ingredient.defaultUnit };
+  if (quantity === null) return none;
+  // "2 trứng": a count with no unit.
+  if (!unit) return { quantity: round2(quantity), unit: 'piece' };
+  if (unit.toBase === null || unit.kind === 'other') return none;
 
-  // A bare "oz" next to a liquid (milk, stock) means fluid ounces, not weight.
-  const definition = lookupUnit(isBareOunce(rawUnit) && ingredient.defaultUnit === 'ml' ? 'fl oz' : rawUnit);
-  // Unknown unit ("handful"): contribute 0 in the ingredient's own unit so aggregation is not
-  // polluted with a made-up count; the user's wording survives in `note`.
-  if (!definition) return { quantity: 0, unit: ingredient.defaultUnit, note: `${amount} ${rawUnit}` };
-
-  const base = amount * definition.factor;
+  const base = quantity * unit.toBase;
   const density = ingredient.densityGPerMl;
-  switch (definition.dimension) {
+  switch (unit.kind) {
     case 'count':
       return { quantity: round2(base), unit: 'piece' };
     case 'mass':

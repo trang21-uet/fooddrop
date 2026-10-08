@@ -1,5 +1,5 @@
-import type { QuantityUnit } from '../../database/schema/ingredients.schema.js';
-import { InvalidQuantityError, normalizeQuantity } from '../units/normalize-quantity.js';
+import { InvalidQuantityError, parseAmount } from '../units/normalize-quantity.js';
+import { lookupUnitAlias } from '../units/unit-aliases.js';
 import { createIngredientMatcher, matchTagIds, type CatalogIngredient, type CatalogTag } from './ingredient-matcher.js';
 import type { ParsedRecipeDraft, RawRecipe } from './parser.schemas.js';
 
@@ -34,27 +34,38 @@ function joinNotes(...parts: Array<string | null | undefined>): string | null {
 
 type DraftIngredient = ParsedRecipeDraft['ingredients'][number];
 
+const round2 = (value: number): number => Math.round(value * 100) / 100;
+
 function buildIngredient(
   raw: RawRecipe['ingredients'][number],
   match: (name: string) => CatalogIngredient | null,
 ): DraftIngredient {
   const catalogEntry = match(raw.name);
-  // A new ingredient has no catalog unit or density, so it keeps whatever dimension the source used.
-  const info = catalogEntry ?? { defaultUnit: 'g' as QuantityUnit, densityGPerMl: null };
   const hasQuantity = raw.quantity !== null && raw.quantity !== undefined && raw.quantity !== '';
-  let quantity = 0;
-  let unit: QuantityUnit = info.defaultUnit;
+  let quantity: number | null = null;
+  let unit: string | null = null;
   let unitNote: string | undefined;
-  try {
-    if (hasQuantity) {
-      const normalized = normalizeQuantity(raw.quantity!, raw.unit, info);
-      ({ quantity, unit } = normalized);
-      unitNote = normalized.note;
+  if (hasQuantity) {
+    try {
+      const amount = parseAmount(raw.quantity!);
+      const rawUnit = raw.unit?.trim();
+      // A bare "oz" next to a liquid (milk, stock) means fluid ounces, not weight.
+      const alias = rawUnit ? lookupUnitAlias(rawUnit, { liquid: catalogEntry?.defaultUnit === 'ml' }) : undefined;
+      if (!rawUnit) {
+        quantity = round2(amount);
+      } else if (alias) {
+        // The cook's own unit survives ("2 tbsp" -> 2 thìa canh); only units outside the catalog are converted.
+        quantity = round2(amount * alias.factor);
+        unit = alias.code;
+      } else {
+        // "2 sachets": keep the original wording for the user instead of inventing a number.
+        unitNote = `${raw.quantity} ${rawUnit}`;
+      }
+    } catch (error) {
+      // "a pinch", "some": same, the wording is the only information there is.
+      if (!(error instanceof InvalidQuantityError)) throw error;
+      unitNote = [raw.quantity, raw.unit].filter(Boolean).join(' ');
     }
-  } catch (error) {
-    // "a pinch", "some": keep the original wording for the user instead of inventing a number.
-    if (!(error instanceof InvalidQuantityError)) throw error;
-    unitNote = [raw.quantity, raw.unit].filter(Boolean).join(' ');
   }
   return {
     name: raw.name,

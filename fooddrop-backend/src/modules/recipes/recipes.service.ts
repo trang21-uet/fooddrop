@@ -2,27 +2,37 @@ import { BadRequestException, Inject, Injectable, NotFoundException } from '@nes
 import { and, eq, inArray, sql } from 'drizzle-orm';
 import { DRIZZLE, type Database, type Transaction } from '../../database/database.module.js';
 import { ingredients, recipeIngredients, recipeTags, recipes, tags } from '../../database/schema/index.js';
-import { InvalidQuantityError, normalizeQuantity } from '../units/normalize-quantity.js';
+import { ObjectStorageService, recipeImagePrefix } from '../media/object-storage.service.js';
+import { InvalidQuantityError, parseAmount } from '../units/normalize-quantity.js';
+import { UnitsService } from '../units/units.service.js';
 import { RecipesReaderService } from './recipes-reader.service.js';
 import type { RecipeDetail, RecipeInput } from './recipes.schemas.js';
 
 type IngredientRow = typeof recipeIngredients.$inferInsert;
+
+/** Every photo key mentioned by a recipe's steps. */
+export const stepImageKeys = (steps: ReadonlyArray<{ images?: string[] }>): string[] => [
+  ...new Set(steps.flatMap((step) => step.images ?? [])),
+];
 
 @Injectable()
 export class RecipesService {
   constructor(
     @Inject(DRIZZLE) private readonly db: Database,
     private readonly reader: RecipesReaderService,
+    private readonly units: UnitsService,
+    private readonly storage: ObjectStorageService,
   ) {}
 
   async create(ownerId: string, input: RecipeInput): Promise<RecipeDetail> {
     const ingredientRows = await this.buildIngredientRows(input);
     await this.assertTagsExist(input.tagIds);
+    const columns = this.recipeColumns(ownerId, input);
 
     const id = await this.db.transaction(async (tx) => {
       const [created] = await tx
         .insert(recipes)
-        .values({ ...this.recipeColumns(input), ownerId })
+        .values({ ...columns, ownerId })
         .returning({ id: recipes.id });
       await this.writeChildren(tx, created!.id, ingredientRows, input.tagIds);
       return created!.id;
@@ -34,12 +44,20 @@ export class RecipesService {
   async update(ownerId: string, id: string, input: RecipeInput): Promise<RecipeDetail> {
     const ingredientRows = await this.buildIngredientRows(input);
     await this.assertTagsExist(input.tagIds);
+    const columns = this.recipeColumns(ownerId, input);
 
-    await this.db.transaction(async (tx) => {
+    const dropped = await this.db.transaction(async (tx) => {
+      const [before] = await tx
+        .select({ steps: recipes.steps })
+        .from(recipes)
+        .where(and(eq(recipes.id, id), eq(recipes.ownerId, ownerId)))
+        // Concurrent updates must see each other's photo list, or one could delete a photo the other keeps.
+        .for('update');
+      if (!before) throw new NotFoundException('Recipe not found');
       const updated = await tx
         .update(recipes)
         // DB clock, like created_at, so the two never disagree when app and DB clocks drift.
-        .set({ ...this.recipeColumns(input), updatedAt: sql`now()` })
+        .set({ ...columns, updatedAt: sql`now()` })
         .where(and(eq(recipes.id, id), eq(recipes.ownerId, ownerId)))
         .returning({ id: recipes.id });
       if (updated.length === 0) throw new NotFoundException('Recipe not found');
@@ -47,7 +65,10 @@ export class RecipesService {
       await tx.delete(recipeIngredients).where(eq(recipeIngredients.recipeId, id));
       await tx.delete(recipeTags).where(eq(recipeTags.recipeId, id));
       await this.writeChildren(tx, id, ingredientRows, input.tagIds);
+      const kept = new Set(columns.steps.flatMap((step) => step.images ?? []));
+      return stepImageKeys(before.steps).filter((key) => !kept.has(key));
     });
+    await this.deleteUnreferencedPhotos(ownerId, id, dropped);
     return this.reader.getDetail(ownerId, id);
   }
 
@@ -55,11 +76,28 @@ export class RecipesService {
     const deleted = await this.db
       .delete(recipes)
       .where(and(eq(recipes.id, id), eq(recipes.ownerId, ownerId)))
-      .returning({ id: recipes.id });
+      .returning({ steps: recipes.steps });
     if (deleted.length === 0) throw new NotFoundException('Recipe not found');
+    await this.deleteUnreferencedPhotos(ownerId, id, stepImageKeys(deleted[0]!.steps));
   }
 
-  private recipeColumns(input: RecipeInput) {
+  /** Removes stored photos that this recipe no longer shows, unless another recipe of the owner still uses the key. */
+  private async deleteUnreferencedPhotos(ownerId: string, recipeId: string, keys: string[]): Promise<void> {
+    if (keys.length === 0) return;
+    const stillUsed = await this.db.execute<{ key: string }>(sql`
+      SELECT DISTINCT image.key
+      FROM recipes r,
+           jsonb_array_elements(r.steps) AS step,
+           jsonb_array_elements_text(COALESCE(step -> 'images', '[]'::jsonb)) AS image(key)
+      WHERE r.owner_id = ${ownerId} AND r.id <> ${recipeId} AND image.key IN (${sql.join(keys, sql`, `)})`);
+    const shared = new Set(stillUsed.rows.map((row) => row.key));
+    await this.storage.deleteObjects(keys.filter((key) => !shared.has(key)));
+  }
+
+  private recipeColumns(ownerId: string, input: RecipeInput) {
+    // A photo key is a capability: only keys under the owner's prefix may be attached, so one user
+    // cannot pull another user's uploads into their own recipe.
+    const prefix = recipeImagePrefix(ownerId);
     return {
       title: input.title,
       description: input.description ?? null,
@@ -69,7 +107,17 @@ export class RecipesService {
       totalMinutes: input.totalMinutes,
       difficulty: input.difficulty,
       // Order is positional so clients cannot send gaps or duplicates.
-      steps: input.steps.map((step, index) => ({ ...step, order: index + 1 })),
+      steps: input.steps.map(({ name, images, ...step }, index) => {
+        if (images.some((key) => !key.startsWith(prefix) || key.includes('..'))) {
+          throw new BadRequestException(`Step ${index + 1} has an image that was not uploaded by you`);
+        }
+        return {
+          ...step,
+          ...(name ? { name } : {}),
+          ...(images.length > 0 ? { images } : {}),
+          order: index + 1,
+        };
+      }),
     };
   }
 
@@ -87,7 +135,7 @@ export class RecipesService {
     }
   }
 
-  /** Normalizes each raw `{quantity, unit}` with the catalog's density/default unit. */
+  /** Checks references and parses each quantity; the unit is stored as the cook chose it. */
   private async buildIngredientRows(input: RecipeInput): Promise<Omit<IngredientRow, 'recipeId'>[]> {
     const ids = input.ingredients.map((item) => item.ingredientId);
     if (new Set(ids).size !== ids.length) {
@@ -95,33 +143,34 @@ export class RecipesService {
     }
     if (ids.length === 0) return [];
 
-    const catalog = await this.db
-      .select({ id: ingredients.id, defaultUnit: ingredients.defaultUnit, densityGPerMl: ingredients.densityGPerMl })
-      .from(ingredients)
-      .where(inArray(ingredients.id, ids));
-    const byId = new Map(catalog.map((row) => [row.id, row]));
+    const known = await this.db.select({ id: ingredients.id }).from(ingredients).where(inArray(ingredients.id, ids));
+    const knownIds = new Set(known.map((row) => row.id));
+    const unitCodes = [...new Set(input.ingredients.flatMap((item) => (item.unit ? [item.unit] : [])))];
+    const knownUnits = await this.units.findByCodes(unitCodes);
 
     return input.ingredients.map((item, sortOrder) => {
-      const info = byId.get(item.ingredientId);
-      if (!info) throw new BadRequestException(`Unknown ingredient ${item.ingredientId}`);
-      try {
-        const normalized = normalizeQuantity(item.quantity, item.unit, info);
-        // An unconvertible unit ("1 handful") survives in the note rather than being lost.
-        const note = [item.note, normalized.note].filter(Boolean).join(' — ') || null;
-        return {
-          ingredientId: item.ingredientId,
-          quantity: normalized.quantity,
-          unit: normalized.unit,
-          note,
-          sortOrder,
-        };
-      } catch (error) {
-        if (error instanceof InvalidQuantityError) {
-          throw new BadRequestException(`Invalid quantity "${String(item.quantity)}" for ingredient ${item.ingredientId}`);
-        }
-        throw error;
-      }
+      if (!knownIds.has(item.ingredientId)) throw new BadRequestException(`Unknown ingredient ${item.ingredientId}`);
+      if (item.unit && !knownUnits.has(item.unit)) throw new BadRequestException(`Unknown unit "${item.unit}"`);
+      return {
+        ingredientId: item.ingredientId,
+        quantity: this.parseQuantity(item),
+        unit: item.unit ?? null,
+        note: item.note || null,
+        sortOrder,
+      };
     });
+  }
+
+  private parseQuantity(item: RecipeInput['ingredients'][number]): number | null {
+    if (item.quantity == null) return null;
+    try {
+      return parseAmount(item.quantity);
+    } catch (error) {
+      if (error instanceof InvalidQuantityError) {
+        throw new BadRequestException(`Invalid quantity "${String(item.quantity)}" for ingredient ${item.ingredientId}`);
+      }
+      throw error;
+    }
   }
 
   private async assertTagsExist(tagIds: number[]): Promise<void> {

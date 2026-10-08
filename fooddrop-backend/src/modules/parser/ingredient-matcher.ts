@@ -1,5 +1,5 @@
 import type { QuantityUnit } from '../../database/schema/ingredients.schema.js';
-import { foldUnitText } from '../units/unit-table.js';
+import { foldUnitText } from '../units/unit-aliases.js';
 
 export interface CatalogIngredient {
   id: string;

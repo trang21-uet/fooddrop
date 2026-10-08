@@ -13,6 +13,7 @@ import { ParserModule } from './modules/parser/parser.module.js';
 import { IngredientsModule } from './modules/ingredients/ingredients.module.js';
 import { RecipesModule } from './modules/recipes/recipes.module.js';
 import { TagsModule } from './modules/tags/tags.module.js';
+import { UnitsModule } from './modules/units/units.module.js';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { TagsModule } from './modules/tags/tags.module.js';
     HealthModule,
     IngredientsModule,
     TagsModule,
+    UnitsModule,
     RecipesModule,
     MediaModule,
     ParserModule,

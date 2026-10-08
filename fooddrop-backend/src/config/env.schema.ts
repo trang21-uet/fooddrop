@@ -30,6 +30,8 @@ export const envSchema = z.object({
   S3_BUCKET: z.string().default('fooddrop-media'),
   S3_ACCESS_KEY_ID: emptyToUndefined,
   S3_SECRET_ACCESS_KEY: emptyToUndefined,
+  // Public base URL of the bucket (R2 custom domain, CDN). Blank = recipe photos are served via signed GET URLs.
+  S3_PUBLIC_URL: emptyToUndefined,
 });
 
 export type Env = z.infer<typeof envSchema>;

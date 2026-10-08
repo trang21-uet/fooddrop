@@ -12,12 +12,18 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
-import { ingredients, type QuantityUnit } from './ingredients.schema.js';
+import { ingredients } from './ingredients.schema.js';
+import { units } from './units.schema.js';
 import { users } from './users.schema.js';
 
 export interface RecipeStep {
   order: number;
+  /** Short heading ("Sơ chế"); optional because imported steps only have content. */
+  name?: string;
+  /** The instructions themselves. */
   text: string;
+  /** Object-storage keys of the step photos, in display order. */
+  images?: string[];
   timerSeconds?: number;
   timerLabel?: string;
 }
@@ -71,15 +77,17 @@ export const recipeIngredients = pgTable(
     ingredientId: uuid('ingredient_id')
       .notNull()
       .references(() => ingredients.id),
-    quantity: numeric('quantity', { mode: 'number' }).notNull(),
-    unit: text('unit').$type<QuantityUnit>().notNull(),
+    // Both optional ("muối, tùy khẩu vị"); `unit` only makes sense next to a quantity.
+    quantity: numeric('quantity', { mode: 'number' }),
+    unit: text('unit').references(() => units.code),
     note: text('note'),
     sortOrder: integer('sort_order').notNull().default(0),
   },
   (t) => [
     primaryKey({ columns: [t.recipeId, t.ingredientId] }),
     index('recipe_ingredients_ingredient_idx').on(t.ingredientId),
-    check('recipe_ingredients_quantity_check', sql`${t.quantity} >= 0`),
-    check('recipe_ingredients_unit_check', sql`${t.unit} IN ('g','ml','piece')`),
+    index('recipe_ingredients_unit_idx').on(t.unit),
+    check('recipe_ingredients_quantity_check', sql`${t.quantity} IS NULL OR ${t.quantity} >= 0`),
+    check('recipe_ingredients_unit_needs_quantity_check', sql`${t.unit} IS NULL OR ${t.quantity} IS NOT NULL`),
   ],
 );

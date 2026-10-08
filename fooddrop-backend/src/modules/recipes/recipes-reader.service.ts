@@ -8,7 +8,10 @@ import {
   recipes,
   tagDimensions,
   tags,
+  units,
 } from '../../database/schema/index.js';
+import { ObjectStorageService } from '../media/object-storage.service.js';
+import { toBaseQuantity } from '../units/normalize-quantity.js';
 import { decodeCursor, encodeCursor } from './recipe-cursor.js';
 import { buildRecipeFilter } from './recipe-filters.js';
 import { toRecipeDetail, toRecipeSummary } from './recipe-mapper.js';
@@ -21,7 +24,10 @@ import type {
 
 @Injectable()
 export class RecipesReaderService {
-  constructor(@Inject(DRIZZLE) private readonly db: Database) {}
+  constructor(
+    @Inject(DRIZZLE) private readonly db: Database,
+    private readonly storage: ObjectStorageService,
+  ) {}
 
   /** Another user's recipe is reported as missing, so ids cannot be probed across accounts. */
   async getDetail(ownerId: string, id: string): Promise<RecipeDetail> {
@@ -38,12 +44,15 @@ export class RecipesReaderService {
           id: ingredients.id,
           name: ingredients.name,
           aisle: ingredients.aisle,
+          defaultUnit: ingredients.defaultUnit,
+          densityGPerMl: ingredients.densityGPerMl,
           quantity: recipeIngredients.quantity,
-          unit: recipeIngredients.unit,
+          unit: { code: units.code, nameVi: units.nameVi, nameEn: units.nameEn, kind: units.kind, toBase: units.toBase },
           note: recipeIngredients.note,
         })
         .from(recipeIngredients)
         .innerJoin(ingredients, eq(ingredients.id, recipeIngredients.ingredientId))
+        .leftJoin(units, eq(units.code, recipeIngredients.unit))
         .where(eq(recipeIngredients.recipeId, id))
         .orderBy(asc(recipeIngredients.sortOrder)),
     ]);
@@ -51,13 +60,24 @@ export class RecipesReaderService {
     return toRecipeDetail(
       row,
       tagsByRecipe.get(id) ?? [],
-      ingredientRows.map((r) => ({
-        ingredient: { id: r.id, name: r.name, aisle: r.aisle },
-        quantity: r.quantity,
-        unit: r.unit,
-        note: r.note,
-      })),
+      ingredientRows.map((r) => {
+        // A left join yields an all-null object when the line has no unit.
+        const unit = r.unit?.code ? r.unit : null;
+        return {
+          ingredient: { id: r.id, name: r.name, aisle: r.aisle },
+          quantity: r.quantity,
+          unit: unit && { code: unit.code, nameVi: unit.nameVi, nameEn: unit.nameEn, kind: unit.kind },
+          note: r.note,
+          base: toBaseQuantity(r.quantity, unit, r),
+        };
+      }),
+      await this.resolveImageUrls(row.steps.flatMap((step) => step.images ?? [])),
     );
+  }
+
+  private async resolveImageUrls(keys: string[]): Promise<Map<string, string | null>> {
+    const unique = [...new Set(keys)];
+    return new Map(await Promise.all(unique.map(async (key) => [key, await this.storage.viewUrl(key)] as const)));
   }
 
   async list(

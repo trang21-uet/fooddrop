@@ -22,6 +22,20 @@
       "when": 1791285352947,
       "tag": "0002_add-foreign-key-indexes",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1791380508318,
+      "tag": "0003_recipe-units-and-step-details",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791441527663,
+      "tag": "0004_clear-legacy-zero-quantities",
+      "breakpoints": true
     }
   ]
 }

@@ -145,6 +145,35 @@
         ]
       }
     },
+    "/units": {
+      "get": {
+        "operationId": "UnitsController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Unit"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "units"
+        ]
+      }
+    },
     "/recipes": {
       "get": {
         "operationId": "RecipesController_list",
@@ -536,6 +565,14 @@
       "CreateUpload": {
         "type": "object",
         "properties": {
+          "purpose": {
+            "default": "parser",
+            "type": "string",
+            "enum": [
+              "parser",
+              "recipe-step"
+            ]
+          },
           "contentType": {
             "type": "string",
             "enum": [
@@ -688,15 +725,12 @@
                       "type": "string"
                     },
                     "quantity": {
+                      "nullable": true,
                       "type": "number"
                     },
                     "unit": {
-                      "type": "string",
-                      "enum": [
-                        "g",
-                        "ml",
-                        "piece"
-                      ]
+                      "nullable": true,
+                      "type": "string"
                     },
                     "note": {
                       "nullable": true,
@@ -914,6 +948,36 @@
           "name"
         ]
       },
+      "Unit": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "nameVi": {
+            "type": "string"
+          },
+          "nameEn": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "mass",
+              "volume",
+              "count",
+              "other"
+            ]
+          }
+        },
+        "required": [
+          "code",
+          "nameVi",
+          "nameEn",
+          "kind"
+        ],
+        "additionalProperties": false
+      },
       "TagDimension": {
         "type": "object",
         "properties": {
@@ -1010,10 +1074,26 @@
             "items": {
               "type": "object",
               "properties": {
+                "name": {
+                  "nullable": true,
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 100
+                },
                 "text": {
                   "type": "string",
                   "minLength": 1,
                   "maxLength": 2000
+                },
+                "images": {
+                  "default": [],
+                  "maxItems": 10,
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 300
+                  }
                 },
                 "timerSeconds": {
                   "type": "integer",
@@ -1044,6 +1124,7 @@
                   "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                 },
                 "quantity": {
+                  "nullable": true,
                   "anyOf": [
                     {
                       "type": "number",
@@ -1060,6 +1141,7 @@
                 "unit": {
                   "nullable": true,
                   "type": "string",
+                  "minLength": 1,
                   "maxLength": 30
                 },
                 "note": {
@@ -1069,8 +1151,7 @@
                 }
               },
               "required": [
-                "ingredientId",
-                "quantity"
+                "ingredientId"
               ]
             }
           },
@@ -1221,8 +1302,31 @@
                   "minimum": -9007199254740991,
                   "maximum": 9007199254740991
                 },
+                "name": {
+                  "type": "string"
+                },
                 "text": {
                   "type": "string"
+                },
+                "images": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "key": {
+                        "type": "string"
+                      },
+                      "url": {
+                        "nullable": true,
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "key",
+                      "url"
+                    ],
+                    "additionalProperties": false
+                  }
                 },
                 "timerSeconds": {
                   "type": "integer",
@@ -1235,7 +1339,8 @@
               },
               "required": [
                 "order",
-                "text"
+                "text",
+                "images"
               ],
               "additionalProperties": false
             }
@@ -1278,26 +1383,72 @@
                   "additionalProperties": false
                 },
                 "quantity": {
+                  "nullable": true,
                   "type": "number"
                 },
                 "unit": {
-                  "type": "string",
-                  "enum": [
-                    "g",
-                    "ml",
-                    "piece"
-                  ]
+                  "nullable": true,
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "nameVi": {
+                      "type": "string"
+                    },
+                    "nameEn": {
+                      "type": "string"
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "mass",
+                        "volume",
+                        "count",
+                        "other"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "nameVi",
+                    "nameEn",
+                    "kind"
+                  ],
+                  "additionalProperties": false
                 },
                 "note": {
                   "nullable": true,
                   "type": "string"
+                },
+                "base": {
+                  "type": "object",
+                  "properties": {
+                    "quantity": {
+                      "type": "number"
+                    },
+                    "unit": {
+                      "type": "string",
+                      "enum": [
+                        "g",
+                        "ml",
+                        "piece"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "quantity",
+                    "unit"
+                  ],
+                  "additionalProperties": false
                 }
               },
               "required": [
                 "ingredient",
                 "quantity",
                 "unit",
-                "note"
+                "note",
+                "base"
               ],
               "additionalProperties": false
             }
