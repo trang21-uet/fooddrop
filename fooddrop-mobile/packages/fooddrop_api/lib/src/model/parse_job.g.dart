@@ -19,6 +19,8 @@ abstract class _$ParseJobCWProxy {
 
   ParseJob createdAt(DateTime createdAt);
 
+  ParseJob cooldownSeconds(int cooldownSeconds);
+
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `ParseJob(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
   /// Usage
@@ -32,6 +34,7 @@ abstract class _$ParseJobCWProxy {
     ParseJobErrorCodeEnum? errorCode,
     ParseJobResult? result,
     DateTime createdAt,
+    int cooldownSeconds,
   });
 }
 
@@ -62,6 +65,10 @@ class _$ParseJobCWProxyImpl implements _$ParseJobCWProxy {
   ParseJob createdAt(DateTime createdAt) => this(createdAt: createdAt);
 
   @override
+  ParseJob cooldownSeconds(int cooldownSeconds) =>
+      this(cooldownSeconds: cooldownSeconds);
+
+  @override
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `ParseJob(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
   /// Usage
@@ -75,6 +82,7 @@ class _$ParseJobCWProxyImpl implements _$ParseJobCWProxy {
     Object? errorCode = const $CopyWithPlaceholder(),
     Object? result = const $CopyWithPlaceholder(),
     Object? createdAt = const $CopyWithPlaceholder(),
+    Object? cooldownSeconds = const $CopyWithPlaceholder(),
   }) {
     return ParseJob(
       id: id == const $CopyWithPlaceholder()
@@ -101,6 +109,10 @@ class _$ParseJobCWProxyImpl implements _$ParseJobCWProxy {
           ? _value.createdAt
           // ignore: cast_nullable_to_non_nullable
           : createdAt as DateTime,
+      cooldownSeconds: cooldownSeconds == const $CopyWithPlaceholder()
+          ? _value.cooldownSeconds
+          // ignore: cast_nullable_to_non_nullable
+          : cooldownSeconds as int,
     );
   }
 }
@@ -127,6 +139,7 @@ ParseJob _$ParseJobFromJson(
       'errorCode',
       'result',
       'createdAt',
+      'cooldownSeconds',
     ],
   );
   final val = ParseJob(
@@ -149,6 +162,10 @@ ParseJob _$ParseJobFromJson(
           v == null ? null : ParseJobResult.fromJson(v as Map<String, dynamic>),
     ),
     createdAt: $checkedConvert('createdAt', (v) => DateTime.parse(v as String)),
+    cooldownSeconds: $checkedConvert(
+      'cooldownSeconds',
+      (v) => (v as num).toInt(),
+    ),
   );
   return val;
 });
@@ -160,6 +177,7 @@ Map<String, dynamic> _$ParseJobToJson(ParseJob instance) => <String, dynamic>{
   'errorCode': _$ParseJobErrorCodeEnumEnumMap[instance.errorCode],
   'result': instance.result?.toJson(),
   'createdAt': instance.createdAt.toIso8601String(),
+  'cooldownSeconds': instance.cooldownSeconds,
 };
 
 const _$ParseJobStatusEnumEnumMap = {

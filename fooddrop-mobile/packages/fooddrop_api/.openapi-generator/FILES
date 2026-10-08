@@ -17,6 +17,7 @@ doc/ParseJob.md
 doc/ParseJobResult.md
 doc/ParseJobResultIngredientsInner.md
 doc/ParseJobResultStepsInner.md
+doc/ParseRateLimitError.md
 doc/ParserApi.md
 doc/RecipeDetail.md
 doc/RecipeDetailIngredientsInner.md
@@ -65,6 +66,7 @@ lib/src/model/parse_job.dart
 lib/src/model/parse_job_result.dart
 lib/src/model/parse_job_result_ingredients_inner.dart
 lib/src/model/parse_job_result_steps_inner.dart
+lib/src/model/parse_rate_limit_error.dart
 lib/src/model/recipe_detail.dart
 lib/src/model/recipe_detail_ingredients_inner.dart
 lib/src/model/recipe_detail_ingredients_inner_base.dart
@@ -98,6 +100,7 @@ test/parse_job_result_ingredients_inner_test.dart
 test/parse_job_result_steps_inner_test.dart
 test/parse_job_result_test.dart
 test/parse_job_test.dart
+test/parse_rate_limit_error_test.dart
 test/parser_api_test.dart
 test/recipe_detail_ingredients_inner_base_test.dart
 test/recipe_detail_ingredients_inner_ingredient_test.dart

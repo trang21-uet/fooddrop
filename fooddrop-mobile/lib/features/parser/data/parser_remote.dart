@@ -11,16 +11,14 @@ class ParserRemote {
   final api.FooddropApi _api;
   final MediaUploader _media;
 
-  Future<String> startUrl(String url) async {
-    final job = (await _api.getParserApi().parserControllerCreate(createParseJob: api.CreateParseJob(url: url))).data!;
-    return job.id;
-  }
+  /// The created job; its `cooldownSeconds` is how long the server makes the user wait before the next import.
+  Future<api.ParseJob> startUrl(String url) async =>
+      (await _api.getParserApi().parserControllerCreate(createParseJob: api.CreateParseJob(url: url))).data!;
 
   /// Uploads the photo, then queues the parse job.
-  Future<String> startImage(Uint8List bytes, api.CreateUploadContentTypeEnum contentType) async {
+  Future<api.ParseJob> startImage(Uint8List bytes, api.CreateUploadContentTypeEnum contentType) async {
     final key = await _media.upload(bytes, contentType, api.CreateUploadPurposeEnum.parser);
-    final job = (await _api.getParserApi().parserControllerCreate(createParseJob: api.CreateParseJob(imageKey: key))).data!;
-    return job.id;
+    return (await _api.getParserApi().parserControllerCreate(createParseJob: api.CreateParseJob(imageKey: key))).data!;
   }
 
   Future<api.ParseJob> getJob(String id) async => (await _api.getParserApi().parserControllerGet(id: id)).data!;

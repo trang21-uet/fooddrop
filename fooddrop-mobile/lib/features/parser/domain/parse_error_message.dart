@@ -14,6 +14,20 @@ String describeParseFailure(api.ParseJobErrorCodeEnum? code) => switch (code) {
       _ => 'Có lỗi khi đọc công thức. Vui lòng thử lại.',
     };
 
+/// Seconds the server asks us to wait after answering 429 from the import cooldown (the contract's
+/// `ParseRateLimitError`); null for the daily quota or any other error.
+int? retryAfterSecondsOf(Object error) {
+  if (error is! DioException || error.response?.statusCode != 429) return null;
+  final data = error.response?.data;
+  if (data is! Map<String, dynamic>) return null;
+  try {
+    final seconds = api.ParseRateLimitError.fromJson(data).retryAfterSeconds;
+    return seconds != null && seconds > 0 ? seconds : null;
+  } catch (_) {
+    return null; // Not the documented shape (e.g. a proxy's own 429 page).
+  }
+}
+
 /// Errors thrown while starting a job, before any job exists.
 String describeImportStartError(Object error) {
   if (error is DioException) {

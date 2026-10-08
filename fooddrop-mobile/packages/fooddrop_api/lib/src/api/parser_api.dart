@@ -11,6 +11,7 @@ import 'package:dio/dio.dart';
 
 import 'package:fooddrop_api/src/model/create_parse_job.dart';
 import 'package:fooddrop_api/src/model/parse_job.dart';
+import 'package:fooddrop_api/src/model/parse_rate_limit_error.dart';
 
 class ParserApi {
 

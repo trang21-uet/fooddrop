@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../features/parser/data/parse_cooldown.dart';
 import '../../features/timers/data/timer_providers.dart';
 import '../api/api_client_provider.dart';
 import '../db/database_provider.dart';
@@ -50,6 +51,8 @@ class AuthController extends _$AuthController {
     // Scheduled timer notifications would otherwise still fire for the account that just left.
     await ref.read(timerActionsProvider).cancelAllNotifications();
     await ref.read(appDatabaseProvider).wipe();
+    // The next account on this device starts with no import wait.
+    ref.invalidate(parseCooldownProvider);
     state = const AsyncData(null);
   }
 

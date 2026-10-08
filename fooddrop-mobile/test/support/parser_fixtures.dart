@@ -47,6 +47,7 @@ api.ParseJob parseJob({
   api.ParseJobStatusEnum status = api.ParseJobStatusEnum.succeeded,
   api.ParseJobErrorCodeEnum? errorCode,
   api.ParseJobResult? result,
+  int cooldownSeconds = 60,
 }) =>
     api.ParseJob(
       id: 'job-1',
@@ -55,29 +56,33 @@ api.ParseJob parseJob({
       errorCode: errorCode,
       result: result,
       createdAt: DateTime.utc(2026, 10, 7),
+      cooldownSeconds: cooldownSeconds,
     );
 
-/// Scripted server: returns [jobs] one per poll (the last repeats), or throws [startError].
+/// Scripted server: answers a start with [created] (queued, [cooldownSeconds] wait), returns [jobs] one per
+/// poll (the last repeats), or throws [startError].
 class FakeParserRemote implements ParserRemote {
-  FakeParserRemote({this.jobs = const [], this.startError});
+  FakeParserRemote({this.jobs = const [], this.startError, int cooldownSeconds = 60})
+      : created = parseJob(status: api.ParseJobStatusEnum.queued, cooldownSeconds: cooldownSeconds);
 
+  final api.ParseJob created;
   final List<api.ParseJob> jobs;
   final Object? startError;
   final started = <String>[];
   int _polls = 0;
 
   @override
-  Future<String> startUrl(String url) async {
+  Future<api.ParseJob> startUrl(String url) async {
     if (startError != null) throw startError!;
     started.add('url:$url');
-    return 'job-1';
+    return created;
   }
 
   @override
-  Future<String> startImage(Uint8List bytes, api.CreateUploadContentTypeEnum contentType) async {
+  Future<api.ParseJob> startImage(Uint8List bytes, api.CreateUploadContentTypeEnum contentType) async {
     if (startError != null) throw startError!;
     started.add('image:${bytes.length}:${contentType.value}');
-    return 'job-1';
+    return created;
   }
 
   @override

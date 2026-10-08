@@ -9,6 +9,7 @@ import 'package:fooddrop_api/src/model/parse_job.dart';
 import 'package:fooddrop_api/src/model/parse_job_result.dart';
 import 'package:fooddrop_api/src/model/parse_job_result_ingredients_inner.dart';
 import 'package:fooddrop_api/src/model/parse_job_result_steps_inner.dart';
+import 'package:fooddrop_api/src/model/parse_rate_limit_error.dart';
 import 'package:fooddrop_api/src/model/recipe_detail.dart';
 import 'package:fooddrop_api/src/model/recipe_detail_ingredients_inner.dart';
 import 'package:fooddrop_api/src/model/recipe_detail_ingredients_inner_base.dart';
@@ -68,6 +69,8 @@ final _regMap = RegExp(r'^Map<String,(.*)>$');
           return ParseJobResultIngredientsInner.fromJson(value as Map<String, dynamic>) as ReturnType;
         case 'ParseJobResultStepsInner':
           return ParseJobResultStepsInner.fromJson(value as Map<String, dynamic>) as ReturnType;
+        case 'ParseRateLimitError':
+          return ParseRateLimitError.fromJson(value as Map<String, dynamic>) as ReturnType;
         case 'RecipeDetail':
           return RecipeDetail.fromJson(value as Map<String, dynamic>) as ReturnType;
         case 'RecipeDetailIngredientsInner':

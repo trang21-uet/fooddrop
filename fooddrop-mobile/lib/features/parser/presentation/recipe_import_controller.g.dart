@@ -45,7 +45,7 @@ final class RecipeImportControllerProvider
 }
 
 String _$recipeImportControllerHash() =>
-    r'7a9b85c78be6e206160c87048a71444ca528ca96';
+    r'a1551a4733c6947fda0a4878f678855facef2c31';
 
 /// Runs one import: start the job, poll until it finishes, then hand the draft to the recipe form.
 

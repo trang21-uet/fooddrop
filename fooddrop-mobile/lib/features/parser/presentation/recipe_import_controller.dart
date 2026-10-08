@@ -5,6 +5,8 @@ import 'package:fooddrop_api/fooddrop_api.dart' as api;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/api/api_error.dart';
+import '../../timers/data/timer_providers.dart' show nowMsProvider;
+import '../data/parse_cooldown.dart';
 import '../data/parse_job_mapper.dart';
 import '../data/parser_providers.dart';
 import '../data/photo_picker.dart';
@@ -31,9 +33,16 @@ class RecipeImportController extends _$RecipeImportController {
   @override
   ImportState build() => const ImportState();
 
-  Future<void> importUrl(String url) => _run(() => ref.read(parserRemoteProvider).startUrl(url.trim()));
+  /// The screen disables its buttons while cooling down; this stops any other caller from starting a second import.
+  bool get _coolingDown => parseCooldownSecondsLeft(ref.read(parseCooldownProvider), ref.read(nowMsProvider)()) > 0;
+
+  Future<void> importUrl(String url) async {
+    if (_coolingDown) return;
+    await _run(() => ref.read(parserRemoteProvider).startUrl(url.trim()));
+  }
 
   Future<void> importPhoto(PhotoSource source) async {
+    if (_coolingDown) return;
     final PickedPhoto? photo;
     try {
       photo = await ref.read(photoPickerProvider).pick(source);
@@ -51,12 +60,24 @@ class RecipeImportController extends _$RecipeImportController {
 
   void reset() => state = const ImportState();
 
-  Future<void> _run(Future<String> Function() start) async {
+  Future<void> _run(Future<api.ParseJob> Function() start) async {
     state = const ImportState(phase: ImportPhase.working);
+    // Read before awaiting: the cooldown is app-wide (keepAlive) and must start even if this screen's
+    // controller is disposed while the request is in flight.
+    final cooldown = ref.read(parseCooldownProvider.notifier);
     final String jobId;
     try {
-      jobId = await start();
+      final job = await start();
+      cooldown.start(Duration(seconds: job.cooldownSeconds));
+      jobId = job.id;
     } catch (error) {
+      final retryAfter = retryAfterSecondsOf(error);
+      if (retryAfter != null) {
+        cooldown.start(Duration(seconds: retryAfter));
+        // The screen's live countdown explains the wait; a failure message would repeat a frozen number.
+        if (ref.mounted) state = const ImportState();
+        return;
+      }
       if (ref.mounted) state = ImportState(phase: ImportPhase.failed, message: describeImportStartError(error));
       return;
     }

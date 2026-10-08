@@ -37,5 +37,10 @@ void main() {
       // TODO
     });
 
+    // int cooldownSeconds
+    test('to test the property `cooldownSeconds`', () async {
+      // TODO
+    });
+
   });
 }

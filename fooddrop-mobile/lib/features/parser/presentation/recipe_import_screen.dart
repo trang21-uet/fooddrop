@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../../app/food_drop_colors.dart';
 import '../../../core/widgets/labeled_text_field.dart';
 import '../../../core/widgets/neon_button.dart';
+import '../../timers/data/timer_providers.dart' show nowMsProvider, tickerProvider;
+import '../data/parse_cooldown.dart';
 import '../data/photo_picker.dart';
 import 'recipe_import_controller.dart';
 
@@ -31,6 +33,12 @@ class _RecipeImportScreenState extends ConsumerState<RecipeImportScreen> {
     final state = ref.watch(recipeImportControllerProvider);
     final controller = ref.read(recipeImportControllerProvider.notifier);
     final working = state.phase == ImportPhase.working;
+    final cooldownEndsAt = ref.watch(parseCooldownProvider);
+    int secondsLeft() => parseCooldownSecondsLeft(cooldownEndsAt, ref.read(nowMsProvider)());
+    // The shared ticker only runs (and rebuilds this screen twice a second) while a wait is counting down.
+    if (secondsLeft() > 0) ref.watch(tickerProvider);
+    final cooldownLeft = secondsLeft();
+    final blocked = working || cooldownLeft > 0;
 
     ref.listen(recipeImportControllerProvider, (_, next) {
       if (next.phase != ImportPhase.done) return;
@@ -78,14 +86,14 @@ class _RecipeImportScreenState extends ConsumerState<RecipeImportScreen> {
             hint: 'https://…',
             keyboardType: TextInputType.url,
             textInputAction: TextInputAction.go,
-            onSubmitted: working ? null : (_) => _submitUrl(controller),
+            onSubmitted: blocked ? null : (_) => _submitUrl(controller),
           ),
           const SizedBox(height: 12),
           NeonButton(
             label: 'Đọc công thức từ liên kết',
             height: 52,
             loading: working,
-            onPressed: () => _submitUrl(controller),
+            onPressed: blocked ? null : () => _submitUrl(controller),
           ),
           const SizedBox(height: 28),
           Text('Hoặc dùng ảnh', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: colors.textMuted)),
@@ -95,7 +103,7 @@ class _RecipeImportScreenState extends ConsumerState<RecipeImportScreen> {
             icon: Icons.photo_camera_outlined,
             style: NeonButtonStyle.outline,
             height: 52,
-            onPressed: working ? null : () => controller.importPhoto(PhotoSource.camera),
+            onPressed: blocked ? null : () => controller.importPhoto(PhotoSource.camera),
           ),
           const SizedBox(height: 12),
           NeonButton(
@@ -103,8 +111,17 @@ class _RecipeImportScreenState extends ConsumerState<RecipeImportScreen> {
             icon: Icons.photo_library_outlined,
             style: NeonButtonStyle.outline,
             height: 52,
-            onPressed: working ? null : () => controller.importPhoto(PhotoSource.gallery),
+            onPressed: blocked ? null : () => controller.importPhoto(PhotoSource.gallery),
           ),
+          if (cooldownLeft > 0)
+            Padding(
+              padding: const EdgeInsets.only(top: 24),
+              child: Text(
+                'Bạn vừa nhập một công thức. Hãy chờ $cooldownLeft giây nữa để nhập tiếp.',
+                key: const Key('import-cooldown'),
+                style: TextStyle(fontSize: 14, color: colors.textMuted),
+              ),
+            ),
           if (working)
             Padding(
               padding: const EdgeInsets.only(top: 24),

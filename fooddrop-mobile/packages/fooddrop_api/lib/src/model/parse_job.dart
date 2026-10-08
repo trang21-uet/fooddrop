@@ -32,6 +32,8 @@ class ParseJob {
     required  this.result,
 
     required  this.createdAt,
+
+    required  this.cooldownSeconds,
   });
 
   @JsonKey(
@@ -106,6 +108,20 @@ class ParseJob {
 
 
 
+          // minimum: 0
+          // maximum: 9007199254740991
+  @JsonKey(
+    
+    name: r'cooldownSeconds',
+    required: true,
+    includeIfNull: false,
+  )
+
+
+  final int cooldownSeconds;
+
+
+
 
 
     @override
@@ -115,7 +131,8 @@ class ParseJob {
       other.sourceType == sourceType &&
       other.errorCode == errorCode &&
       other.result == result &&
-      other.createdAt == createdAt;
+      other.createdAt == createdAt &&
+      other.cooldownSeconds == cooldownSeconds;
 
     @override
     int get hashCode =>
@@ -124,7 +141,8 @@ class ParseJob {
         sourceType.hashCode +
         (errorCode == null ? 0 : errorCode.hashCode) +
         (result == null ? 0 : result.hashCode) +
-        createdAt.hashCode;
+        createdAt.hashCode +
+        cooldownSeconds.hashCode;
 
   factory ParseJob.fromJson(Map<String, dynamic> json) => _$ParseJobFromJson(json);
 

@@ -93,6 +93,7 @@ Class | Method | HTTP request | Description
  - [ParseJobResult](doc/ParseJobResult.md)
  - [ParseJobResultIngredientsInner](doc/ParseJobResultIngredientsInner.md)
  - [ParseJobResultStepsInner](doc/ParseJobResultStepsInner.md)
+ - [ParseRateLimitError](doc/ParseRateLimitError.md)
  - [RecipeDetail](doc/RecipeDetail.md)
  - [RecipeDetailIngredientsInner](doc/RecipeDetailIngredientsInner.md)
  - [RecipeDetailIngredientsInnerBase](doc/RecipeDetailIngredientsInnerBase.md)
