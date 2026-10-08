@@ -52,12 +52,12 @@
 | `recipes` | CRUD, ingredients, steps, search and tag filters |
 | `tags` | Tag dimensions and tags, recipe tagging |
 | `ingredients` | Canonical ingredient catalog, aisle, density |
-| `units` | Deterministic unit conversion (cup/oz/tbsp → g/ml) |
+| `units` | Unit catalog (`GET /units`, Vietnamese + English names), deterministic raw-unit mapping for the parser and the g/ml/piece `base` amount the grocery list sums |
 | `parser` | URL/image ingest, JSON-LD extraction, LLM fallback, BullMQ worker |
 | `gacha` | Weighted draw, rarity, case types (cook / lazy), spin history |
 | `context` | Weather lookup (Open-Meteo) + boost rules, Places lookup |
 | `grocery` | Server-side aggregation endpoint (clients may also compute locally) |
-| `media` | Signed upload URLs for S3/R2 |
+| `media` | Signed upload URLs for S3/R2 (parser photos and recipe step photos) and view URLs for stored photos |
 
 ## Key flows
 
@@ -72,7 +72,7 @@ Server picks the result first so it cannot be manipulated client-side and spins 
 ### Recipe parse
 1. Client `POST /parser/jobs { url | imageKey }` → `{ jobId }`.
 2. Worker: if URL, fetch HTML and try `schema.org/Recipe` JSON-LD first; otherwise clean with Readability and call Claude. If image, call Claude vision.
-3. LLM returns raw ingredients via a strict tool schema; `units` module normalizes; result validated with Zod.
+3. LLM returns raw ingredients via a strict tool schema; the `units` module maps each raw unit to a catalog unit (and converts only units the catalog lacks); result validated with Zod.
 4. Client polls `GET /parser/jobs/:id` (or SSE) and shows an editable draft before saving.
 
 Implementation notes: the API process only validates, applies the per-user quota and enqueues; a separate worker process (`src/worker.ts`) runs the pipeline and writes the result (or a stable error code) onto `parse_jobs`. Photos are uploaded directly to object storage with a presigned PUT from `POST /media/uploads`, then referenced by key. Unmatched ingredients come back with `ingredientId = null`; clients add them to the shared catalog (user-added, aisle `other`) before saving the recipe.
@@ -94,7 +94,8 @@ The browser calls the API through a same-origin rewrite (`/backend/*` → `API_I
 
 - **Mobile recipe sync:** all reads come from Drift. Writes go to Drift and an `outbox` first; a sync pushes the outbox in order, then pulls tags, the recipe list and any missing details. Recipes with queued edits are never overwritten by a pull (last write to reach the server wins). Details of already-synced recipes are refreshed when opened. Sign-out wipes the database.
 - **Multi-Timer:** store `{id, label, endsAt, pausedRemainingMs?, alertedAt?}`; one shared ticker (Web Worker on web, `Stream.periodic` on mobile); mobile schedules `flutter_local_notifications` at `endsAt` and re-arms running timers on launch.
-- **Grocery list:** store only selected `{recipeId, servings}` + checked `ingredientId|unit` keys; the list is a derived selector grouped by aisle. Web also keeps a snapshot of each selected recipe's ingredients in IndexedDB so the list works offline; mobile reads recipes from Drift.
+- **Recipe lines and step photos:** quantity and unit are shown as written; clients never convert units. Step photos are picked on the device, uploaded with a signed PUT (needs a connection; the recipe save itself stays offline-first and carries only storage keys), and shown from the URLs the API returns. A photo picked offline-first shows from its local `file:` URI until the next sync replaces it with the server URL. Mobile caches the unit catalog in Drift and pulls it on every sync.
+- **Grocery list:** store only selected `{recipeId, servings}` + checked `ingredientId|unit` keys; the list is a derived selector grouped by aisle that sums each line's server-derived `base` amount (g / ml / piece). Web also keeps a snapshot of each selected recipe's ingredients in IndexedDB so the list works offline; mobile reads recipes from Drift.
 - **Shared logic:** scaling, rounding, aggregation and timer math are implemented twice (TS and Dart) and verified against the same JSON vectors in `docs/fixtures/`. Change a rule by changing the vectors first.
 - **Gacha:** state machine `idle → spinning → revealing → done`; reel offset stays in the animation controller.
 
