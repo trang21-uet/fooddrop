@@ -224,6 +224,14 @@ export interface components {
             } | null;
             /** Format: date-time */
             createdAt: string;
+            cooldownSeconds: number;
+        };
+        ParseRateLimitError: {
+            statusCode: number;
+            /** @enum {string} */
+            code: "parse_cooldown" | "parse_daily_quota";
+            message: string;
+            retryAfterSeconds?: number;
         };
         Ingredient: {
             /** Format: uuid */
@@ -670,6 +678,17 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ParseJob"];
+                };
+            };
+            /** @description Import cooldown (`parse_cooldown`, with `retryAfterSeconds`) or daily quota (`parse_daily_quota`) */
+            429: {
+                headers: {
+                    /** @description Seconds until the cooldown ends (cooldown only) */
+                    "Retry-After"?: number;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParseRateLimitError"];
                 };
             };
         };

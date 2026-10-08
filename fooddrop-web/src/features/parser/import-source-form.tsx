@@ -8,6 +8,8 @@ type Mode = "url" | "photo";
 
 interface ImportSourceFormProps {
   disabled: boolean;
+  /** Seconds until another import is allowed; the submit button stays disabled while > 0. */
+  cooldownSeconds: number;
   error: string | null;
   onSubmitUrl: (url: string) => void;
   onSubmitPhoto: (file: File) => void;
@@ -18,7 +20,7 @@ const TABS: Array<{ mode: Mode; label: string }> = [
   { mode: "photo", label: "Ảnh công thức" },
 ];
 
-export function ImportSourceForm({ disabled, error, onSubmitUrl, onSubmitPhoto }: ImportSourceFormProps) {
+export function ImportSourceForm({ disabled, cooldownSeconds, error, onSubmitUrl, onSubmitPhoto }: ImportSourceFormProps) {
   const [mode, setMode] = useState<Mode>("url");
   const [url, setUrl] = useState("");
   const [file, setFile] = useState<File | null>(null);
@@ -28,7 +30,7 @@ export function ImportSourceForm({ disabled, error, onSubmitUrl, onSubmitPhoto }
     if (mode === "url") onSubmitUrl(url.trim());
     else if (file) onSubmitPhoto(file);
   };
-  const canSubmit = !disabled && (mode === "url" ? url.trim().length > 0 : file !== null);
+  const canSubmit = !disabled && cooldownSeconds === 0 && (mode === "url" ? url.trim().length > 0 : file !== null);
 
   return (
     <form onSubmit={submit} className="flex max-w-xl flex-col gap-5">
@@ -73,6 +75,11 @@ export function ImportSourceForm({ disabled, error, onSubmitUrl, onSubmitPhoto }
       {error && (
         <p role="alert" className="text-sm text-danger">
           {error}
+        </p>
+      )}
+      {cooldownSeconds > 0 && (
+        <p role="status" className="text-sm text-muted">
+          Bạn vừa nhập một công thức. Hãy chờ {cooldownSeconds} giây nữa để nhập tiếp.
         </p>
       )}
       <Button type="submit" disabled={!canSubmit} className="self-start">

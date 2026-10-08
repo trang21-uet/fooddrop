@@ -5,10 +5,13 @@ import { Button } from "@/components/ui/button";
 import { useSignOutOnUnauthorized } from "@/features/auth/use-sign-out-on-unauthorized";
 import { RecipeForm } from "../recipes/recipe-form/recipe-form";
 import { draftToFormValues } from "./draft-to-form-values";
+import { ApiError } from "@/lib/api/api-error";
 import { ImportSourceForm } from "./import-source-form";
 import { InDevelopmentBadge } from "./in-development-badge";
 import { parseErrorMessage, startErrorMessage } from "./parse-error-message";
+import type { ParseJob } from "./parser-types";
 import { startImageImport, startUrlImport } from "./start-import";
+import { useParseCooldown } from "./use-parse-cooldown";
 import { useParseJob } from "./use-parse-job";
 
 /** Import flow: choose a source → wait for the job → review the draft in the regular recipe form. */
@@ -17,18 +20,24 @@ export function RecipeImportView() {
   const [starting, setStarting] = useState(false);
   const [startError, setStartError] = useState<string | null>(null);
   const job = useParseJob(jobId);
+  const cooldown = useParseCooldown();
   useSignOutOnUnauthorized(job.error);
 
   const draft = job.data?.status === "succeeded" ? job.data.result : null;
   const initialValues = useMemo(() => (draft ? draftToFormValues(draft) : null), [draft]);
 
-  const start = async (run: () => Promise<string>) => {
+  const start = async (run: () => Promise<ParseJob>) => {
+    if (cooldown.secondsLeft > 0) return;
     setStarting(true);
     setStartError(null);
     try {
-      setJobId(await run());
+      const created = await run();
+      setJobId(created.id);
+      cooldown.start(created.cooldownSeconds);
     } catch (error) {
-      setStartError(startErrorMessage(error));
+      // A cooldown 429 says how long is left; the live countdown under the form explains it, so no frozen error text.
+      if (error instanceof ApiError && error.status === 429 && error.retryAfterSeconds) cooldown.start(error.retryAfterSeconds);
+      else setStartError(startErrorMessage(error));
     } finally {
       setStarting(false);
     }
@@ -82,6 +91,7 @@ export function RecipeImportView() {
       {jobId === null && (
         <ImportSourceForm
           disabled={starting}
+          cooldownSeconds={cooldown.secondsLeft}
           error={startError}
           onSubmitUrl={(url) => void start(() => startUrlImport(url))}
           onSubmitPhoto={(file) => void start(() => startImageImport(file))}

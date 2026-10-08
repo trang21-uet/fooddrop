@@ -2,6 +2,8 @@ export class ApiError extends Error {
   constructor(
     readonly status: number,
     message: string,
+    /** Set on 429s from the import cooldown (see `start-import.ts`): how long until the next attempt is allowed. */
+    readonly retryAfterSeconds?: number,
   ) {
     super(message);
     this.name = "ApiError";

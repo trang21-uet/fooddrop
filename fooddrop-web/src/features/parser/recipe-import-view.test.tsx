@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { ApiError } from "@/lib/api/api-error";
+import { clearParseCooldown } from "./parse-cooldown";
 import type { ParseJob } from "./parser-types";
 import { RecipeImportView } from "./recipe-import-view";
 
@@ -30,6 +31,7 @@ const job = (overrides: Partial<ParseJob>): ParseJob => ({
   errorCode: null,
   result: null,
   createdAt: "2026-10-07T00:00:00.000Z",
+  cooldownSeconds: 60,
   ...overrides,
 });
 const respond = (data: ParseJob) => ({ data, response: new Response(null, { status: 200 }) });
@@ -50,6 +52,7 @@ const submitUrl = (url: string) => {
 
 describe("RecipeImportView", () => {
   beforeEach(() => {
+    clearParseCooldown();
     startUrlImport.mockReset();
     startImageImport.mockReset();
     get.mockReset();
@@ -65,7 +68,7 @@ describe("RecipeImportView", () => {
   });
 
   it("starts a URL import and shows progress while the job runs", async () => {
-    startUrlImport.mockResolvedValue("job-1");
+    startUrlImport.mockResolvedValue(job({ cooldownSeconds: 60 }));
     renderView();
     submitUrl("https://blog.example/pho");
 
@@ -74,7 +77,7 @@ describe("RecipeImportView", () => {
   });
 
   it("shows the editable draft in the recipe form when the job succeeds", async () => {
-    startUrlImport.mockResolvedValue("job-1");
+    startUrlImport.mockResolvedValue(job({ cooldownSeconds: 60 }));
     get.mockImplementation(async (path: string) =>
       path === "/parser/jobs/{id}"
         ? respond(
@@ -108,7 +111,7 @@ describe("RecipeImportView", () => {
   });
 
   it("explains a failed job in Vietnamese and lets the user retry", async () => {
-    startUrlImport.mockResolvedValue("job-1");
+    startUrlImport.mockResolvedValue(job({ cooldownSeconds: 60 }));
     get.mockImplementation(async () => respond(job({ status: "failed", errorCode: "fetch_failed" })));
     renderView();
     submitUrl("https://blocked.example/x");
@@ -127,6 +130,53 @@ describe("RecipeImportView", () => {
     expect(screen.getByLabelText("Liên kết công thức")).toBeInTheDocument();
   });
 
+  it("blocks a second import for a minute after one starts", async () => {
+    startUrlImport.mockResolvedValue(job({ cooldownSeconds: 60 }));
+    get.mockImplementation(async () => respond(job({ status: "failed", errorCode: "not_a_recipe" })));
+    renderView();
+    submitUrl("https://blog.example/a");
+
+    await screen.findByRole("alert");
+    fireEvent.click(screen.getByRole("button", { name: "Thử lại" }));
+
+    expect(screen.getByRole("status")).toHaveTextContent("chờ 60 giây nữa");
+    expect(screen.getByRole("button", { name: "Đọc công thức" })).toBeDisabled();
+    fireEvent.change(screen.getByLabelText("Liên kết công thức"), { target: { value: "https://blog.example/b" } });
+    expect(screen.getByRole("button", { name: "Đọc công thức" })).toBeDisabled();
+    expect(startUrlImport).toHaveBeenCalledTimes(1);
+  });
+
+  it("adopts the wait time the server reports when it answers 429", async () => {
+    startUrlImport.mockRejectedValue(new ApiError(429, "Please wait", 37));
+    renderView();
+    submitUrl("https://blog.example/pho");
+
+    await waitFor(() => expect(screen.getByRole("status")).toHaveTextContent("37 giây nữa"));
+    // Only the live countdown, no second, frozen number in an error line.
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Đọc công thức" })).toBeDisabled();
+  });
+
+  it("uses the cooldown length the server sent with the created job", async () => {
+    startUrlImport.mockResolvedValue(job({ cooldownSeconds: 0 }));
+    get.mockImplementation(async () => respond(job({ status: "failed", errorCode: "not_a_recipe" })));
+    renderView();
+    submitUrl("https://blog.example/a");
+
+    await screen.findByRole("alert");
+    fireEvent.click(screen.getByRole("button", { name: "Thử lại" }));
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+  });
+
+  it("does not start a cooldown when starting the job fails", async () => {
+    startUrlImport.mockRejectedValue(new ApiError(503, "down"));
+    renderView();
+    submitUrl("https://blog.example/pho");
+
+    await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent("không khả dụng"));
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+  });
+
   it("switching between link and photo tabs never turns a controlled input uncontrolled", () => {
     const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
     renderView();
@@ -140,7 +190,7 @@ describe("RecipeImportView", () => {
   });
 
   it("switches to the photo tab and starts an image import", async () => {
-    startImageImport.mockResolvedValue("job-1");
+    startImageImport.mockResolvedValue(job({ cooldownSeconds: 60 }));
     renderView();
     fireEvent.click(screen.getByRole("tab", { name: "Ảnh công thức" }));
     const file = new File(["x"], "page.jpg", { type: "image/jpeg" });
