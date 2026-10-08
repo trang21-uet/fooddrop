@@ -23,7 +23,7 @@ api.ParseJobResult parseResult({
             api.ParseJobResultIngredientsInner(
               name: 'pork belly',
               quantity: 500,
-              unit: api.ParseJobResultIngredientsInnerUnitEnum.g,
+              unit: 'g',
               note: null,
               matchedName: 'Thịt ba chỉ',
               ingredientId: 'ing-pork',
@@ -32,7 +32,7 @@ api.ParseJobResult parseResult({
             api.ParseJobResultIngredientsInner(
               name: 'trứng cút',
               quantity: 12.5,
-              unit: api.ParseJobResultIngredientsInnerUnitEnum.piece,
+              unit: 'fruit',
               note: 'luộc chín',
               matchedName: null,
               ingredientId: null,
@@ -85,10 +85,16 @@ class FakeParserRemote implements ParserRemote {
 }
 
 class FakePhotoPicker implements PhotoPicker {
-  FakePhotoPicker(this.photo);
+  FakePhotoPicker(this.photo, {this.many = const []});
 
   final PickedPhoto? photo;
 
+  /// What [pickMany] returns (capped at the requested limit).
+  final List<PickedPhoto> many;
+
   @override
   Future<PickedPhoto?> pick(PhotoSource source) async => photo;
+
+  @override
+  Future<List<PickedPhoto>> pickMany(PhotoSource source, {required int limit}) async => many.take(limit).toList();
 }

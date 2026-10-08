@@ -20,8 +20,9 @@ Recipe _recipe(Map<String, dynamic> json) => Recipe(
             ingredientId: i['ingredientId'] as String,
             name: i['name'] as String,
             aisle: i['aisle'] as String,
-            quantity: (i['quantity'] as num).toDouble(),
-            unit: i['unit'] as String,
+            // The vectors describe the server-converted base amounts the list sums.
+            baseQuantity: (i['quantity'] as num).toDouble(),
+            baseUnit: i['unit'] as String,
           ),
       ],
     );

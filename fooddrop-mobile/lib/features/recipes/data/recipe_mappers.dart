@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:drift/drift.dart';
 import 'package:fooddrop_api/fooddrop_api.dart' as api;
 
@@ -7,6 +5,8 @@ import '../../../core/db/app_database.dart';
 import '../domain/rarity.dart';
 import '../domain/recipe.dart';
 import '../domain/recipe_draft.dart';
+import '../domain/recipe_unit.dart';
+import 'step_codec.dart';
 
 /// Companion rows for one recipe, ready to write in a transaction.
 class RecipeRows {
@@ -16,24 +16,6 @@ class RecipeRows {
   final List<RecipeIngredientsCompanion> ingredients;
   final List<int> tagIds;
 }
-
-String encodeSteps(Iterable<RecipeStep> steps) => jsonEncode([
-      for (final step in steps)
-        {
-          'text': step.text,
-          if (step.timerSeconds != null) 'timerSeconds': step.timerSeconds,
-          if (step.timerLabel != null) 'timerLabel': step.timerLabel,
-        },
-    ]);
-
-List<RecipeStep> decodeSteps(String json) => [
-      for (final raw in jsonDecode(json) as List<dynamic>)
-        RecipeStep(
-          text: (raw as Map<String, dynamic>)['text'] as String,
-          timerSeconds: raw['timerSeconds'] as int?,
-          timerLabel: raw['timerLabel'] as String?,
-        ),
-    ];
 
 RecipeRows rowsFromDetail(api.RecipeDetail detail) {
   final steps = [...detail.steps]..sort((a, b) => a.order.compareTo(b.order));
@@ -50,7 +32,15 @@ RecipeRows rowsFromDetail(api.RecipeDetail detail) {
       rarity: detail.rarity.value,
       stepsJson: Value(
         encodeSteps(
-          steps.map((s) => RecipeStep(text: s.text, timerSeconds: s.timerSeconds, timerLabel: s.timerLabel)),
+          steps.map(
+            (s) => RecipeStep(
+              name: s.name,
+              text: s.text,
+              images: [for (final image in s.images) RecipeStepImage(key: image.key, url: image.url)],
+              timerSeconds: s.timerSeconds,
+              timerLabel: s.timerLabel,
+            ),
+          ),
         ),
       ),
       createdAt: detail.createdAt,
@@ -62,10 +52,15 @@ RecipeRows rowsFromDetail(api.RecipeDetail detail) {
           ingredientId: item.ingredient.id,
           name: item.ingredient.name,
           aisle: item.ingredient.aisle.value,
-          quantity: item.quantity.toDouble(),
-          unit: item.unit.value,
+          quantity: Value(item.quantity?.toDouble()),
+          unit: Value(item.unit?.code),
+          unitNameVi: Value(item.unit?.nameVi),
+          unitNameEn: Value(item.unit?.nameEn),
+          unitKind: Value(item.unit?.kind.value),
           note: Value(item.note),
           sortOrder: index,
+          baseQuantity: Value(item.base_.quantity.toDouble()),
+          baseUnit: Value(item.base_.unit.value),
         ),
     ],
     tagIds: detail.tags.map((tag) => tag.id).toList(),
@@ -86,11 +81,13 @@ RecipesCompanion companionFromSummary(api.RecipeListItemsInner item) => RecipesC
     );
 
 /// Rows for a recipe written on this device. Rarity is computed locally until the server answers,
-/// and quantities stay as the raw text the user typed (normalization is the backend's job).
-RecipeRows rowsFromDraft(String id, RecipeDraft draft, {required DateTime createdAt}) {
+/// and the grocery base stays empty until then (converting units is the backend's job).
+RecipeRows rowsFromDraft(String id, RecipeDraft draft, {required DateTime createdAt, List<RecipeUnit> units = const []}) {
   final steps = draft.steps.map(
     (step) => RecipeStep(
+      name: _blankToNull(step.name),
       text: step.text.trim(),
+      images: step.images,
       timerSeconds: step.timerMinutes == null ? null : step.timerMinutes! * 60,
       timerLabel: step.timerMinutes == null ? null : step.timerLabel,
     ),
@@ -116,11 +113,16 @@ RecipeRows rowsFromDraft(String id, RecipeDraft draft, {required DateTime create
           ingredientId: row.ingredientId,
           name: row.name,
           aisle: row.aisle,
-          quantity: double.tryParse(row.quantityText.replaceAll(',', '.')) ?? 0,
-          unit: row.unitText.trim().isEmpty ? 'piece' : row.unitText.trim(),
+          quantity: Value(_parseQuantity(row.quantityText)),
+          // A unit only means something next to a quantity, as on the server.
+          unit: Value(_unitFor(row, units)?.code),
+          unitNameVi: Value(_unitFor(row, units)?.nameVi),
+          unitNameEn: Value(_unitFor(row, units)?.nameEn),
+          unitKind: Value(_unitFor(row, units)?.kind),
           note: Value(_blankToNull(row.note)),
           sortOrder: index,
-          displayQuantity: Value('${row.quantityText.trim()} ${row.unitText.trim()}'.trim()),
+          // Raw text only when Dart cannot read it ("1 1/2", "2-3"); a plain number is scalable.
+          displayQuantity: Value(_parseQuantity(row.quantityText) == null ? _blankToNull(row.quantityText) : null),
         ),
     ],
     tagIds: draft.tagIds.toList(),
@@ -152,8 +154,17 @@ Recipe recipeFromRows(
             name: item.name,
             aisle: item.aisle,
             quantity: item.quantity,
-            unit: item.unit,
+            unit: item.unit == null
+                ? null
+                : RecipeUnit(
+                    code: item.unit!,
+                    nameVi: item.unitNameVi ?? item.unit!,
+                    nameEn: item.unitNameEn ?? item.unit!,
+                    kind: item.unitKind ?? 'other',
+                  ),
             note: item.note,
+            baseQuantity: item.baseQuantity,
+            baseUnit: item.baseUnit,
             displayQuantity: item.displayQuantity,
           ),
       ],
@@ -172,7 +183,9 @@ api.RecipeInput inputFromDraft(RecipeDraft draft) => api.RecipeInput(
       steps: [
         for (final step in draft.steps)
           api.RecipeInputStepsInner(
+            name: _blankToNull(step.name),
             text: step.text.trim(),
+            images: [for (final image in step.images) image.key],
             timerSeconds: step.timerMinutes == null ? null : step.timerMinutes! * 60,
             timerLabel: step.timerMinutes == null ? null : step.timerLabel,
           ),
@@ -181,13 +194,23 @@ api.RecipeInput inputFromDraft(RecipeDraft draft) => api.RecipeInput(
         for (final row in draft.ingredients)
           api.RecipeInputIngredientsInner(
             ingredientId: row.ingredientId,
-            quantity: row.quantityText.trim(),
-            unit: _blankToNull(row.unitText),
+            quantity: _blankToNull(row.quantityText),
+            // A unit only means something next to a quantity; the server rejects one without it.
+            unit: _blankToNull(row.quantityText) == null ? null : _blankToNull(row.unitCode),
             note: _blankToNull(row.note),
           ),
       ],
       tagIds: draft.tagIds.toList(),
     );
+
+double? _parseQuantity(String text) => double.tryParse(text.trim().replaceAll(',', '.'));
+
+/// The catalog unit for a row, or null when it has none or no quantity to attach it to.
+RecipeUnit? _unitFor(DraftIngredient row, List<RecipeUnit> units) {
+  if (row.quantityText.trim().isEmpty || row.unitCode.isEmpty) return null;
+  return units.where((unit) => unit.code == row.unitCode).firstOrNull ??
+      RecipeUnit(code: row.unitCode, nameVi: row.unitCode, nameEn: row.unitCode, kind: 'other');
+}
 
 String? _blankToNull(String value) {
   final trimmed = value.trim();

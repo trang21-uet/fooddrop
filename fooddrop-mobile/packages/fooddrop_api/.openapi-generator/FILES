@@ -20,8 +20,11 @@ doc/ParseJobResultStepsInner.md
 doc/ParserApi.md
 doc/RecipeDetail.md
 doc/RecipeDetailIngredientsInner.md
+doc/RecipeDetailIngredientsInnerBase.md
 doc/RecipeDetailIngredientsInnerIngredient.md
+doc/RecipeDetailIngredientsInnerUnit.md
 doc/RecipeDetailStepsInner.md
+doc/RecipeDetailStepsInnerImagesInner.md
 doc/RecipeDetailTagsInner.md
 doc/RecipeInput.md
 doc/RecipeInputIngredientsInner.md
@@ -33,6 +36,8 @@ doc/SearchIngredientsQuery.md
 doc/TagDimension.md
 doc/TagDimensionTagsInner.md
 doc/TagsApi.md
+doc/Unit.md
+doc/UnitsApi.md
 doc/UploadTarget.md
 lib/fooddrop_api.dart
 lib/src/api.dart
@@ -42,6 +47,7 @@ lib/src/api/media_api.dart
 lib/src/api/parser_api.dart
 lib/src/api/recipes_api.dart
 lib/src/api/tags_api.dart
+lib/src/api/units_api.dart
 lib/src/auth/api_key_auth.dart
 lib/src/auth/auth.dart
 lib/src/auth/basic_auth.dart
@@ -61,8 +67,11 @@ lib/src/model/parse_job_result_ingredients_inner.dart
 lib/src/model/parse_job_result_steps_inner.dart
 lib/src/model/recipe_detail.dart
 lib/src/model/recipe_detail_ingredients_inner.dart
+lib/src/model/recipe_detail_ingredients_inner_base.dart
 lib/src/model/recipe_detail_ingredients_inner_ingredient.dart
+lib/src/model/recipe_detail_ingredients_inner_unit.dart
 lib/src/model/recipe_detail_steps_inner.dart
+lib/src/model/recipe_detail_steps_inner_images_inner.dart
 lib/src/model/recipe_detail_tags_inner.dart
 lib/src/model/recipe_input.dart
 lib/src/model/recipe_input_ingredients_inner.dart
@@ -72,6 +81,7 @@ lib/src/model/recipe_list_items_inner.dart
 lib/src/model/search_ingredients_query.dart
 lib/src/model/tag_dimension.dart
 lib/src/model/tag_dimension_tags_inner.dart
+lib/src/model/unit.dart
 lib/src/model/upload_target.dart
 pubspec.yaml
 test/create_ingredient_test.dart
@@ -89,8 +99,11 @@ test/parse_job_result_steps_inner_test.dart
 test/parse_job_result_test.dart
 test/parse_job_test.dart
 test/parser_api_test.dart
+test/recipe_detail_ingredients_inner_base_test.dart
 test/recipe_detail_ingredients_inner_ingredient_test.dart
 test/recipe_detail_ingredients_inner_test.dart
+test/recipe_detail_ingredients_inner_unit_test.dart
+test/recipe_detail_steps_inner_images_inner_test.dart
 test/recipe_detail_steps_inner_test.dart
 test/recipe_detail_tags_inner_test.dart
 test/recipe_detail_test.dart
@@ -104,4 +117,6 @@ test/search_ingredients_query_test.dart
 test/tag_dimension_tags_inner_test.dart
 test/tag_dimension_test.dart
 test/tags_api_test.dart
+test/unit_test.dart
+test/units_api_test.dart
 test/upload_target_test.dart

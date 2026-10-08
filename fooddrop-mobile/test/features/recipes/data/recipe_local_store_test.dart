@@ -5,6 +5,7 @@ import 'package:fooddrop_api/fooddrop_api.dart' as api;
 import 'package:fooddrop/core/db/app_database.dart';
 import 'package:fooddrop/features/recipes/data/recipe_local_store.dart';
 import 'package:fooddrop/features/recipes/domain/rarity.dart';
+import 'package:fooddrop/features/recipes/domain/recipe.dart';
 import 'package:fooddrop/features/recipes/domain/recipe_draft.dart';
 
 import '../../../support/recipe_fixtures.dart';
@@ -17,8 +18,9 @@ const _draft = RecipeDraft(
   tagIds: {1},
   steps: [DraftStep(text: 'Nướng bánh', timerMinutes: 5)],
   ingredients: [
-    DraftIngredient(ingredientId: 'i1', name: 'Bánh mì', aisle: 'pantry', quantityText: '2', unitText: ''),
-    DraftIngredient(ingredientId: 'i2', name: 'Sốt', aisle: 'other', quantityText: '1 1/2', unitText: 'thìa'),
+    DraftIngredient(ingredientId: 'i1', name: 'Bánh mì', aisle: 'pantry', quantityText: '2'),
+    DraftIngredient(ingredientId: 'i2', name: 'Sốt', aisle: 'other', quantityText: '1 1/2', unitCode: 'tbsp'),
+    DraftIngredient(ingredientId: 'i3', name: 'Muối', aisle: 'spices', unitCode: 'g', note: 'tùy khẩu vị'),
   ],
 );
 
@@ -33,6 +35,7 @@ void main() {
   tearDown(() => db.close());
 
   test('saving a new recipe writes it locally and queues a create', () async {
+    await store.replaceUnits(apiUnits());
     final id = await store.saveLocally(_draft);
 
     expect(isLocalId(id), isTrue);
@@ -42,13 +45,66 @@ void main() {
     expect(recipe.isPending, isTrue);
     expect(recipe.steps!.single.timerSeconds, 300);
     expect(recipe.tagIds, [1]);
-    expect(recipe.ingredients.map((i) => i.quantityLabel), ['2', '1 1/2 thìa'], reason: 'raw text until normalized');
+    expect(recipe.ingredients.map((i) => i.quantityLabel), ['2', '1 1/2 thìa canh', ''], reason: 'raw text plus the chosen unit');
+    expect(recipe.ingredients[0].displayQuantity, isNull, reason: 'a plain number is kept as a number, so it scales');
+    expect(recipe.ingredients[0].quantity, 2);
+    expect(recipe.ingredients[1].displayQuantity, '1 1/2', reason: 'only text Dart cannot read stays raw');
+    expect(recipe.ingredients[1].unit?.code, 'tbsp');
+    expect(recipe.ingredients[2].unit, isNull, reason: 'a unit without a quantity is dropped, as on the server');
 
     final ops = await store.pendingOps();
     expect(ops.map((op) => op.kind), ['create']);
     final payload = jsonDecode(ops.single.payloadJson!) as Map<String, dynamic>;
     expect(payload['title'], 'Bánh mì');
-    expect((payload['ingredients'] as List).last['quantity'], '1 1/2');
+    final ingredients = (payload['ingredients'] as List).cast<Map<String, dynamic>>();
+    expect(ingredients[0], {'ingredientId': 'i1', 'quantity': '2'});
+    expect(ingredients[1], {'ingredientId': 'i2', 'quantity': '1 1/2', 'unit': 'tbsp'});
+    expect(ingredients[2], {'ingredientId': 'i3', 'note': 'tùy khẩu vị'}, reason: 'no quantity, so no unit either');
+  });
+
+  test('step names and photos are kept locally and sent as storage keys', () async {
+    const draft = RecipeDraft(
+      title: 'Bánh mì',
+      steps: [
+        DraftStep(
+          name: ' Sơ chế ',
+          text: 'Rửa rau',
+          images: [RecipeStepImage(key: 'recipes/u1/a.jpg', url: 'file:///cache/a.jpg')],
+        ),
+        DraftStep(text: 'Nướng bánh'),
+      ],
+    );
+    final id = await store.saveLocally(draft);
+
+    final steps = (await store.watchById(id).first)!.steps!;
+    expect((steps[0].name, steps[0].images.single.key, steps[0].images.single.url), ('Sơ chế', 'recipes/u1/a.jpg', 'file:///cache/a.jpg'));
+    expect(steps[1].name, isNull, reason: 'a blank name is not stored');
+    expect(steps[1].images, isEmpty);
+
+    final payload = jsonDecode((await store.pendingOps()).single.payloadJson!) as Map<String, dynamic>;
+    final sent = (payload['steps'] as List).cast<Map<String, dynamic>>();
+    expect(sent[0], {'name': 'Sơ chế', 'text': 'Rửa rau', 'images': ['recipes/u1/a.jpg']});
+    expect(sent[1].containsKey('name'), isFalse);
+  });
+
+  test('details keep the unit names, the grocery base and the step photos from the server', () async {
+    await store.upsertDetail(apiDetail());
+
+    final recipe = (await store.watchById('r1').first)!;
+    final bones = recipe.ingredients.single;
+    expect((bones.quantity, bones.unit?.code, bones.unit?.nameVi, bones.unit?.nameEn), (800, 'g', 'g', 'g'));
+    expect((bones.baseQuantity, bones.baseUnit), (800, 'g'));
+    final chan = recipe.steps!.last;
+    expect((chan.name, chan.images.single.url), ('Chần', 'https://cdn.example/a.jpg'));
+  });
+
+  test('the unit catalog is cached in server order', () async {
+    expect(await store.watchUnits().first, isEmpty);
+
+    await store.replaceUnits(apiUnits());
+    final units = await store.watchUnits().first;
+    expect(units.map((u) => u.code), ['g', 'tbsp', 'fruit']);
+    expect((units[1].nameVi, units[1].nameEn, units[1].kind), ('thìa canh', 'tablespoon', 'volume'));
   });
 
   test('editing a not-yet-synced recipe updates the queued create instead of adding an op', () async {

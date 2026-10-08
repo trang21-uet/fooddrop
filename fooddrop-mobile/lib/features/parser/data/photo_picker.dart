@@ -6,10 +6,13 @@ import 'package:image_picker/image_picker.dart';
 enum PhotoSource { camera, gallery }
 
 class PickedPhoto {
-  const PickedPhoto(this.bytes, this.contentType);
+  const PickedPhoto(this.bytes, this.contentType, {this.path});
 
   final Uint8List bytes;
   final api.CreateUploadContentTypeEnum contentType;
+
+  /// Where the plugin left the file, for a local preview before the upload has synced.
+  final String? path;
 }
 
 /// The server rejects uploads above 5 MB (the model's own image limit).
@@ -28,9 +31,21 @@ class PhotoPicker {
       maxHeight: 2000,
       imageQuality: 85,
     );
-    if (file == null) return null;
-    return PickedPhoto(await file.readAsBytes(), contentTypeFor(file.mimeType ?? file.name));
+    return file == null ? null : _read(file);
   }
+
+  /// Several photos from the gallery at once (at most [limit]); the camera takes one at a time.
+  Future<List<PickedPhoto>> pickMany(PhotoSource source, {required int limit}) async {
+    if (source == PhotoSource.camera) {
+      final photo = await pick(source);
+      return photo == null ? const [] : [photo];
+    }
+    final files = await ImagePicker().pickMultiImage(maxWidth: 2000, maxHeight: 2000, imageQuality: 85, limit: limit);
+    return [for (final file in files.take(limit)) await _read(file)];
+  }
+
+  Future<PickedPhoto> _read(XFile file) async =>
+      PickedPhoto(await file.readAsBytes(), contentTypeFor(file.mimeType ?? file.name), path: file.path);
 }
 
 /// Accepts a MIME type or file name; anything unrecognised is treated as JPEG (camera default).

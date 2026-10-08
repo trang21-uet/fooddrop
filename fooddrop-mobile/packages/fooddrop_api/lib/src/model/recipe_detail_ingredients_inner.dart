@@ -3,7 +3,9 @@
 //
 
 // ignore_for_file: unused_element
+import 'package:fooddrop_api/src/model/recipe_detail_ingredients_inner_base.dart';
 import 'package:fooddrop_api/src/model/recipe_detail_ingredients_inner_ingredient.dart';
+import 'package:fooddrop_api/src/model/recipe_detail_ingredients_inner_unit.dart';
 import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -28,6 +30,8 @@ class RecipeDetailIngredientsInner {
     required  this.unit,
 
     required  this.note,
+
+    required  this.base_,
   });
 
   @JsonKey(
@@ -46,11 +50,11 @@ class RecipeDetailIngredientsInner {
     
     name: r'quantity',
     required: true,
-    includeIfNull: false,
+    includeIfNull: true,
   )
 
 
-  final num quantity;
+  final num? quantity;
 
 
 
@@ -58,11 +62,11 @@ class RecipeDetailIngredientsInner {
     
     name: r'unit',
     required: true,
-    includeIfNull: false,
+    includeIfNull: true,
   )
 
 
-  final RecipeDetailIngredientsInnerUnitEnum unit;
+  final RecipeDetailIngredientsInnerUnit? unit;
 
 
 
@@ -78,6 +82,18 @@ class RecipeDetailIngredientsInner {
 
 
 
+  @JsonKey(
+    
+    name: r'base',
+    required: true,
+    includeIfNull: false,
+  )
+
+
+  final RecipeDetailIngredientsInnerBase base_;
+
+
+
 
 
     @override
@@ -85,14 +101,16 @@ class RecipeDetailIngredientsInner {
       other.ingredient == ingredient &&
       other.quantity == quantity &&
       other.unit == unit &&
-      other.note == note;
+      other.note == note &&
+      other.base_ == base_;
 
     @override
     int get hashCode =>
         ingredient.hashCode +
-        quantity.hashCode +
-        unit.hashCode +
-        (note == null ? 0 : note.hashCode);
+        (quantity == null ? 0 : quantity.hashCode) +
+        (unit == null ? 0 : unit.hashCode) +
+        (note == null ? 0 : note.hashCode) +
+        base_.hashCode;
 
   factory RecipeDetailIngredientsInner.fromJson(Map<String, dynamic> json) => _$RecipeDetailIngredientsInnerFromJson(json);
 
@@ -104,21 +122,4 @@ class RecipeDetailIngredientsInner {
   }
 
 }
-
-enum RecipeDetailIngredientsInnerUnitEnum {
-@JsonValue(r'g')
-g(r'g'),
-@JsonValue(r'ml')
-ml(r'ml'),
-@JsonValue(r'piece')
-piece(r'piece');
-
-const RecipeDetailIngredientsInnerUnitEnum(this.value);
-
-final String value;
-
-@override
-String toString() => value;
-}
-
 

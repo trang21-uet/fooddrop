@@ -11,11 +11,13 @@ abstract class _$RecipeDetailIngredientsInnerCWProxy {
     RecipeDetailIngredientsInnerIngredient ingredient,
   );
 
-  RecipeDetailIngredientsInner quantity(num quantity);
+  RecipeDetailIngredientsInner quantity(num? quantity);
 
-  RecipeDetailIngredientsInner unit(RecipeDetailIngredientsInnerUnitEnum unit);
+  RecipeDetailIngredientsInner unit(RecipeDetailIngredientsInnerUnit? unit);
 
   RecipeDetailIngredientsInner note(String? note);
+
+  RecipeDetailIngredientsInner base_(RecipeDetailIngredientsInnerBase base_);
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `RecipeDetailIngredientsInner(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -25,9 +27,10 @@ abstract class _$RecipeDetailIngredientsInnerCWProxy {
   /// ````
   RecipeDetailIngredientsInner call({
     RecipeDetailIngredientsInnerIngredient ingredient,
-    num quantity,
-    RecipeDetailIngredientsInnerUnitEnum unit,
+    num? quantity,
+    RecipeDetailIngredientsInnerUnit? unit,
     String? note,
+    RecipeDetailIngredientsInnerBase base_,
   });
 }
 
@@ -44,16 +47,19 @@ class _$RecipeDetailIngredientsInnerCWProxyImpl
   ) => this(ingredient: ingredient);
 
   @override
-  RecipeDetailIngredientsInner quantity(num quantity) =>
+  RecipeDetailIngredientsInner quantity(num? quantity) =>
       this(quantity: quantity);
 
   @override
-  RecipeDetailIngredientsInner unit(
-    RecipeDetailIngredientsInnerUnitEnum unit,
-  ) => this(unit: unit);
+  RecipeDetailIngredientsInner unit(RecipeDetailIngredientsInnerUnit? unit) =>
+      this(unit: unit);
 
   @override
   RecipeDetailIngredientsInner note(String? note) => this(note: note);
+
+  @override
+  RecipeDetailIngredientsInner base_(RecipeDetailIngredientsInnerBase base_) =>
+      this(base_: base_);
 
   @override
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `RecipeDetailIngredientsInner(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
@@ -67,6 +73,7 @@ class _$RecipeDetailIngredientsInnerCWProxyImpl
     Object? quantity = const $CopyWithPlaceholder(),
     Object? unit = const $CopyWithPlaceholder(),
     Object? note = const $CopyWithPlaceholder(),
+    Object? base_ = const $CopyWithPlaceholder(),
   }) {
     return RecipeDetailIngredientsInner(
       ingredient: ingredient == const $CopyWithPlaceholder()
@@ -76,15 +83,19 @@ class _$RecipeDetailIngredientsInnerCWProxyImpl
       quantity: quantity == const $CopyWithPlaceholder()
           ? _value.quantity
           // ignore: cast_nullable_to_non_nullable
-          : quantity as num,
+          : quantity as num?,
       unit: unit == const $CopyWithPlaceholder()
           ? _value.unit
           // ignore: cast_nullable_to_non_nullable
-          : unit as RecipeDetailIngredientsInnerUnitEnum,
+          : unit as RecipeDetailIngredientsInnerUnit?,
       note: note == const $CopyWithPlaceholder()
           ? _value.note
           // ignore: cast_nullable_to_non_nullable
           : note as String?,
+      base_: base_ == const $CopyWithPlaceholder()
+          ? _value.base_
+          // ignore: cast_nullable_to_non_nullable
+          : base_ as RecipeDetailIngredientsInnerBase,
     );
   }
 }
@@ -106,7 +117,7 @@ RecipeDetailIngredientsInner _$RecipeDetailIngredientsInnerFromJson(
 ) => $checkedCreate('RecipeDetailIngredientsInner', json, ($checkedConvert) {
   $checkKeys(
     json,
-    requiredKeys: const ['ingredient', 'quantity', 'unit', 'note'],
+    requiredKeys: const ['ingredient', 'quantity', 'unit', 'note', 'base'],
   );
   final val = RecipeDetailIngredientsInner(
     ingredient: $checkedConvert(
@@ -115,27 +126,31 @@ RecipeDetailIngredientsInner _$RecipeDetailIngredientsInnerFromJson(
         v as Map<String, dynamic>,
       ),
     ),
-    quantity: $checkedConvert('quantity', (v) => v as num),
+    quantity: $checkedConvert('quantity', (v) => v as num?),
     unit: $checkedConvert(
       'unit',
-      (v) => $enumDecode(_$RecipeDetailIngredientsInnerUnitEnumEnumMap, v),
+      (v) => v == null
+          ? null
+          : RecipeDetailIngredientsInnerUnit.fromJson(
+              v as Map<String, dynamic>,
+            ),
     ),
     note: $checkedConvert('note', (v) => v as String?),
+    base_: $checkedConvert(
+      'base',
+      (v) =>
+          RecipeDetailIngredientsInnerBase.fromJson(v as Map<String, dynamic>),
+    ),
   );
   return val;
-});
+}, fieldKeyMap: const {'base_': 'base'});
 
 Map<String, dynamic> _$RecipeDetailIngredientsInnerToJson(
   RecipeDetailIngredientsInner instance,
 ) => <String, dynamic>{
   'ingredient': instance.ingredient.toJson(),
   'quantity': instance.quantity,
-  'unit': _$RecipeDetailIngredientsInnerUnitEnumEnumMap[instance.unit]!,
+  'unit': instance.unit?.toJson(),
   'note': instance.note,
-};
-
-const _$RecipeDetailIngredientsInnerUnitEnumEnumMap = {
-  RecipeDetailIngredientsInnerUnitEnum.g: 'g',
-  RecipeDetailIngredientsInnerUnitEnum.ml: 'ml',
-  RecipeDetailIngredientsInnerUnitEnum.piece: 'piece',
+  'base': instance.base_.toJson(),
 };

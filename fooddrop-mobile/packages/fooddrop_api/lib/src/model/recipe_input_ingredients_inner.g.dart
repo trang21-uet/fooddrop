@@ -9,7 +9,7 @@ part of 'recipe_input_ingredients_inner.dart';
 abstract class _$RecipeInputIngredientsInnerCWProxy {
   RecipeInputIngredientsInner ingredientId(String ingredientId);
 
-  RecipeInputIngredientsInner quantity(String quantity);
+  RecipeInputIngredientsInner quantity(String? quantity);
 
   RecipeInputIngredientsInner unit(String? unit);
 
@@ -23,7 +23,7 @@ abstract class _$RecipeInputIngredientsInnerCWProxy {
   /// ````
   RecipeInputIngredientsInner call({
     String ingredientId,
-    String quantity,
+    String? quantity,
     String? unit,
     String? note,
   });
@@ -41,7 +41,7 @@ class _$RecipeInputIngredientsInnerCWProxyImpl
       this(ingredientId: ingredientId);
 
   @override
-  RecipeInputIngredientsInner quantity(String quantity) =>
+  RecipeInputIngredientsInner quantity(String? quantity) =>
       this(quantity: quantity);
 
   @override
@@ -71,7 +71,7 @@ class _$RecipeInputIngredientsInnerCWProxyImpl
       quantity: quantity == const $CopyWithPlaceholder()
           ? _value.quantity
           // ignore: cast_nullable_to_non_nullable
-          : quantity as String,
+          : quantity as String?,
       unit: unit == const $CopyWithPlaceholder()
           ? _value.unit
           // ignore: cast_nullable_to_non_nullable
@@ -98,10 +98,10 @@ extension $RecipeInputIngredientsInnerCopyWith on RecipeInputIngredientsInner {
 RecipeInputIngredientsInner _$RecipeInputIngredientsInnerFromJson(
   Map<String, dynamic> json,
 ) => $checkedCreate('RecipeInputIngredientsInner', json, ($checkedConvert) {
-  $checkKeys(json, requiredKeys: const ['ingredientId', 'quantity']);
+  $checkKeys(json, requiredKeys: const ['ingredientId']);
   final val = RecipeInputIngredientsInner(
     ingredientId: $checkedConvert('ingredientId', (v) => v as String),
-    quantity: $checkedConvert('quantity', (v) => v as String),
+    quantity: $checkedConvert('quantity', (v) => v as String?),
     unit: $checkedConvert('unit', (v) => v as String?),
     note: $checkedConvert('note', (v) => v as String?),
   );
@@ -112,7 +112,7 @@ Map<String, dynamic> _$RecipeInputIngredientsInnerToJson(
   RecipeInputIngredientsInner instance,
 ) => <String, dynamic>{
   'ingredientId': instance.ingredientId,
-  'quantity': instance.quantity,
+  'quantity': ?instance.quantity,
   'unit': ?instance.unit,
   'note': ?instance.note,
 };

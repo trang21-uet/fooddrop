@@ -72,19 +72,22 @@ class RecipeSyncService {
 
   Future<void> _pull() async {
     await _store.replaceTags(await _remote.tags());
+    await _store.replaceUnits(await _remote.units());
 
     final summaries = await _remote.listAll();
     final pending = await _store.pendingRecipeIds();
     await _store.applySummaries(summaries, skipIds: pending);
     await _store.removeMissing({for (final item in summaries) item.id}, keepIds: pending);
 
-    await _fetchMissingDetails(pending);
+    await _refreshDetails(await _store.idsMissingDetail(), pending);
+    // Signed photo URLs expire; fetching again keeps the cached ones working. Public URLs never need this.
+    await _refreshDetails(await _store.idsWithSignedPhotos(), pending);
   }
 
   /// Details (steps, ingredients) are what make a recipe usable offline. Existing ones are
   /// refreshed lazily when opened; only recipes without any detail are fetched here.
-  Future<void> _fetchMissingDetails(Set<String> pending) async {
-    final ids = (await _store.idsMissingDetail()).where((id) => !pending.contains(id)).toList();
+  Future<void> _refreshDetails(List<String> candidates, Set<String> pending) async {
+    final ids = candidates.where((id) => !pending.contains(id)).toList();
     for (var start = 0; start < ids.length; start += _detailConcurrency) {
       final batch = ids.skip(start).take(_detailConcurrency);
       await Future.wait(batch.map(refreshDetail));

@@ -54,7 +54,7 @@ void main() {
       difficulty: 2,
       steps: const [DraftStep(text: 'Nướng thịt', timerMinutes: 10)],
       ingredients: [
-        DraftIngredient(ingredientId: ingredient.id, name: ingredient.name, quantityText: '1 1/2', unitText: 'g'),
+        DraftIngredient(ingredientId: ingredient.id, name: ingredient.name, quantityText: '1 1/2', unitCode: 'g'),
       ],
     ));
     expect(isLocalId(localId), isTrue);
@@ -65,7 +65,8 @@ void main() {
     expect(isLocalId(created.id), isFalse, reason: 'swapped for the server id');
     expect(created.isPending, isFalse);
     expect(created.rarity.apiValue, 'blue', reason: 'server-computed rarity for 40 min / difficulty 2');
-    expect(created.ingredients.single.quantity, 1.5, reason: 'server normalized "1 1/2"');
+    expect(created.ingredients.single.quantity, 1.5, reason: 'server parsed "1 1/2"');
+    expect(created.ingredients.single.unit?.code, 'g', reason: 'the unit is kept as written');
     expect(created.steps!.single.timerSeconds, 600);
 
     // Edit on the device, push, and the server copy matches.

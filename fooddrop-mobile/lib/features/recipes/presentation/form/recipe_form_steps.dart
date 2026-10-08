@@ -8,6 +8,7 @@ import '../../../../core/widgets/labeled_text_field.dart';
 import '../../../../core/widgets/neon_button.dart';
 import '../../domain/recipe_draft.dart';
 import 'recipe_form_controller.dart';
+import 'recipe_form_step_images.dart';
 
 class RecipeFormSteps extends ConsumerWidget {
   const RecipeFormSteps({super.key, required this.recipeId});
@@ -19,6 +20,7 @@ class RecipeFormSteps extends ConsumerWidget {
     final provider = recipeFormControllerProvider(recipeId);
     final steps = ref.watch(provider.select((s) => s.draft.steps));
     final errors = ref.watch(provider.select((s) => s.errors));
+    final imageError = ref.watch(provider.select((s) => s.imageError));
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -32,6 +34,11 @@ class RecipeFormSteps extends ConsumerWidget {
             isLast: index == steps.length - 1,
             error: errors?.stepRows[index],
             recipeId: recipeId,
+          ),
+        if (imageError != null)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Text(imageError, key: const Key('step-image-error'), style: TextStyle(fontSize: 13, color: context.colors.danger)),
           ),
         if (errors?.steps != null)
           Padding(
@@ -113,13 +120,24 @@ class _StepRow extends ConsumerWidget {
           ),
           const SizedBox(height: 8),
           LabeledTextField(
+            fieldKey: ValueKey('step-name-${step.uid}'),
+            label: 'Tên bước (tùy chọn)',
+            initialValue: step.name,
+            hint: 'Sơ chế',
+            inputFormatters: [LengthLimitingTextInputFormatter(100)],
+            onChanged: (value) => controller.updateStepName(step.uid, value),
+          ),
+          const SizedBox(height: 12),
+          LabeledTextField(
             fieldKey: ValueKey('step-text-${step.uid}'),
-            label: 'Mô tả bước',
+            label: 'Nội dung bước',
             initialValue: step.text,
             maxLines: 3,
             errorText: error,
             onChanged: (value) => controller.updateStepText(step.uid, value),
           ),
+          const SizedBox(height: 12),
+          StepImagesEditor(step: step, index: index, recipeId: recipeId),
           const SizedBox(height: 12),
           LabeledTextField(
             label: 'Hẹn giờ (phút, tùy chọn)',

@@ -3,6 +3,7 @@
 //
 
 // ignore_for_file: unused_element
+import 'package:fooddrop_api/src/model/recipe_detail_steps_inner_images_inner.dart';
 import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -22,7 +23,11 @@ class RecipeDetailStepsInner {
 
     required  this.order,
 
+     this.name,
+
     required  this.text,
+
+    required  this.images,
 
      this.timerSeconds,
 
@@ -45,6 +50,18 @@ class RecipeDetailStepsInner {
 
   @JsonKey(
     
+    name: r'name',
+    required: false,
+    includeIfNull: false,
+  )
+
+
+  final String? name;
+
+
+
+  @JsonKey(
+    
     name: r'text',
     required: true,
     includeIfNull: false,
@@ -52,6 +69,18 @@ class RecipeDetailStepsInner {
 
 
   final String text;
+
+
+
+  @JsonKey(
+    
+    name: r'images',
+    required: true,
+    includeIfNull: false,
+  )
+
+
+  final List<RecipeDetailStepsInnerImagesInner> images;
 
 
 
@@ -86,14 +115,18 @@ class RecipeDetailStepsInner {
     @override
     bool operator ==(Object other) => identical(this, other) || other is RecipeDetailStepsInner &&
       other.order == order &&
+      other.name == name &&
       other.text == text &&
+      other.images == images &&
       other.timerSeconds == timerSeconds &&
       other.timerLabel == timerLabel;
 
     @override
     int get hashCode =>
         order.hashCode +
+        name.hashCode +
         text.hashCode +
+        images.hashCode +
         timerSeconds.hashCode +
         timerLabel.hashCode;
 

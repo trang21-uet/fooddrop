@@ -731,18 +731,51 @@ class $RecipeIngredientsTable extends RecipeIngredients
   late final GeneratedColumn<double> quantity = GeneratedColumn<double>(
     'quantity',
     aliasedName,
-    false,
+    true,
     type: DriftSqlType.double,
-    requiredDuringInsert: true,
+    requiredDuringInsert: false,
   );
   static const VerificationMeta _unitMeta = const VerificationMeta('unit');
   @override
   late final GeneratedColumn<String> unit = GeneratedColumn<String>(
     'unit',
     aliasedName,
-    false,
+    true,
     type: DriftSqlType.string,
-    requiredDuringInsert: true,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _unitNameViMeta = const VerificationMeta(
+    'unitNameVi',
+  );
+  @override
+  late final GeneratedColumn<String> unitNameVi = GeneratedColumn<String>(
+    'unit_name_vi',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _unitNameEnMeta = const VerificationMeta(
+    'unitNameEn',
+  );
+  @override
+  late final GeneratedColumn<String> unitNameEn = GeneratedColumn<String>(
+    'unit_name_en',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _unitKindMeta = const VerificationMeta(
+    'unitKind',
+  );
+  @override
+  late final GeneratedColumn<String> unitKind = GeneratedColumn<String>(
+    'unit_kind',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
   );
   static const VerificationMeta _noteMeta = const VerificationMeta('note');
   @override
@@ -764,6 +797,30 @@ class $RecipeIngredientsTable extends RecipeIngredients
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _baseQuantityMeta = const VerificationMeta(
+    'baseQuantity',
+  );
+  @override
+  late final GeneratedColumn<double> baseQuantity = GeneratedColumn<double>(
+    'base_quantity',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _baseUnitMeta = const VerificationMeta(
+    'baseUnit',
+  );
+  @override
+  late final GeneratedColumn<String> baseUnit = GeneratedColumn<String>(
+    'base_unit',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('piece'),
+  );
   static const VerificationMeta _displayQuantityMeta = const VerificationMeta(
     'displayQuantity',
   );
@@ -783,8 +840,13 @@ class $RecipeIngredientsTable extends RecipeIngredients
     aisle,
     quantity,
     unit,
+    unitNameVi,
+    unitNameEn,
+    unitKind,
     note,
     sortOrder,
+    baseQuantity,
+    baseUnit,
     displayQuantity,
   ];
   @override
@@ -839,16 +901,36 @@ class $RecipeIngredientsTable extends RecipeIngredients
         _quantityMeta,
         quantity.isAcceptableOrUnknown(data['quantity']!, _quantityMeta),
       );
-    } else if (isInserting) {
-      context.missing(_quantityMeta);
     }
     if (data.containsKey('unit')) {
       context.handle(
         _unitMeta,
         unit.isAcceptableOrUnknown(data['unit']!, _unitMeta),
       );
-    } else if (isInserting) {
-      context.missing(_unitMeta);
+    }
+    if (data.containsKey('unit_name_vi')) {
+      context.handle(
+        _unitNameViMeta,
+        unitNameVi.isAcceptableOrUnknown(
+          data['unit_name_vi']!,
+          _unitNameViMeta,
+        ),
+      );
+    }
+    if (data.containsKey('unit_name_en')) {
+      context.handle(
+        _unitNameEnMeta,
+        unitNameEn.isAcceptableOrUnknown(
+          data['unit_name_en']!,
+          _unitNameEnMeta,
+        ),
+      );
+    }
+    if (data.containsKey('unit_kind')) {
+      context.handle(
+        _unitKindMeta,
+        unitKind.isAcceptableOrUnknown(data['unit_kind']!, _unitKindMeta),
+      );
     }
     if (data.containsKey('note')) {
       context.handle(
@@ -863,6 +945,21 @@ class $RecipeIngredientsTable extends RecipeIngredients
       );
     } else if (isInserting) {
       context.missing(_sortOrderMeta);
+    }
+    if (data.containsKey('base_quantity')) {
+      context.handle(
+        _baseQuantityMeta,
+        baseQuantity.isAcceptableOrUnknown(
+          data['base_quantity']!,
+          _baseQuantityMeta,
+        ),
+      );
+    }
+    if (data.containsKey('base_unit')) {
+      context.handle(
+        _baseUnitMeta,
+        baseUnit.isAcceptableOrUnknown(data['base_unit']!, _baseUnitMeta),
+      );
     }
     if (data.containsKey('display_quantity')) {
       context.handle(
@@ -901,11 +998,23 @@ class $RecipeIngredientsTable extends RecipeIngredients
       quantity: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
         data['${effectivePrefix}quantity'],
-      )!,
+      ),
       unit: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}unit'],
-      )!,
+      ),
+      unitNameVi: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}unit_name_vi'],
+      ),
+      unitNameEn: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}unit_name_en'],
+      ),
+      unitKind: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}unit_kind'],
+      ),
       note: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}note'],
@@ -913,6 +1022,14 @@ class $RecipeIngredientsTable extends RecipeIngredients
       sortOrder: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}sort_order'],
+      )!,
+      baseQuantity: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}base_quantity'],
+      )!,
+      baseUnit: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}base_unit'],
       )!,
       displayQuantity: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
@@ -933,22 +1050,38 @@ class RecipeIngredientRow extends DataClass
   final String ingredientId;
   final String name;
   final String aisle;
-  final double quantity;
-  final String unit;
+
+  /// As the cook wrote it; both are optional. `unit` is a catalog code, with its names and kind
+  /// copied alongside so a recipe renders offline without joining the units cache.
+  final double? quantity;
+  final String? unit;
+  final String? unitNameVi;
+  final String? unitNameEn;
+  final String? unitKind;
   final String? note;
   final int sortOrder;
 
-  /// Raw text ("1 1/2 thìa") shown until the server normalizes a quantity that was edited offline.
+  /// The server's g | ml | piece conversion, which the grocery list sums. Zero for a recipe edited
+  /// offline until it syncs: the app never converts units itself.
+  final double baseQuantity;
+  final String baseUnit;
+
+  /// Raw text ("1 1/2") for a quantity edited offline until the server has seen it.
   final String? displayQuantity;
   const RecipeIngredientRow({
     required this.recipeId,
     required this.ingredientId,
     required this.name,
     required this.aisle,
-    required this.quantity,
-    required this.unit,
+    this.quantity,
+    this.unit,
+    this.unitNameVi,
+    this.unitNameEn,
+    this.unitKind,
     this.note,
     required this.sortOrder,
+    required this.baseQuantity,
+    required this.baseUnit,
     this.displayQuantity,
   });
   @override
@@ -958,12 +1091,27 @@ class RecipeIngredientRow extends DataClass
     map['ingredient_id'] = Variable<String>(ingredientId);
     map['name'] = Variable<String>(name);
     map['aisle'] = Variable<String>(aisle);
-    map['quantity'] = Variable<double>(quantity);
-    map['unit'] = Variable<String>(unit);
+    if (!nullToAbsent || quantity != null) {
+      map['quantity'] = Variable<double>(quantity);
+    }
+    if (!nullToAbsent || unit != null) {
+      map['unit'] = Variable<String>(unit);
+    }
+    if (!nullToAbsent || unitNameVi != null) {
+      map['unit_name_vi'] = Variable<String>(unitNameVi);
+    }
+    if (!nullToAbsent || unitNameEn != null) {
+      map['unit_name_en'] = Variable<String>(unitNameEn);
+    }
+    if (!nullToAbsent || unitKind != null) {
+      map['unit_kind'] = Variable<String>(unitKind);
+    }
     if (!nullToAbsent || note != null) {
       map['note'] = Variable<String>(note);
     }
     map['sort_order'] = Variable<int>(sortOrder);
+    map['base_quantity'] = Variable<double>(baseQuantity);
+    map['base_unit'] = Variable<String>(baseUnit);
     if (!nullToAbsent || displayQuantity != null) {
       map['display_quantity'] = Variable<String>(displayQuantity);
     }
@@ -976,10 +1124,23 @@ class RecipeIngredientRow extends DataClass
       ingredientId: Value(ingredientId),
       name: Value(name),
       aisle: Value(aisle),
-      quantity: Value(quantity),
-      unit: Value(unit),
+      quantity: quantity == null && nullToAbsent
+          ? const Value.absent()
+          : Value(quantity),
+      unit: unit == null && nullToAbsent ? const Value.absent() : Value(unit),
+      unitNameVi: unitNameVi == null && nullToAbsent
+          ? const Value.absent()
+          : Value(unitNameVi),
+      unitNameEn: unitNameEn == null && nullToAbsent
+          ? const Value.absent()
+          : Value(unitNameEn),
+      unitKind: unitKind == null && nullToAbsent
+          ? const Value.absent()
+          : Value(unitKind),
       note: note == null && nullToAbsent ? const Value.absent() : Value(note),
       sortOrder: Value(sortOrder),
+      baseQuantity: Value(baseQuantity),
+      baseUnit: Value(baseUnit),
       displayQuantity: displayQuantity == null && nullToAbsent
           ? const Value.absent()
           : Value(displayQuantity),
@@ -996,10 +1157,15 @@ class RecipeIngredientRow extends DataClass
       ingredientId: serializer.fromJson<String>(json['ingredientId']),
       name: serializer.fromJson<String>(json['name']),
       aisle: serializer.fromJson<String>(json['aisle']),
-      quantity: serializer.fromJson<double>(json['quantity']),
-      unit: serializer.fromJson<String>(json['unit']),
+      quantity: serializer.fromJson<double?>(json['quantity']),
+      unit: serializer.fromJson<String?>(json['unit']),
+      unitNameVi: serializer.fromJson<String?>(json['unitNameVi']),
+      unitNameEn: serializer.fromJson<String?>(json['unitNameEn']),
+      unitKind: serializer.fromJson<String?>(json['unitKind']),
       note: serializer.fromJson<String?>(json['note']),
       sortOrder: serializer.fromJson<int>(json['sortOrder']),
+      baseQuantity: serializer.fromJson<double>(json['baseQuantity']),
+      baseUnit: serializer.fromJson<String>(json['baseUnit']),
       displayQuantity: serializer.fromJson<String?>(json['displayQuantity']),
     );
   }
@@ -1011,10 +1177,15 @@ class RecipeIngredientRow extends DataClass
       'ingredientId': serializer.toJson<String>(ingredientId),
       'name': serializer.toJson<String>(name),
       'aisle': serializer.toJson<String>(aisle),
-      'quantity': serializer.toJson<double>(quantity),
-      'unit': serializer.toJson<String>(unit),
+      'quantity': serializer.toJson<double?>(quantity),
+      'unit': serializer.toJson<String?>(unit),
+      'unitNameVi': serializer.toJson<String?>(unitNameVi),
+      'unitNameEn': serializer.toJson<String?>(unitNameEn),
+      'unitKind': serializer.toJson<String?>(unitKind),
       'note': serializer.toJson<String?>(note),
       'sortOrder': serializer.toJson<int>(sortOrder),
+      'baseQuantity': serializer.toJson<double>(baseQuantity),
+      'baseUnit': serializer.toJson<String>(baseUnit),
       'displayQuantity': serializer.toJson<String?>(displayQuantity),
     };
   }
@@ -1024,20 +1195,30 @@ class RecipeIngredientRow extends DataClass
     String? ingredientId,
     String? name,
     String? aisle,
-    double? quantity,
-    String? unit,
+    Value<double?> quantity = const Value.absent(),
+    Value<String?> unit = const Value.absent(),
+    Value<String?> unitNameVi = const Value.absent(),
+    Value<String?> unitNameEn = const Value.absent(),
+    Value<String?> unitKind = const Value.absent(),
     Value<String?> note = const Value.absent(),
     int? sortOrder,
+    double? baseQuantity,
+    String? baseUnit,
     Value<String?> displayQuantity = const Value.absent(),
   }) => RecipeIngredientRow(
     recipeId: recipeId ?? this.recipeId,
     ingredientId: ingredientId ?? this.ingredientId,
     name: name ?? this.name,
     aisle: aisle ?? this.aisle,
-    quantity: quantity ?? this.quantity,
-    unit: unit ?? this.unit,
+    quantity: quantity.present ? quantity.value : this.quantity,
+    unit: unit.present ? unit.value : this.unit,
+    unitNameVi: unitNameVi.present ? unitNameVi.value : this.unitNameVi,
+    unitNameEn: unitNameEn.present ? unitNameEn.value : this.unitNameEn,
+    unitKind: unitKind.present ? unitKind.value : this.unitKind,
     note: note.present ? note.value : this.note,
     sortOrder: sortOrder ?? this.sortOrder,
+    baseQuantity: baseQuantity ?? this.baseQuantity,
+    baseUnit: baseUnit ?? this.baseUnit,
     displayQuantity: displayQuantity.present
         ? displayQuantity.value
         : this.displayQuantity,
@@ -1052,8 +1233,19 @@ class RecipeIngredientRow extends DataClass
       aisle: data.aisle.present ? data.aisle.value : this.aisle,
       quantity: data.quantity.present ? data.quantity.value : this.quantity,
       unit: data.unit.present ? data.unit.value : this.unit,
+      unitNameVi: data.unitNameVi.present
+          ? data.unitNameVi.value
+          : this.unitNameVi,
+      unitNameEn: data.unitNameEn.present
+          ? data.unitNameEn.value
+          : this.unitNameEn,
+      unitKind: data.unitKind.present ? data.unitKind.value : this.unitKind,
       note: data.note.present ? data.note.value : this.note,
       sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+      baseQuantity: data.baseQuantity.present
+          ? data.baseQuantity.value
+          : this.baseQuantity,
+      baseUnit: data.baseUnit.present ? data.baseUnit.value : this.baseUnit,
       displayQuantity: data.displayQuantity.present
           ? data.displayQuantity.value
           : this.displayQuantity,
@@ -1069,8 +1261,13 @@ class RecipeIngredientRow extends DataClass
           ..write('aisle: $aisle, ')
           ..write('quantity: $quantity, ')
           ..write('unit: $unit, ')
+          ..write('unitNameVi: $unitNameVi, ')
+          ..write('unitNameEn: $unitNameEn, ')
+          ..write('unitKind: $unitKind, ')
           ..write('note: $note, ')
           ..write('sortOrder: $sortOrder, ')
+          ..write('baseQuantity: $baseQuantity, ')
+          ..write('baseUnit: $baseUnit, ')
           ..write('displayQuantity: $displayQuantity')
           ..write(')'))
         .toString();
@@ -1084,8 +1281,13 @@ class RecipeIngredientRow extends DataClass
     aisle,
     quantity,
     unit,
+    unitNameVi,
+    unitNameEn,
+    unitKind,
     note,
     sortOrder,
+    baseQuantity,
+    baseUnit,
     displayQuantity,
   );
   @override
@@ -1098,8 +1300,13 @@ class RecipeIngredientRow extends DataClass
           other.aisle == this.aisle &&
           other.quantity == this.quantity &&
           other.unit == this.unit &&
+          other.unitNameVi == this.unitNameVi &&
+          other.unitNameEn == this.unitNameEn &&
+          other.unitKind == this.unitKind &&
           other.note == this.note &&
           other.sortOrder == this.sortOrder &&
+          other.baseQuantity == this.baseQuantity &&
+          other.baseUnit == this.baseUnit &&
           other.displayQuantity == this.displayQuantity);
 }
 
@@ -1108,10 +1315,15 @@ class RecipeIngredientsCompanion extends UpdateCompanion<RecipeIngredientRow> {
   final Value<String> ingredientId;
   final Value<String> name;
   final Value<String> aisle;
-  final Value<double> quantity;
-  final Value<String> unit;
+  final Value<double?> quantity;
+  final Value<String?> unit;
+  final Value<String?> unitNameVi;
+  final Value<String?> unitNameEn;
+  final Value<String?> unitKind;
   final Value<String?> note;
   final Value<int> sortOrder;
+  final Value<double> baseQuantity;
+  final Value<String> baseUnit;
   final Value<String?> displayQuantity;
   final Value<int> rowid;
   const RecipeIngredientsCompanion({
@@ -1121,8 +1333,13 @@ class RecipeIngredientsCompanion extends UpdateCompanion<RecipeIngredientRow> {
     this.aisle = const Value.absent(),
     this.quantity = const Value.absent(),
     this.unit = const Value.absent(),
+    this.unitNameVi = const Value.absent(),
+    this.unitNameEn = const Value.absent(),
+    this.unitKind = const Value.absent(),
     this.note = const Value.absent(),
     this.sortOrder = const Value.absent(),
+    this.baseQuantity = const Value.absent(),
+    this.baseUnit = const Value.absent(),
     this.displayQuantity = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -1131,18 +1348,21 @@ class RecipeIngredientsCompanion extends UpdateCompanion<RecipeIngredientRow> {
     required String ingredientId,
     required String name,
     required String aisle,
-    required double quantity,
-    required String unit,
+    this.quantity = const Value.absent(),
+    this.unit = const Value.absent(),
+    this.unitNameVi = const Value.absent(),
+    this.unitNameEn = const Value.absent(),
+    this.unitKind = const Value.absent(),
     this.note = const Value.absent(),
     required int sortOrder,
+    this.baseQuantity = const Value.absent(),
+    this.baseUnit = const Value.absent(),
     this.displayQuantity = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : recipeId = Value(recipeId),
        ingredientId = Value(ingredientId),
        name = Value(name),
        aisle = Value(aisle),
-       quantity = Value(quantity),
-       unit = Value(unit),
        sortOrder = Value(sortOrder);
   static Insertable<RecipeIngredientRow> custom({
     Expression<String>? recipeId,
@@ -1151,8 +1371,13 @@ class RecipeIngredientsCompanion extends UpdateCompanion<RecipeIngredientRow> {
     Expression<String>? aisle,
     Expression<double>? quantity,
     Expression<String>? unit,
+    Expression<String>? unitNameVi,
+    Expression<String>? unitNameEn,
+    Expression<String>? unitKind,
     Expression<String>? note,
     Expression<int>? sortOrder,
+    Expression<double>? baseQuantity,
+    Expression<String>? baseUnit,
     Expression<String>? displayQuantity,
     Expression<int>? rowid,
   }) {
@@ -1163,8 +1388,13 @@ class RecipeIngredientsCompanion extends UpdateCompanion<RecipeIngredientRow> {
       if (aisle != null) 'aisle': aisle,
       if (quantity != null) 'quantity': quantity,
       if (unit != null) 'unit': unit,
+      if (unitNameVi != null) 'unit_name_vi': unitNameVi,
+      if (unitNameEn != null) 'unit_name_en': unitNameEn,
+      if (unitKind != null) 'unit_kind': unitKind,
       if (note != null) 'note': note,
       if (sortOrder != null) 'sort_order': sortOrder,
+      if (baseQuantity != null) 'base_quantity': baseQuantity,
+      if (baseUnit != null) 'base_unit': baseUnit,
       if (displayQuantity != null) 'display_quantity': displayQuantity,
       if (rowid != null) 'rowid': rowid,
     });
@@ -1175,10 +1405,15 @@ class RecipeIngredientsCompanion extends UpdateCompanion<RecipeIngredientRow> {
     Value<String>? ingredientId,
     Value<String>? name,
     Value<String>? aisle,
-    Value<double>? quantity,
-    Value<String>? unit,
+    Value<double?>? quantity,
+    Value<String?>? unit,
+    Value<String?>? unitNameVi,
+    Value<String?>? unitNameEn,
+    Value<String?>? unitKind,
     Value<String?>? note,
     Value<int>? sortOrder,
+    Value<double>? baseQuantity,
+    Value<String>? baseUnit,
     Value<String?>? displayQuantity,
     Value<int>? rowid,
   }) {
@@ -1189,8 +1424,13 @@ class RecipeIngredientsCompanion extends UpdateCompanion<RecipeIngredientRow> {
       aisle: aisle ?? this.aisle,
       quantity: quantity ?? this.quantity,
       unit: unit ?? this.unit,
+      unitNameVi: unitNameVi ?? this.unitNameVi,
+      unitNameEn: unitNameEn ?? this.unitNameEn,
+      unitKind: unitKind ?? this.unitKind,
       note: note ?? this.note,
       sortOrder: sortOrder ?? this.sortOrder,
+      baseQuantity: baseQuantity ?? this.baseQuantity,
+      baseUnit: baseUnit ?? this.baseUnit,
       displayQuantity: displayQuantity ?? this.displayQuantity,
       rowid: rowid ?? this.rowid,
     );
@@ -1217,11 +1457,26 @@ class RecipeIngredientsCompanion extends UpdateCompanion<RecipeIngredientRow> {
     if (unit.present) {
       map['unit'] = Variable<String>(unit.value);
     }
+    if (unitNameVi.present) {
+      map['unit_name_vi'] = Variable<String>(unitNameVi.value);
+    }
+    if (unitNameEn.present) {
+      map['unit_name_en'] = Variable<String>(unitNameEn.value);
+    }
+    if (unitKind.present) {
+      map['unit_kind'] = Variable<String>(unitKind.value);
+    }
     if (note.present) {
       map['note'] = Variable<String>(note.value);
     }
     if (sortOrder.present) {
       map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    if (baseQuantity.present) {
+      map['base_quantity'] = Variable<double>(baseQuantity.value);
+    }
+    if (baseUnit.present) {
+      map['base_unit'] = Variable<String>(baseUnit.value);
     }
     if (displayQuantity.present) {
       map['display_quantity'] = Variable<String>(displayQuantity.value);
@@ -1241,8 +1496,13 @@ class RecipeIngredientsCompanion extends UpdateCompanion<RecipeIngredientRow> {
           ..write('aisle: $aisle, ')
           ..write('quantity: $quantity, ')
           ..write('unit: $unit, ')
+          ..write('unitNameVi: $unitNameVi, ')
+          ..write('unitNameEn: $unitNameEn, ')
+          ..write('unitKind: $unitKind, ')
           ..write('note: $note, ')
           ..write('sortOrder: $sortOrder, ')
+          ..write('baseQuantity: $baseQuantity, ')
+          ..write('baseUnit: $baseUnit, ')
           ..write('displayQuantity: $displayQuantity, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -1866,6 +2126,358 @@ class TagsCompanion extends UpdateCompanion<TagRow> {
           ..write('dimensionLabel: $dimensionLabel, ')
           ..write('slug: $slug, ')
           ..write('label: $label')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $UnitsTable extends Units with TableInfo<$UnitsTable, UnitRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $UnitsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _codeMeta = const VerificationMeta('code');
+  @override
+  late final GeneratedColumn<String> code = GeneratedColumn<String>(
+    'code',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameViMeta = const VerificationMeta('nameVi');
+  @override
+  late final GeneratedColumn<String> nameVi = GeneratedColumn<String>(
+    'name_vi',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameEnMeta = const VerificationMeta('nameEn');
+  @override
+  late final GeneratedColumn<String> nameEn = GeneratedColumn<String>(
+    'name_en',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _kindMeta = const VerificationMeta('kind');
+  @override
+  late final GeneratedColumn<String> kind = GeneratedColumn<String>(
+    'kind',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sortOrderMeta = const VerificationMeta(
+    'sortOrder',
+  );
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+    'sort_order',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [code, nameVi, nameEn, kind, sortOrder];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'units';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<UnitRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('code')) {
+      context.handle(
+        _codeMeta,
+        code.isAcceptableOrUnknown(data['code']!, _codeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_codeMeta);
+    }
+    if (data.containsKey('name_vi')) {
+      context.handle(
+        _nameViMeta,
+        nameVi.isAcceptableOrUnknown(data['name_vi']!, _nameViMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameViMeta);
+    }
+    if (data.containsKey('name_en')) {
+      context.handle(
+        _nameEnMeta,
+        nameEn.isAcceptableOrUnknown(data['name_en']!, _nameEnMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameEnMeta);
+    }
+    if (data.containsKey('kind')) {
+      context.handle(
+        _kindMeta,
+        kind.isAcceptableOrUnknown(data['kind']!, _kindMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_kindMeta);
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(
+        _sortOrderMeta,
+        sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sortOrderMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {code};
+  @override
+  UnitRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return UnitRow(
+      code: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}code'],
+      )!,
+      nameVi: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name_vi'],
+      )!,
+      nameEn: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name_en'],
+      )!,
+      kind: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}kind'],
+      )!,
+      sortOrder: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sort_order'],
+      )!,
+    );
+  }
+
+  @override
+  $UnitsTable createAlias(String alias) {
+    return $UnitsTable(attachedDatabase, alias);
+  }
+}
+
+class UnitRow extends DataClass implements Insertable<UnitRow> {
+  final String code;
+  final String nameVi;
+  final String nameEn;
+  final String kind;
+  final int sortOrder;
+  const UnitRow({
+    required this.code,
+    required this.nameVi,
+    required this.nameEn,
+    required this.kind,
+    required this.sortOrder,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['code'] = Variable<String>(code);
+    map['name_vi'] = Variable<String>(nameVi);
+    map['name_en'] = Variable<String>(nameEn);
+    map['kind'] = Variable<String>(kind);
+    map['sort_order'] = Variable<int>(sortOrder);
+    return map;
+  }
+
+  UnitsCompanion toCompanion(bool nullToAbsent) {
+    return UnitsCompanion(
+      code: Value(code),
+      nameVi: Value(nameVi),
+      nameEn: Value(nameEn),
+      kind: Value(kind),
+      sortOrder: Value(sortOrder),
+    );
+  }
+
+  factory UnitRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return UnitRow(
+      code: serializer.fromJson<String>(json['code']),
+      nameVi: serializer.fromJson<String>(json['nameVi']),
+      nameEn: serializer.fromJson<String>(json['nameEn']),
+      kind: serializer.fromJson<String>(json['kind']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'code': serializer.toJson<String>(code),
+      'nameVi': serializer.toJson<String>(nameVi),
+      'nameEn': serializer.toJson<String>(nameEn),
+      'kind': serializer.toJson<String>(kind),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+    };
+  }
+
+  UnitRow copyWith({
+    String? code,
+    String? nameVi,
+    String? nameEn,
+    String? kind,
+    int? sortOrder,
+  }) => UnitRow(
+    code: code ?? this.code,
+    nameVi: nameVi ?? this.nameVi,
+    nameEn: nameEn ?? this.nameEn,
+    kind: kind ?? this.kind,
+    sortOrder: sortOrder ?? this.sortOrder,
+  );
+  UnitRow copyWithCompanion(UnitsCompanion data) {
+    return UnitRow(
+      code: data.code.present ? data.code.value : this.code,
+      nameVi: data.nameVi.present ? data.nameVi.value : this.nameVi,
+      nameEn: data.nameEn.present ? data.nameEn.value : this.nameEn,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UnitRow(')
+          ..write('code: $code, ')
+          ..write('nameVi: $nameVi, ')
+          ..write('nameEn: $nameEn, ')
+          ..write('kind: $kind, ')
+          ..write('sortOrder: $sortOrder')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(code, nameVi, nameEn, kind, sortOrder);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is UnitRow &&
+          other.code == this.code &&
+          other.nameVi == this.nameVi &&
+          other.nameEn == this.nameEn &&
+          other.kind == this.kind &&
+          other.sortOrder == this.sortOrder);
+}
+
+class UnitsCompanion extends UpdateCompanion<UnitRow> {
+  final Value<String> code;
+  final Value<String> nameVi;
+  final Value<String> nameEn;
+  final Value<String> kind;
+  final Value<int> sortOrder;
+  final Value<int> rowid;
+  const UnitsCompanion({
+    this.code = const Value.absent(),
+    this.nameVi = const Value.absent(),
+    this.nameEn = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  UnitsCompanion.insert({
+    required String code,
+    required String nameVi,
+    required String nameEn,
+    required String kind,
+    required int sortOrder,
+    this.rowid = const Value.absent(),
+  }) : code = Value(code),
+       nameVi = Value(nameVi),
+       nameEn = Value(nameEn),
+       kind = Value(kind),
+       sortOrder = Value(sortOrder);
+  static Insertable<UnitRow> custom({
+    Expression<String>? code,
+    Expression<String>? nameVi,
+    Expression<String>? nameEn,
+    Expression<String>? kind,
+    Expression<int>? sortOrder,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (code != null) 'code': code,
+      if (nameVi != null) 'name_vi': nameVi,
+      if (nameEn != null) 'name_en': nameEn,
+      if (kind != null) 'kind': kind,
+      if (sortOrder != null) 'sort_order': sortOrder,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  UnitsCompanion copyWith({
+    Value<String>? code,
+    Value<String>? nameVi,
+    Value<String>? nameEn,
+    Value<String>? kind,
+    Value<int>? sortOrder,
+    Value<int>? rowid,
+  }) {
+    return UnitsCompanion(
+      code: code ?? this.code,
+      nameVi: nameVi ?? this.nameVi,
+      nameEn: nameEn ?? this.nameEn,
+      kind: kind ?? this.kind,
+      sortOrder: sortOrder ?? this.sortOrder,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (code.present) {
+      map['code'] = Variable<String>(code.value);
+    }
+    if (nameVi.present) {
+      map['name_vi'] = Variable<String>(nameVi.value);
+    }
+    if (nameEn.present) {
+      map['name_en'] = Variable<String>(nameEn.value);
+    }
+    if (kind.present) {
+      map['kind'] = Variable<String>(kind.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UnitsCompanion(')
+          ..write('code: $code, ')
+          ..write('nameVi: $nameVi, ')
+          ..write('nameEn: $nameEn, ')
+          ..write('kind: $kind, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('rowid: $rowid')
           ..write(')'))
         .toString();
   }
@@ -2982,6 +3594,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $RecipeIngredientsTable(this);
   late final $RecipeTagsTable recipeTags = $RecipeTagsTable(this);
   late final $TagsTable tags = $TagsTable(this);
+  late final $UnitsTable units = $UnitsTable(this);
   late final $OutboxTable outbox = $OutboxTable(this);
   late final $GrocerySelectionsTable grocerySelections =
       $GrocerySelectionsTable(this);
@@ -2996,6 +3609,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     recipeIngredients,
     recipeTags,
     tags,
+    units,
     outbox,
     grocerySelections,
     groceryChecks,
@@ -3551,10 +4165,15 @@ typedef $$RecipeIngredientsTableCreateCompanionBuilder =
       required String ingredientId,
       required String name,
       required String aisle,
-      required double quantity,
-      required String unit,
+      Value<double?> quantity,
+      Value<String?> unit,
+      Value<String?> unitNameVi,
+      Value<String?> unitNameEn,
+      Value<String?> unitKind,
       Value<String?> note,
       required int sortOrder,
+      Value<double> baseQuantity,
+      Value<String> baseUnit,
       Value<String?> displayQuantity,
       Value<int> rowid,
     });
@@ -3564,10 +4183,15 @@ typedef $$RecipeIngredientsTableUpdateCompanionBuilder =
       Value<String> ingredientId,
       Value<String> name,
       Value<String> aisle,
-      Value<double> quantity,
-      Value<String> unit,
+      Value<double?> quantity,
+      Value<String?> unit,
+      Value<String?> unitNameVi,
+      Value<String?> unitNameEn,
+      Value<String?> unitKind,
       Value<String?> note,
       Value<int> sortOrder,
+      Value<double> baseQuantity,
+      Value<String> baseUnit,
       Value<String?> displayQuantity,
       Value<int> rowid,
     });
@@ -3637,6 +4261,21 @@ class $$RecipeIngredientsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get unitNameVi => $composableBuilder(
+    column: $table.unitNameVi,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get unitNameEn => $composableBuilder(
+    column: $table.unitNameEn,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get unitKind => $composableBuilder(
+    column: $table.unitKind,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<String> get note => $composableBuilder(
     column: $table.note,
     builder: (column) => ColumnFilters(column),
@@ -3644,6 +4283,16 @@ class $$RecipeIngredientsTableFilterComposer
 
   ColumnFilters<int> get sortOrder => $composableBuilder(
     column: $table.sortOrder,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get baseQuantity => $composableBuilder(
+    column: $table.baseQuantity,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get baseUnit => $composableBuilder(
+    column: $table.baseUnit,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3710,6 +4359,21 @@ class $$RecipeIngredientsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get unitNameVi => $composableBuilder(
+    column: $table.unitNameVi,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get unitNameEn => $composableBuilder(
+    column: $table.unitNameEn,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get unitKind => $composableBuilder(
+    column: $table.unitKind,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get note => $composableBuilder(
     column: $table.note,
     builder: (column) => ColumnOrderings(column),
@@ -3717,6 +4381,16 @@ class $$RecipeIngredientsTableOrderingComposer
 
   ColumnOrderings<int> get sortOrder => $composableBuilder(
     column: $table.sortOrder,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get baseQuantity => $composableBuilder(
+    column: $table.baseQuantity,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get baseUnit => $composableBuilder(
+    column: $table.baseUnit,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -3775,11 +4449,32 @@ class $$RecipeIngredientsTableAnnotationComposer
   GeneratedColumn<String> get unit =>
       $composableBuilder(column: $table.unit, builder: (column) => column);
 
+  GeneratedColumn<String> get unitNameVi => $composableBuilder(
+    column: $table.unitNameVi,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get unitNameEn => $composableBuilder(
+    column: $table.unitNameEn,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get unitKind =>
+      $composableBuilder(column: $table.unitKind, builder: (column) => column);
+
   GeneratedColumn<String> get note =>
       $composableBuilder(column: $table.note, builder: (column) => column);
 
   GeneratedColumn<int> get sortOrder =>
       $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  GeneratedColumn<double> get baseQuantity => $composableBuilder(
+    column: $table.baseQuantity,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get baseUnit =>
+      $composableBuilder(column: $table.baseUnit, builder: (column) => column);
 
   GeneratedColumn<String> get displayQuantity => $composableBuilder(
     column: $table.displayQuantity,
@@ -3847,10 +4542,15 @@ class $$RecipeIngredientsTableTableManager
                 Value<String> ingredientId = const Value.absent(),
                 Value<String> name = const Value.absent(),
                 Value<String> aisle = const Value.absent(),
-                Value<double> quantity = const Value.absent(),
-                Value<String> unit = const Value.absent(),
+                Value<double?> quantity = const Value.absent(),
+                Value<String?> unit = const Value.absent(),
+                Value<String?> unitNameVi = const Value.absent(),
+                Value<String?> unitNameEn = const Value.absent(),
+                Value<String?> unitKind = const Value.absent(),
                 Value<String?> note = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
+                Value<double> baseQuantity = const Value.absent(),
+                Value<String> baseUnit = const Value.absent(),
                 Value<String?> displayQuantity = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => RecipeIngredientsCompanion(
@@ -3860,8 +4560,13 @@ class $$RecipeIngredientsTableTableManager
                 aisle: aisle,
                 quantity: quantity,
                 unit: unit,
+                unitNameVi: unitNameVi,
+                unitNameEn: unitNameEn,
+                unitKind: unitKind,
                 note: note,
                 sortOrder: sortOrder,
+                baseQuantity: baseQuantity,
+                baseUnit: baseUnit,
                 displayQuantity: displayQuantity,
                 rowid: rowid,
               ),
@@ -3871,10 +4576,15 @@ class $$RecipeIngredientsTableTableManager
                 required String ingredientId,
                 required String name,
                 required String aisle,
-                required double quantity,
-                required String unit,
+                Value<double?> quantity = const Value.absent(),
+                Value<String?> unit = const Value.absent(),
+                Value<String?> unitNameVi = const Value.absent(),
+                Value<String?> unitNameEn = const Value.absent(),
+                Value<String?> unitKind = const Value.absent(),
                 Value<String?> note = const Value.absent(),
                 required int sortOrder,
+                Value<double> baseQuantity = const Value.absent(),
+                Value<String> baseUnit = const Value.absent(),
                 Value<String?> displayQuantity = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => RecipeIngredientsCompanion.insert(
@@ -3884,8 +4594,13 @@ class $$RecipeIngredientsTableTableManager
                 aisle: aisle,
                 quantity: quantity,
                 unit: unit,
+                unitNameVi: unitNameVi,
+                unitNameEn: unitNameEn,
+                unitKind: unitKind,
                 note: note,
                 sortOrder: sortOrder,
+                baseQuantity: baseQuantity,
+                baseUnit: baseUnit,
                 displayQuantity: displayQuantity,
                 rowid: rowid,
               ),
@@ -4438,6 +5153,208 @@ typedef $$TagsTableProcessedTableManager =
       $$TagsTableUpdateCompanionBuilder,
       (TagRow, BaseReferences<_$AppDatabase, $TagsTable, TagRow>),
       TagRow,
+      PrefetchHooks Function()
+    >;
+typedef $$UnitsTableCreateCompanionBuilder =
+    UnitsCompanion Function({
+      required String code,
+      required String nameVi,
+      required String nameEn,
+      required String kind,
+      required int sortOrder,
+      Value<int> rowid,
+    });
+typedef $$UnitsTableUpdateCompanionBuilder =
+    UnitsCompanion Function({
+      Value<String> code,
+      Value<String> nameVi,
+      Value<String> nameEn,
+      Value<String> kind,
+      Value<int> sortOrder,
+      Value<int> rowid,
+    });
+
+class $$UnitsTableFilterComposer extends Composer<_$AppDatabase, $UnitsTable> {
+  $$UnitsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get code => $composableBuilder(
+    column: $table.code,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get nameVi => $composableBuilder(
+    column: $table.nameVi,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get nameEn => $composableBuilder(
+    column: $table.nameEn,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get kind => $composableBuilder(
+    column: $table.kind,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$UnitsTableOrderingComposer
+    extends Composer<_$AppDatabase, $UnitsTable> {
+  $$UnitsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get code => $composableBuilder(
+    column: $table.code,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get nameVi => $composableBuilder(
+    column: $table.nameVi,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get nameEn => $composableBuilder(
+    column: $table.nameEn,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get kind => $composableBuilder(
+    column: $table.kind,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$UnitsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $UnitsTable> {
+  $$UnitsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get code =>
+      $composableBuilder(column: $table.code, builder: (column) => column);
+
+  GeneratedColumn<String> get nameVi =>
+      $composableBuilder(column: $table.nameVi, builder: (column) => column);
+
+  GeneratedColumn<String> get nameEn =>
+      $composableBuilder(column: $table.nameEn, builder: (column) => column);
+
+  GeneratedColumn<String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => column);
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+}
+
+class $$UnitsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $UnitsTable,
+          UnitRow,
+          $$UnitsTableFilterComposer,
+          $$UnitsTableOrderingComposer,
+          $$UnitsTableAnnotationComposer,
+          $$UnitsTableCreateCompanionBuilder,
+          $$UnitsTableUpdateCompanionBuilder,
+          (UnitRow, BaseReferences<_$AppDatabase, $UnitsTable, UnitRow>),
+          UnitRow,
+          PrefetchHooks Function()
+        > {
+  $$UnitsTableTableManager(_$AppDatabase db, $UnitsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$UnitsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$UnitsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$UnitsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> code = const Value.absent(),
+                Value<String> nameVi = const Value.absent(),
+                Value<String> nameEn = const Value.absent(),
+                Value<String> kind = const Value.absent(),
+                Value<int> sortOrder = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => UnitsCompanion(
+                code: code,
+                nameVi: nameVi,
+                nameEn: nameEn,
+                kind: kind,
+                sortOrder: sortOrder,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String code,
+                required String nameVi,
+                required String nameEn,
+                required String kind,
+                required int sortOrder,
+                Value<int> rowid = const Value.absent(),
+              }) => UnitsCompanion.insert(
+                code: code,
+                nameVi: nameVi,
+                nameEn: nameEn,
+                kind: kind,
+                sortOrder: sortOrder,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$UnitsTable, UnitRow>(table),
+                  BaseReferences<_$AppDatabase, $UnitsTable, UnitRow>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$UnitsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $UnitsTable,
+      UnitRow,
+      $$UnitsTableFilterComposer,
+      $$UnitsTableOrderingComposer,
+      $$UnitsTableAnnotationComposer,
+      $$UnitsTableCreateCompanionBuilder,
+      $$UnitsTableUpdateCompanionBuilder,
+      (UnitRow, BaseReferences<_$AppDatabase, $UnitsTable, UnitRow>),
+      UnitRow,
       PrefetchHooks Function()
     >;
 typedef $$OutboxTableCreateCompanionBuilder =
@@ -5146,6 +6063,8 @@ class $AppDatabaseManager {
   $$RecipeTagsTableTableManager get recipeTags =>
       $$RecipeTagsTableTableManager(_db, _db.recipeTags);
   $$TagsTableTableManager get tags => $$TagsTableTableManager(_db, _db.tags);
+  $$UnitsTableTableManager get units =>
+      $$UnitsTableTableManager(_db, _db.units);
   $$OutboxTableTableManager get outbox =>
       $$OutboxTableTableManager(_db, _db.outbox);
   $$GrocerySelectionsTableTableManager get grocerySelections =>

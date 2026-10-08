@@ -43,11 +43,11 @@ Recipe _recipe(String id, String title, List<RecipeIngredient> ingredients) => R
     );
 
 final _soup = _recipe('r1', 'Canh cà chua', const [
-  RecipeIngredient(ingredientId: 'tomato', name: 'Cà chua', aisle: 'produce', quantity: 200, unit: 'g'),
-  RecipeIngredient(ingredientId: 'egg', name: 'Trứng gà', aisle: 'dairy', quantity: 2, unit: 'piece'),
+  RecipeIngredient(ingredientId: 'tomato', name: 'Cà chua', aisle: 'produce', baseQuantity: 200, baseUnit: 'g'),
+  RecipeIngredient(ingredientId: 'egg', name: 'Trứng gà', aisle: 'dairy', baseQuantity: 2, baseUnit: 'piece'),
 ]);
 final _salad = _recipe('r2', 'Salad', const [
-  RecipeIngredient(ingredientId: 'tomato', name: 'Cà chua', aisle: 'produce', quantity: 100, unit: 'g'),
+  RecipeIngredient(ingredientId: 'tomato', name: 'Cà chua', aisle: 'produce', baseQuantity: 100, baseUnit: 'g'),
 ]);
 
 void main() {

@@ -51,11 +51,11 @@ class ParseJobResultIngredientsInner {
     
     name: r'quantity',
     required: true,
-    includeIfNull: false,
+    includeIfNull: true,
   )
 
 
-  final num quantity;
+  final num? quantity;
 
 
 
@@ -63,11 +63,11 @@ class ParseJobResultIngredientsInner {
     
     name: r'unit',
     required: true,
-    includeIfNull: false,
+    includeIfNull: true,
   )
 
 
-  final ParseJobResultIngredientsInnerUnitEnum unit;
+  final String? unit;
 
 
 
@@ -134,8 +134,8 @@ class ParseJobResultIngredientsInner {
     @override
     int get hashCode =>
         name.hashCode +
-        quantity.hashCode +
-        unit.hashCode +
+        (quantity == null ? 0 : quantity.hashCode) +
+        (unit == null ? 0 : unit.hashCode) +
         (note == null ? 0 : note.hashCode) +
         (matchedName == null ? 0 : matchedName.hashCode) +
         (ingredientId == null ? 0 : ingredientId.hashCode) +
@@ -151,21 +151,4 @@ class ParseJobResultIngredientsInner {
   }
 
 }
-
-enum ParseJobResultIngredientsInnerUnitEnum {
-@JsonValue(r'g')
-g(r'g'),
-@JsonValue(r'ml')
-ml(r'ml'),
-@JsonValue(r'piece')
-piece(r'piece');
-
-const ParseJobResultIngredientsInnerUnitEnum(this.value);
-
-final String value;
-
-@override
-String toString() => value;
-}
-
 

@@ -20,12 +20,28 @@ class RecipeInputStepsInner {
   /// Returns a new [RecipeInputStepsInner] instance.
   RecipeInputStepsInner({
 
+     this.name,
+
     required  this.text,
+
+     this.images,
 
      this.timerSeconds,
 
      this.timerLabel,
   });
+
+  @JsonKey(
+    
+    name: r'name',
+    required: false,
+    includeIfNull: false,
+  )
+
+
+  final String? name;
+
+
 
   @JsonKey(
     
@@ -36,6 +52,18 @@ class RecipeInputStepsInner {
 
 
   final String text;
+
+
+
+  @JsonKey(
+    
+    name: r'images',
+    required: false,
+    includeIfNull: false,
+  )
+
+
+  final List<String>? images;
 
 
 
@@ -69,13 +97,17 @@ class RecipeInputStepsInner {
 
     @override
     bool operator ==(Object other) => identical(this, other) || other is RecipeInputStepsInner &&
+      other.name == name &&
       other.text == text &&
+      other.images == images &&
       other.timerSeconds == timerSeconds &&
       other.timerLabel == timerLabel;
 
     @override
     int get hashCode =>
+        (name == null ? 0 : name.hashCode) +
         text.hashCode +
+        images.hashCode +
         timerSeconds.hashCode +
         timerLabel.hashCode;
 

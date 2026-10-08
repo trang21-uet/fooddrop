@@ -7,7 +7,11 @@ part of 'recipe_input_steps_inner.dart';
 // **************************************************************************
 
 abstract class _$RecipeInputStepsInnerCWProxy {
+  RecipeInputStepsInner name(String? name);
+
   RecipeInputStepsInner text(String text);
+
+  RecipeInputStepsInner images(List<String>? images);
 
   RecipeInputStepsInner timerSeconds(int? timerSeconds);
 
@@ -20,7 +24,9 @@ abstract class _$RecipeInputStepsInnerCWProxy {
   /// RecipeInputStepsInner(...).copyWith(id: 12, name: "My name")
   /// ````
   RecipeInputStepsInner call({
+    String? name,
     String text,
+    List<String>? images,
     int? timerSeconds,
     String? timerLabel,
   });
@@ -34,7 +40,13 @@ class _$RecipeInputStepsInnerCWProxyImpl
   final RecipeInputStepsInner _value;
 
   @override
+  RecipeInputStepsInner name(String? name) => this(name: name);
+
+  @override
   RecipeInputStepsInner text(String text) => this(text: text);
+
+  @override
+  RecipeInputStepsInner images(List<String>? images) => this(images: images);
 
   @override
   RecipeInputStepsInner timerSeconds(int? timerSeconds) =>
@@ -52,15 +64,25 @@ class _$RecipeInputStepsInnerCWProxyImpl
   /// RecipeInputStepsInner(...).copyWith(id: 12, name: "My name")
   /// ````
   RecipeInputStepsInner call({
+    Object? name = const $CopyWithPlaceholder(),
     Object? text = const $CopyWithPlaceholder(),
+    Object? images = const $CopyWithPlaceholder(),
     Object? timerSeconds = const $CopyWithPlaceholder(),
     Object? timerLabel = const $CopyWithPlaceholder(),
   }) {
     return RecipeInputStepsInner(
+      name: name == const $CopyWithPlaceholder()
+          ? _value.name
+          // ignore: cast_nullable_to_non_nullable
+          : name as String?,
       text: text == const $CopyWithPlaceholder()
           ? _value.text
           // ignore: cast_nullable_to_non_nullable
           : text as String,
+      images: images == const $CopyWithPlaceholder()
+          ? _value.images
+          // ignore: cast_nullable_to_non_nullable
+          : images as List<String>?,
       timerSeconds: timerSeconds == const $CopyWithPlaceholder()
           ? _value.timerSeconds
           // ignore: cast_nullable_to_non_nullable
@@ -89,7 +111,12 @@ RecipeInputStepsInner _$RecipeInputStepsInnerFromJson(
 ) => $checkedCreate('RecipeInputStepsInner', json, ($checkedConvert) {
   $checkKeys(json, requiredKeys: const ['text']);
   final val = RecipeInputStepsInner(
+    name: $checkedConvert('name', (v) => v as String?),
     text: $checkedConvert('text', (v) => v as String),
+    images: $checkedConvert(
+      'images',
+      (v) => (v as List<dynamic>?)?.map((e) => e as String).toList(),
+    ),
     timerSeconds: $checkedConvert('timerSeconds', (v) => (v as num?)?.toInt()),
     timerLabel: $checkedConvert('timerLabel', (v) => v as String?),
   );
@@ -99,7 +126,9 @@ RecipeInputStepsInner _$RecipeInputStepsInnerFromJson(
 Map<String, dynamic> _$RecipeInputStepsInnerToJson(
   RecipeInputStepsInner instance,
 ) => <String, dynamic>{
+  'name': ?instance.name,
   'text': instance.text,
+  'images': ?instance.images,
   'timerSeconds': ?instance.timerSeconds,
   'timerLabel': ?instance.timerLabel,
 };

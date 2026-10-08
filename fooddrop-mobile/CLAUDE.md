@@ -46,7 +46,8 @@ The API client is the generated path package `packages/fooddrop_api` (dart-dio);
 - UI reads recipes only from Drift (`RecipeLocalStore`); filters and search run on-device. Never call the API from a widget.
 - Writes go through `RecipeActions` (Drift + outbox, then a background sync). Don't add a second write path.
 - Offline-created recipes use `local-…` ids until their create is accepted; navigate to the list, not the detail, after creating.
-- Quantities typed offline are shown raw (`displayQuantity`) until the server normalizes them; never convert units in the app.
+- Quantity and unit are optional and shown as written ("2 thìa canh"); a quantity typed offline that Dart cannot read is shown raw (`displayQuantity`). The grocery `base` (g | ml | piece) comes from the server and is 0 for a line edited offline until it syncs; never convert units in the app. The unit catalog (`GET /units`) is cached in the Drift `units` table on every sync and feeds the unit dropdown; `RecipeUnit.nameVi` is what is shown, `nameEn` is kept for a future locale switch.
+- Step photos: `MediaUploader` (signed PUT, no bearer header) uploads when a photo is picked, so adding one needs a connection; the recipe only carries storage keys. A photo shows from its local `file:` URI until the next sync brings the server URL (`StepImageView`). Drift schema v3.
 - Tests: Drift in-memory (`test/support/test_database.dart`), a fake `RecipeRemote`, a stubbed Dio adapter for auth. `test/integration/backend_sync_test.dart` hits a real backend and skips itself when it is down. In widget tests use `tester.runAsync` for anything that needs real HTTP-stack futures, and `pump(Duration.zero)` after leaving a screen that watched a Drift stream.
 
 ## Recipe import (parser)

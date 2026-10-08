@@ -20,10 +20,24 @@ class CreateUpload {
   /// Returns a new [CreateUpload] instance.
   CreateUpload({
 
+     this.purpose,
+
     required  this.contentType,
 
     required  this.sizeBytes,
   });
+
+  @JsonKey(
+    
+    name: r'purpose',
+    required: false,
+    includeIfNull: false,
+  )
+
+
+  final CreateUploadPurposeEnum? purpose;
+
+
 
   @JsonKey(
     
@@ -55,11 +69,13 @@ class CreateUpload {
 
     @override
     bool operator ==(Object other) => identical(this, other) || other is CreateUpload &&
+      other.purpose == purpose &&
       other.contentType == contentType &&
       other.sizeBytes == sizeBytes;
 
     @override
     int get hashCode =>
+        purpose.hashCode +
         contentType.hashCode +
         sizeBytes.hashCode;
 
@@ -73,6 +89,21 @@ class CreateUpload {
   }
 
 }
+
+enum CreateUploadPurposeEnum {
+@JsonValue(r'parser')
+parser(r'parser'),
+@JsonValue(r'recipe-step')
+recipeStep(r'recipe-step');
+
+const CreateUploadPurposeEnum(this.value);
+
+final String value;
+
+@override
+String toString() => value;
+}
+
 
 enum CreateUploadContentTypeEnum {
 @JsonValue(r'image/jpeg')

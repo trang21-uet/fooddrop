@@ -36,6 +36,8 @@ class RecipeRemote {
 
   Future<List<api.TagDimension>> tags() async => (await _api.getTagsApi().tagsControllerList()).data!;
 
+  Future<List<api.Unit>> units() async => (await _api.getUnitsApi().unitsControllerList()).data!;
+
   Future<List<api.Ingredient>> searchIngredients(String query) async =>
       (await _api.getIngredientsApi().ingredientsControllerSearch(q: query, limit: 20)).data!;
 

@@ -25,7 +25,7 @@ void main() {
     totalMinutes: 15,
     tagIds: [10, 20],
     ingredients: const [
-      RecipeIngredient(ingredientId: 'i1', name: 'Thịt nguội', aisle: 'meat', quantity: 100, unit: 'g'),
+      RecipeIngredient(ingredientId: 'i1', name: 'Thịt nguội', aisle: 'meat'),
     ],
   );
   final all = [pho, katsu, banhMi];

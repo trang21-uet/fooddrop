@@ -6,9 +6,11 @@ import 'package:fooddrop/features/recipes/domain/rarity.dart';
 import 'package:fooddrop/features/recipes/domain/recipe.dart';
 import 'package:fooddrop/features/recipes/domain/recipe_draft.dart';
 import 'package:fooddrop/features/recipes/presentation/detail/recipe_detail_screen.dart';
+import 'package:fooddrop/features/recipes/presentation/shared/step_image_view.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../support/pump_app.dart';
+import '../../../support/recipe_fixtures.dart';
 
 class _RecordingActions extends RecipeActions {
   _RecordingActions(super.ref, this.deleted);
@@ -36,12 +38,17 @@ Recipe _pho({bool withDetail = true}) => Recipe(
       createdAt: DateTime.utc(2026),
       tagIds: const [10],
       ingredients: const [
-        RecipeIngredient(ingredientId: 'i1', name: 'Xương bò', aisle: 'meat', quantity: 800, unit: 'g'),
-        RecipeIngredient(ingredientId: 'i2', name: 'Hành tây', aisle: 'produce', quantity: 2, unit: 'piece', note: 'nướng'),
+        RecipeIngredient(ingredientId: 'i1', name: 'Xương bò', aisle: 'meat', quantity: 800, unit: gramUnit),
+        RecipeIngredient(ingredientId: 'i2', name: 'Hành tây', aisle: 'produce', quantity: 2, note: 'nướng'),
       ],
       steps: withDetail
           ? const [
-              RecipeStep(text: 'Chần xương bò trong nước sôi.', timerSeconds: 600),
+              RecipeStep(
+                name: 'Chần xương',
+                text: 'Chần xương bò trong nước sôi.',
+                images: [RecipeStepImage(key: 'recipes/u1/a.jpg')],
+                timerSeconds: 600,
+              ),
               RecipeStep(text: 'Hầm xương.', timerSeconds: 9000),
               RecipeStep(text: 'Chan nước dùng lên bánh phở.'),
             ]
@@ -86,7 +93,9 @@ void main() {
     expect(find.text('Việt Nam'), findsOneWidget);
     expect(find.text('800 g'), findsOneWidget);
     expect(find.text('Hành tây · nướng'), findsOneWidget);
+    expect(find.text('Chần xương'), findsOneWidget, reason: 'the step name is its own heading');
     expect(find.text('Chần xương bò trong nước sôi.'), findsOneWidget);
+    expect(find.byType(StepImageView), findsOneWidget, reason: 'one photo on the first step');
     expect(find.text('10:00'), findsOneWidget);
     expect(find.text('2:30:00'), findsOneWidget);
   });

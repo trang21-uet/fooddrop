@@ -9,7 +9,9 @@ import 'package:fooddrop_api/api.dart';
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **order** | **int** |  | 
+**name** | **String** |  | [optional] 
 **text** | **String** |  | 
+**images** | [**List&lt;RecipeDetailStepsInnerImagesInner&gt;**](RecipeDetailStepsInnerImagesInner.md) |  | 
 **timerSeconds** | **int** |  | [optional] 
 **timerLabel** | **String** |  | [optional] 
 

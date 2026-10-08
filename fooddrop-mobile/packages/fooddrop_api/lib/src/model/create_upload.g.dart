@@ -7,6 +7,8 @@ part of 'create_upload.dart';
 // **************************************************************************
 
 abstract class _$CreateUploadCWProxy {
+  CreateUpload purpose(CreateUploadPurposeEnum? purpose);
+
   CreateUpload contentType(CreateUploadContentTypeEnum contentType);
 
   CreateUpload sizeBytes(int sizeBytes);
@@ -17,7 +19,11 @@ abstract class _$CreateUploadCWProxy {
   /// ```dart
   /// CreateUpload(...).copyWith(id: 12, name: "My name")
   /// ````
-  CreateUpload call({CreateUploadContentTypeEnum contentType, int sizeBytes});
+  CreateUpload call({
+    CreateUploadPurposeEnum? purpose,
+    CreateUploadContentTypeEnum contentType,
+    int sizeBytes,
+  });
 }
 
 /// Proxy class for `copyWith` functionality. This is a callable class and can be used as follows: `instanceOfCreateUpload.copyWith(...)`. Additionally contains functions for specific fields e.g. `instanceOfCreateUpload.copyWith.fieldName(...)`
@@ -25,6 +31,10 @@ class _$CreateUploadCWProxyImpl implements _$CreateUploadCWProxy {
   const _$CreateUploadCWProxyImpl(this._value);
 
   final CreateUpload _value;
+
+  @override
+  CreateUpload purpose(CreateUploadPurposeEnum? purpose) =>
+      this(purpose: purpose);
 
   @override
   CreateUpload contentType(CreateUploadContentTypeEnum contentType) =>
@@ -41,10 +51,15 @@ class _$CreateUploadCWProxyImpl implements _$CreateUploadCWProxy {
   /// CreateUpload(...).copyWith(id: 12, name: "My name")
   /// ````
   CreateUpload call({
+    Object? purpose = const $CopyWithPlaceholder(),
     Object? contentType = const $CopyWithPlaceholder(),
     Object? sizeBytes = const $CopyWithPlaceholder(),
   }) {
     return CreateUpload(
+      purpose: purpose == const $CopyWithPlaceholder()
+          ? _value.purpose
+          // ignore: cast_nullable_to_non_nullable
+          : purpose as CreateUploadPurposeEnum?,
       contentType: contentType == const $CopyWithPlaceholder()
           ? _value.contentType
           // ignore: cast_nullable_to_non_nullable
@@ -71,6 +86,10 @@ CreateUpload _$CreateUploadFromJson(Map<String, dynamic> json) =>
     $checkedCreate('CreateUpload', json, ($checkedConvert) {
       $checkKeys(json, requiredKeys: const ['contentType', 'sizeBytes']);
       final val = CreateUpload(
+        purpose: $checkedConvert(
+          'purpose',
+          (v) => $enumDecodeNullable(_$CreateUploadPurposeEnumEnumMap, v),
+        ),
         contentType: $checkedConvert(
           'contentType',
           (v) => $enumDecode(_$CreateUploadContentTypeEnumEnumMap, v),
@@ -83,8 +102,14 @@ CreateUpload _$CreateUploadFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$CreateUploadToJson(
   CreateUpload instance,
 ) => <String, dynamic>{
+  'purpose': ?_$CreateUploadPurposeEnumEnumMap[instance.purpose],
   'contentType': _$CreateUploadContentTypeEnumEnumMap[instance.contentType]!,
   'sizeBytes': instance.sizeBytes,
+};
+
+const _$CreateUploadPurposeEnumEnumMap = {
+  CreateUploadPurposeEnum.parser: 'parser',
+  CreateUploadPurposeEnum.recipeStep: 'recipe-step',
 };
 
 const _$CreateUploadContentTypeEnumEnumMap = {

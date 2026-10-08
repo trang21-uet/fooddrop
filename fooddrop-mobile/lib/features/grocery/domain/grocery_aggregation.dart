@@ -46,16 +46,17 @@ class GroceryAisleGroup {
 int _compareText(String a, String b) => a.compareTo(b);
 
 /// Derived state, never persisted. Sums unrounded scaled quantities per (ingredient, unit) and rounds
-/// only the total so rounding error does not accumulate. Units are not converted here: the backend
-/// already normalizes them. Same rules and vectors as the web app (`docs/fixtures`).
+/// only the total so rounding error does not accumulate. It sums each line's server-converted base
+/// amount (g | ml | piece), so recipes written in different units still add up; nothing is converted
+/// here. Same rules and vectors as the web app (`docs/fixtures`).
 List<GroceryAisleGroup> aggregateGrocery(List<GrocerySelection> selections, Map<String, Recipe> recipesById) {
   final totals = <String, ({RecipeIngredient ingredient, double quantity})>{};
   for (final selection in selections) {
     final recipe = recipesById[selection.recipeId];
     if (recipe == null) continue;
     for (final ingredient in recipe.ingredients) {
-      final scaled = scaleQuantity(ingredient.quantity, selection.servings, recipe.baseServings);
-      final key = '${ingredient.ingredientId}|${ingredient.unit}';
+      final scaled = scaleQuantity(ingredient.baseQuantity, selection.servings, recipe.baseServings);
+      final key = '${ingredient.ingredientId}|${ingredient.baseUnit}';
       final existing = totals[key];
       totals[key] = (ingredient: existing?.ingredient ?? ingredient, quantity: (existing?.quantity ?? 0) + scaled);
     }
@@ -69,8 +70,8 @@ List<GroceryAisleGroup> aggregateGrocery(List<GrocerySelection> selections, Map<
           GroceryItem(
             ingredientId: entry.ingredient.ingredientId,
             name: entry.ingredient.name,
-            unit: entry.ingredient.unit,
-            quantity: roundForUnit(entry.quantity, entry.ingredient.unit),
+            unit: entry.ingredient.baseUnit,
+            quantity: roundForUnit(entry.quantity, entry.ingredient.baseUnit),
           ),
     ]..sort((a, b) => _compareText(a.name, b.name) != 0 ? _compareText(a.name, b.name) : _compareText(a.unit, b.unit));
     if (items.isNotEmpty) groups.add(GroceryAisleGroup(aisle: aisle, items: items));

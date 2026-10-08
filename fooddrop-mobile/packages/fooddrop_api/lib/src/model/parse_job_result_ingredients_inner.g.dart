@@ -9,11 +9,9 @@ part of 'parse_job_result_ingredients_inner.dart';
 abstract class _$ParseJobResultIngredientsInnerCWProxy {
   ParseJobResultIngredientsInner name(String name);
 
-  ParseJobResultIngredientsInner quantity(num quantity);
+  ParseJobResultIngredientsInner quantity(num? quantity);
 
-  ParseJobResultIngredientsInner unit(
-    ParseJobResultIngredientsInnerUnitEnum unit,
-  );
+  ParseJobResultIngredientsInner unit(String? unit);
 
   ParseJobResultIngredientsInner note(String? note);
 
@@ -31,8 +29,8 @@ abstract class _$ParseJobResultIngredientsInnerCWProxy {
   /// ````
   ParseJobResultIngredientsInner call({
     String name,
-    num quantity,
-    ParseJobResultIngredientsInnerUnitEnum unit,
+    num? quantity,
+    String? unit,
     String? note,
     String? matchedName,
     String? ingredientId,
@@ -51,13 +49,11 @@ class _$ParseJobResultIngredientsInnerCWProxyImpl
   ParseJobResultIngredientsInner name(String name) => this(name: name);
 
   @override
-  ParseJobResultIngredientsInner quantity(num quantity) =>
+  ParseJobResultIngredientsInner quantity(num? quantity) =>
       this(quantity: quantity);
 
   @override
-  ParseJobResultIngredientsInner unit(
-    ParseJobResultIngredientsInnerUnitEnum unit,
-  ) => this(unit: unit);
+  ParseJobResultIngredientsInner unit(String? unit) => this(unit: unit);
 
   @override
   ParseJobResultIngredientsInner note(String? note) => this(note: note);
@@ -97,11 +93,11 @@ class _$ParseJobResultIngredientsInnerCWProxyImpl
       quantity: quantity == const $CopyWithPlaceholder()
           ? _value.quantity
           // ignore: cast_nullable_to_non_nullable
-          : quantity as num,
+          : quantity as num?,
       unit: unit == const $CopyWithPlaceholder()
           ? _value.unit
           // ignore: cast_nullable_to_non_nullable
-          : unit as ParseJobResultIngredientsInnerUnitEnum,
+          : unit as String?,
       note: note == const $CopyWithPlaceholder()
           ? _value.note
           // ignore: cast_nullable_to_non_nullable
@@ -151,11 +147,8 @@ ParseJobResultIngredientsInner _$ParseJobResultIngredientsInnerFromJson(
   );
   final val = ParseJobResultIngredientsInner(
     name: $checkedConvert('name', (v) => v as String),
-    quantity: $checkedConvert('quantity', (v) => v as num),
-    unit: $checkedConvert(
-      'unit',
-      (v) => $enumDecode(_$ParseJobResultIngredientsInnerUnitEnumEnumMap, v),
-    ),
+    quantity: $checkedConvert('quantity', (v) => v as num?),
+    unit: $checkedConvert('unit', (v) => v as String?),
     note: $checkedConvert('note', (v) => v as String?),
     matchedName: $checkedConvert('matchedName', (v) => v as String?),
     ingredientId: $checkedConvert('ingredientId', (v) => v as String?),
@@ -169,15 +162,9 @@ Map<String, dynamic> _$ParseJobResultIngredientsInnerToJson(
 ) => <String, dynamic>{
   'name': instance.name,
   'quantity': instance.quantity,
-  'unit': _$ParseJobResultIngredientsInnerUnitEnumEnumMap[instance.unit]!,
+  'unit': instance.unit,
   'note': instance.note,
   'matchedName': instance.matchedName,
   'ingredientId': instance.ingredientId,
   'isNew': instance.isNew,
-};
-
-const _$ParseJobResultIngredientsInnerUnitEnumEnumMap = {
-  ParseJobResultIngredientsInnerUnitEnum.g: 'g',
-  ParseJobResultIngredientsInnerUnitEnum.ml: 'ml',
-  ParseJobResultIngredientsInnerUnitEnum.piece: 'piece',
 };

@@ -6,6 +6,7 @@ import '../../../../app/app_theme.dart';
 import '../../../../app/food_drop_colors.dart';
 import '../../../timers/data/timer_providers.dart';
 import '../../domain/recipe.dart';
+import '../shared/step_image_view.dart';
 
 class StepsSection extends StatelessWidget {
   const StepsSection({super.key, required this.recipeTitle, required this.steps});
@@ -47,7 +48,15 @@ class StepsSection extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        if (step.name != null) ...[
+                          Text(step.name!, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+                          const SizedBox(height: 4),
+                        ],
                         Text(step.text, style: const TextStyle(fontSize: 14, height: 1.55)),
+                        if (step.images.isNotEmpty) ...[
+                          const SizedBox(height: 10),
+                          _StepImages(images: step.images, stepNumber: index + 1),
+                        ],
                         if (step.timerSeconds != null) ...[
                           const SizedBox(height: 10),
                           _StartTimerChip(step: step, label: step.timerLabel ?? '$recipeTitle · bước ${index + 1}'),
@@ -123,6 +132,60 @@ class _StartTimerChip extends ConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Step photos as thumbnails; a tap opens the photo full screen with pinch-to-zoom.
+class _StepImages extends StatelessWidget {
+  const _StepImages({required this.images, required this.stepNumber});
+
+  final List<RecipeStepImage> images;
+  final int stepNumber;
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        for (final (position, image) in images.indexed)
+          Semantics(
+            button: true,
+            label: 'Xem ảnh ${position + 1} của bước $stepNumber',
+            excludeSemantics: true,
+            child: GestureDetector(
+              onTap: () => showDialog<void>(
+                context: context,
+                builder: (dialog) => Dialog.fullscreen(
+                  backgroundColor: Colors.black,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      InteractiveViewer(child: StepImageView(image: image, fit: BoxFit.contain, cacheWidth: null)),
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: SafeArea(
+                          child: IconButton(
+                            tooltip: 'Đóng',
+                            onPressed: () => Navigator.of(dialog).pop(),
+                            icon: const Icon(Icons.close_rounded, color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              child: SizedBox(
+                width: 96,
+                height: 96,
+                child: ClipRRect(borderRadius: BorderRadius.circular(12), child: StepImageView(image: image)),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

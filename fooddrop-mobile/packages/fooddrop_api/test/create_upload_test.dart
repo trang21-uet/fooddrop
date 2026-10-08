@@ -7,6 +7,11 @@ void main() {
   // TODO add properties to the entity
 
   group(CreateUpload, () {
+    // String purpose
+    test('to test the property `purpose`', () async {
+      // TODO
+    });
+
     // String contentType
     test('to test the property `contentType`', () async {
       // TODO

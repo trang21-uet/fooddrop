@@ -7,7 +7,9 @@ import 'package:fooddrop_api/fooddrop_api.dart' as api;
 import '../../../core/db/app_database.dart';
 import '../domain/recipe.dart';
 import '../domain/recipe_draft.dart';
+import '../domain/recipe_unit.dart';
 import 'recipe_mappers.dart';
+import 'unit_local_store.dart';
 
 const localIdPrefix = 'local-';
 
@@ -18,6 +20,7 @@ class RecipeLocalStore {
   RecipeLocalStore(this._db);
 
   final AppDatabase _db;
+  late final _units = UnitLocalStore(_db);
 
   // ---- Reads --------------------------------------------------------------------------------
 
@@ -73,6 +76,8 @@ class RecipeLocalStore {
     ]..sort((a, b) => a.id.compareTo(b.id));
   }
 
+  Stream<List<RecipeUnit>> watchUnits() => _units.watch();
+
   /// Ingredients already used by synced recipes: the offline fallback for the ingredient picker.
   Future<List<RecipeIngredientRow>> knownIngredients() async {
     final rows = await _db.select(_db.recipeIngredients).get();
@@ -84,6 +89,12 @@ class RecipeLocalStore {
 
   Future<List<OutboxRow>> pendingOps() =>
       (_db.select(_db.outbox)..orderBy([(t) => OrderingTerm.asc(t.id)])).get();
+
+  /// Recipes whose cached step photos use expiring signed URLs (no `S3_PUBLIC_URL` on the server).
+  Future<List<String>> idsWithSignedPhotos() async {
+    final rows = await (_db.select(_db.recipes)..where((t) => t.stepsJson.like('%X-Amz-Signature%'))).get();
+    return rows.map((row) => row.id).toList();
+  }
 
   Future<List<String>> idsMissingDetail() async {
     final rows = await (_db.select(_db.recipes)..where((t) => t.stepsJson.isNull())).get();
@@ -109,6 +120,8 @@ class RecipeLocalStore {
           ]);
         });
       });
+
+  Future<void> replaceUnits(List<api.Unit> units) => _units.replace(units);
 
   /// Applies list summaries, keeping any synced detail and skipping recipes with pending edits.
   Future<void> applySummaries(List<api.RecipeListItemsInner> items, {required Set<String> skipIds}) =>
@@ -149,7 +162,8 @@ class RecipeLocalStore {
         final recipeId = id ?? _newLocalId();
         final existing =
             id == null ? null : await (_db.select(_db.recipes)..where((t) => t.id.equals(id))).getSingleOrNull();
-        await _writeRows(rowsFromDraft(recipeId, draft, createdAt: existing?.createdAt ?? DateTime.now()));
+        final units = await _units.load();
+        await _writeRows(rowsFromDraft(recipeId, draft, createdAt: existing?.createdAt ?? DateTime.now(), units: units));
 
         final payload = jsonEncode(inputFromDraft(draft).toJson());
         final queued = await _opsFor(recipeId);

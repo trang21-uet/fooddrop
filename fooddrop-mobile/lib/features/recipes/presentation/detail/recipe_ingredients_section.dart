@@ -71,7 +71,7 @@ class _IngredientsSectionState extends ConsumerState<IngredientsSection> {
                 crossAxisAlignment: CrossAxisAlignment.baseline,
                 textBaseline: TextBaseline.alphabetic,
                 children: [
-                  SizedBox(width: 84, child: Text(item.scaledLabel(_servings, recipe.baseServings), style: monoStyle())),
+                  SizedBox(width: 116, child: Text(item.scaledLabel(_servings, recipe.baseServings), style: monoStyle())),
                   Expanded(
                     child: Text(
                       item.note == null ? item.name : '${item.name} · ${item.note}',

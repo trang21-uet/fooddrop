@@ -77,6 +77,7 @@ Class | Method | HTTP request | Description
 [*RecipesApi*](doc/RecipesApi.md) | [**recipesControllerRemove**](doc/RecipesApi.md#recipescontrollerremove) | **DELETE** /recipes/{id} | 
 [*RecipesApi*](doc/RecipesApi.md) | [**recipesControllerUpdate**](doc/RecipesApi.md#recipescontrollerupdate) | **PUT** /recipes/{id} | 
 [*TagsApi*](doc/TagsApi.md) | [**tagsControllerList**](doc/TagsApi.md#tagscontrollerlist) | **GET** /tags | 
+[*UnitsApi*](doc/UnitsApi.md) | [**unitsControllerList**](doc/UnitsApi.md#unitscontrollerlist) | **GET** /units | 
 
 
 ## Documentation For Models
@@ -94,8 +95,11 @@ Class | Method | HTTP request | Description
  - [ParseJobResultStepsInner](doc/ParseJobResultStepsInner.md)
  - [RecipeDetail](doc/RecipeDetail.md)
  - [RecipeDetailIngredientsInner](doc/RecipeDetailIngredientsInner.md)
+ - [RecipeDetailIngredientsInnerBase](doc/RecipeDetailIngredientsInnerBase.md)
  - [RecipeDetailIngredientsInnerIngredient](doc/RecipeDetailIngredientsInnerIngredient.md)
+ - [RecipeDetailIngredientsInnerUnit](doc/RecipeDetailIngredientsInnerUnit.md)
  - [RecipeDetailStepsInner](doc/RecipeDetailStepsInner.md)
+ - [RecipeDetailStepsInnerImagesInner](doc/RecipeDetailStepsInnerImagesInner.md)
  - [RecipeDetailTagsInner](doc/RecipeDetailTagsInner.md)
  - [RecipeInput](doc/RecipeInput.md)
  - [RecipeInputIngredientsInner](doc/RecipeInputIngredientsInner.md)
@@ -105,6 +109,7 @@ Class | Method | HTTP request | Description
  - [SearchIngredientsQuery](doc/SearchIngredientsQuery.md)
  - [TagDimension](doc/TagDimension.md)
  - [TagDimensionTagsInner](doc/TagDimensionTagsInner.md)
+ - [Unit](doc/Unit.md)
  - [UploadTarget](doc/UploadTarget.md)
 
 

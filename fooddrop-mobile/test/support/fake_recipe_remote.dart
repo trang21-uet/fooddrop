@@ -71,6 +71,13 @@ class FakeRemote implements RecipeRemote {
   }
 
   @override
+  Future<List<api.Unit>> units() async {
+    calls.add('units');
+    _maybeFail();
+    return apiUnits();
+  }
+
+  @override
   Future<List<api.Ingredient>> searchIngredients(String query) => throw UnimplementedError();
 
   @override

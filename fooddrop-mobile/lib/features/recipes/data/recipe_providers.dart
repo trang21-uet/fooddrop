@@ -6,6 +6,7 @@ import '../../../core/api/api_client_provider.dart';
 import '../../../core/db/database_provider.dart';
 import '../domain/recipe.dart';
 import '../domain/recipe_draft.dart';
+import '../domain/recipe_unit.dart';
 import 'recipe_local_store.dart';
 import 'recipe_remote.dart';
 import 'recipe_sync_service.dart';
@@ -31,6 +32,10 @@ Stream<Recipe?> recipe(Ref ref, String id) => ref.watch(recipeLocalStoreProvider
 
 @riverpod
 Stream<List<TagGroup>> tagGroups(Ref ref) => ref.watch(recipeLocalStoreProvider).watchTagGroups();
+
+/// The unit catalog for pickers, from the local cache so it works offline.
+@riverpod
+Stream<List<RecipeUnit>> units(Ref ref) => ref.watch(recipeLocalStoreProvider).watchUnits();
 
 /// User-initiated changes. They land in Drift first and sync in the background.
 class RecipeActions {

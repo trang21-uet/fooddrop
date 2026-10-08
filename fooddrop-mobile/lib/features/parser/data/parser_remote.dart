@@ -1,35 +1,25 @@
 import 'dart:typed_data';
 
-import 'package:dio/dio.dart';
 import 'package:fooddrop_api/fooddrop_api.dart' as api;
+
+import '../../../core/media/media_uploader.dart';
 
 /// Thin wrapper over the generated client for recipe import jobs and photo uploads.
 class ParserRemote {
-  ParserRemote(this._api, {Dio? uploader}) : _uploader = uploader ?? Dio();
+  ParserRemote(this._api, {MediaUploader? media}) : _media = media ?? MediaUploader(_api);
 
   final api.FooddropApi _api;
-
-  /// Plain Dio for the signed storage URL: no base URL and, crucially, no bearer interceptor.
-  final Dio _uploader;
+  final MediaUploader _media;
 
   Future<String> startUrl(String url) async {
     final job = (await _api.getParserApi().parserControllerCreate(createParseJob: api.CreateParseJob(url: url))).data!;
     return job.id;
   }
 
-  /// Uploads straight to object storage with a signed URL, then queues the parse job.
+  /// Uploads the photo, then queues the parse job.
   Future<String> startImage(Uint8List bytes, api.CreateUploadContentTypeEnum contentType) async {
-    final target = (await _api.getMediaApi().mediaControllerCreateUpload(
-      createUpload: api.CreateUpload(contentType: contentType, sizeBytes: bytes.length),
-    ))
-        .data!;
-    // The signature covers these exact headers (content type and length).
-    await _uploader.put<void>(
-      target.uploadUrl,
-      data: bytes,
-      options: Options(headers: {...target.headers, Headers.contentLengthHeader: bytes.length}),
-    );
-    final job = (await _api.getParserApi().parserControllerCreate(createParseJob: api.CreateParseJob(imageKey: target.key))).data!;
+    final key = await _media.upload(bytes, contentType, api.CreateUploadPurposeEnum.parser);
+    final job = (await _api.getParserApi().parserControllerCreate(createParseJob: api.CreateParseJob(imageKey: key))).data!;
     return job.id;
   }
 

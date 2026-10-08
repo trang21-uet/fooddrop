@@ -1,50 +1,17 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../../core/media/media_providers.dart';
 import '../../../parser/data/parser_providers.dart';
+import '../../../parser/data/photo_picker.dart';
 import '../../data/ingredient_catalog.dart';
 import '../../data/recipe_providers.dart';
+import '../../data/step_photo_uploader.dart';
 import '../../domain/recipe_draft.dart';
+import '../../domain/recipe_draft_validation.dart';
+import '../../domain/recipe_unit.dart';
+import 'recipe_form_state.dart';
 
 part 'recipe_form_controller.g.dart';
-
-class RecipeFormState {
-  const RecipeFormState({
-    required this.draft,
-    this.errors,
-    this.saving = false,
-    this.saveError,
-    this.addingIngredients = false,
-    this.ingredientError,
-  });
-
-  final RecipeDraft draft;
-
-  /// Null until the first submit attempt; afterwards kept in sync on every edit.
-  final DraftErrors? errors;
-  final bool saving;
-  final String? saveError;
-
-  /// True while unmatched (imported) ingredients are being added to the shared catalog.
-  final bool addingIngredients;
-  final String? ingredientError;
-
-  RecipeFormState copyWith({
-    RecipeDraft? draft,
-    DraftErrors? errors,
-    bool? saving,
-    String? saveError,
-    bool? addingIngredients,
-    String? ingredientError,
-  }) =>
-      RecipeFormState(
-        draft: draft ?? this.draft,
-        errors: errors ?? this.errors,
-        saving: saving ?? this.saving,
-        saveError: saveError,
-        addingIngredients: addingIngredients ?? this.addingIngredients,
-        ingredientError: ingredientError,
-      );
-}
 
 /// Form state for creating (`recipeId == null`) or editing a recipe. Edits go through the
 /// controller so the screen holds no state beyond its text controllers.
@@ -93,11 +60,11 @@ class RecipeFormController extends _$RecipeFormController {
     _edit(_draft.copyWith(ingredients: [..._draft.ingredients, row]));
   }
 
-  void updateIngredient(int uid, {String? quantity, String? unit, String? note}) => _edit(
+  void updateIngredient(int uid, {String? quantity, String? unitCode, String? note}) => _edit(
         _draft.copyWith(
           ingredients: [
             for (final row in _draft.ingredients)
-              row.uid == uid ? row.copyWith(quantityText: quantity, unitText: unit, note: note) : row,
+              row.uid == uid ? row.copyWith(quantityText: quantity, unitCode: unitCode, note: note) : row,
           ],
         ),
       );
@@ -108,9 +75,10 @@ class RecipeFormController extends _$RecipeFormController {
     if (pending.isEmpty) return;
     state = state.copyWith(addingIngredients: true);
     final catalog = ref.read(ingredientCatalogProvider);
+    final units = ref.read(unitsProvider).value ?? const <RecipeUnit>[];
     try {
       for (final row in pending) {
-        final option = await catalog.ensure(row.name, defaultUnit: defaultUnitForRowUnit(row.unitText));
+        final option = await catalog.ensure(row.name, defaultUnit: defaultUnitForRowUnit(row.unitCode, units));
         if (!ref.mounted) return;
         _edit(
           _draft.copyWith(
@@ -139,7 +107,36 @@ class RecipeFormController extends _$RecipeFormController {
 
   void addStep() => _edit(_draft.copyWith(steps: [..._draft.steps, DraftStep(uid: _nextUid++)]));
 
+  void updateStepName(int uid, String name) => _editStep(uid, (step) => step.copyWith(name: name));
+
   void updateStepText(int uid, String text) => _editStep(uid, (step) => step.copyWith(text: text));
+
+  void removeStepImage(int uid, String key) =>
+      _editStep(uid, (step) => step.copyWith(images: step.images.where((image) => image.key != key).toList()));
+
+  /// Picks one or more photos and uploads each straight to storage (needs a connection); the
+  /// recipe itself stays offline-first and only carries the storage keys.
+  Future<void> addStepPhotos(int uid, PhotoSource source) async {
+    final current = _draft.steps.where((step) => step.uid == uid).firstOrNull;
+    final room = maxStepImages - (current?.images.length ?? 0);
+    if (current == null || room <= 0) return;
+
+    final List<PickedPhoto> photos;
+    try {
+      photos = await ref.read(photoPickerProvider).pickMany(source, limit: room);
+    } catch (_) {
+      state = state.copyWith(imageError: 'Không mở được máy ảnh hoặc thư viện ảnh.');
+      return;
+    }
+    if (photos.isEmpty || !ref.mounted) return;
+
+    state = state.copyWith(uploadingSteps: {...state.uploadingSteps, uid});
+    final result = await uploadStepPhotos(photos, ref.read(mediaUploaderProvider));
+    if (!ref.mounted) return;
+    // Read the latest step: other edits may have landed while the photos were in flight.
+    _editStep(uid, (step) => step.copyWith(images: [...step.images, ...result.images]));
+    state = state.copyWith(uploadingSteps: {...state.uploadingSteps}..remove(uid), imageError: result.error);
+  }
 
   void updateStepTimer(int uid, String minutes) {
     final value = int.tryParse(minutes.trim());

@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/food_drop_colors.dart';
+import '../../../../core/widgets/labeled_dropdown.dart';
 import '../../../../core/widgets/labeled_text_field.dart';
 import '../../../../core/widgets/neon_button.dart';
+import '../../data/recipe_providers.dart';
 import '../../domain/recipe_draft.dart';
+import '../../domain/recipe_unit.dart';
 import 'ingredient_picker_sheet.dart';
 import 'recipe_form_controller.dart';
 
@@ -66,6 +69,9 @@ class _IngredientRow extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.colors;
     final controller = ref.read(recipeFormControllerProvider(recipeId).notifier);
+    final units = ref.watch(unitsProvider).value ?? const <RecipeUnit>[];
+    // The catalog may not have synced yet; keep a saved unit selectable so the dropdown never loses it.
+    final known = units.any((unit) => unit.code == row.unitCode);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -95,7 +101,7 @@ class _IngredientRow extends ConsumerWidget {
             children: [
               Expanded(
                 child: LabeledTextField(
-                  label: 'Số lượng',
+                  label: 'Số lượng (tùy chọn)',
                   initialValue: row.quantityText,
                   hint: '1 1/2',
                   keyboardType: TextInputType.text,
@@ -104,11 +110,16 @@ class _IngredientRow extends ConsumerWidget {
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: LabeledTextField(
-                  label: 'Đơn vị',
-                  initialValue: row.unitText,
-                  hint: 'g, ml, thìa…',
-                  onChanged: (value) => controller.updateIngredient(row.uid, unit: value),
+                child: LabeledDropdown<String>(
+                  key: ValueKey('unit-${row.uid}'),
+                  label: 'Đơn vị (tùy chọn)',
+                  value: row.unitCode,
+                  items: [
+                    const DropdownMenuItem(value: '', child: Text('Không có')),
+                    for (final unit in units) DropdownMenuItem(value: unit.code, child: Text(unit.label)),
+                    if (!known && row.unitCode.isNotEmpty) DropdownMenuItem(value: row.unitCode, child: Text(row.unitCode)),
+                  ],
+                  onChanged: (value) => controller.updateIngredient(row.uid, unitCode: value),
                 ),
               ),
             ],

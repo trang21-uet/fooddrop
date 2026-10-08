@@ -17,13 +17,18 @@ void main() {
       // TODO
     });
 
-    // String unit
+    // RecipeDetailIngredientsInnerUnit unit
     test('to test the property `unit`', () async {
       // TODO
     });
 
     // String note
     test('to test the property `note`', () async {
+      // TODO
+    });
+
+    // RecipeDetailIngredientsInnerBase base_
+    test('to test the property `base_`', () async {
       // TODO
     });
 

@@ -8,7 +8,9 @@ import 'package:fooddrop_api/api.dart';
 ## Properties
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
+**name** | **String** |  | [optional] 
 **text** | **String** |  | 
+**images** | **List&lt;String&gt;** |  | [optional] 
 **timerSeconds** | **int** |  | [optional] 
 **timerLabel** | **String** |  | [optional] 
 

@@ -39,7 +39,7 @@ final class AuthControllerProvider
   AuthController create() => AuthController();
 }
 
-String _$authControllerHash() => r'200049d5f4bf893398b3ca66994b8a5d70b35991';
+String _$authControllerHash() => r'ae452a83eed9cc170019599448901b75b0f24a3b';
 
 /// Holds the signed-in session (null when signed out). Launch is offline-friendly: the stored
 /// session is trusted, and a 401 from any request signs the user out via [expireSession].

@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/api/api_client_provider.dart';
+import '../../../core/media/media_providers.dart';
 import '../../recipes/domain/recipe_draft.dart';
 import 'parser_remote.dart';
 import 'photo_picker.dart';
@@ -8,7 +9,7 @@ import 'photo_picker.dart';
 part 'parser_providers.g.dart';
 
 @Riverpod(keepAlive: true)
-ParserRemote parserRemote(Ref ref) => ParserRemote(ref.watch(apiClientProvider));
+ParserRemote parserRemote(Ref ref) => ParserRemote(ref.watch(apiClientProvider), media: ref.watch(mediaUploaderProvider));
 
 @Riverpod(keepAlive: true)
 PhotoPicker photoPicker(Ref ref) => const PhotoPicker();

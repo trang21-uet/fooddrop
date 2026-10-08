@@ -15,6 +15,7 @@ export 'package:fooddrop_api/src/api/media_api.dart';
 export 'package:fooddrop_api/src/api/parser_api.dart';
 export 'package:fooddrop_api/src/api/recipes_api.dart';
 export 'package:fooddrop_api/src/api/tags_api.dart';
+export 'package:fooddrop_api/src/api/units_api.dart';
 
 export 'package:fooddrop_api/src/model/create_ingredient.dart';
 export 'package:fooddrop_api/src/model/create_parse_job.dart';
@@ -29,8 +30,11 @@ export 'package:fooddrop_api/src/model/parse_job_result_ingredients_inner.dart';
 export 'package:fooddrop_api/src/model/parse_job_result_steps_inner.dart';
 export 'package:fooddrop_api/src/model/recipe_detail.dart';
 export 'package:fooddrop_api/src/model/recipe_detail_ingredients_inner.dart';
+export 'package:fooddrop_api/src/model/recipe_detail_ingredients_inner_base.dart';
 export 'package:fooddrop_api/src/model/recipe_detail_ingredients_inner_ingredient.dart';
+export 'package:fooddrop_api/src/model/recipe_detail_ingredients_inner_unit.dart';
 export 'package:fooddrop_api/src/model/recipe_detail_steps_inner.dart';
+export 'package:fooddrop_api/src/model/recipe_detail_steps_inner_images_inner.dart';
 export 'package:fooddrop_api/src/model/recipe_detail_tags_inner.dart';
 export 'package:fooddrop_api/src/model/recipe_input.dart';
 export 'package:fooddrop_api/src/model/recipe_input_ingredients_inner.dart';
@@ -40,5 +44,6 @@ export 'package:fooddrop_api/src/model/recipe_list_items_inner.dart';
 export 'package:fooddrop_api/src/model/search_ingredients_query.dart';
 export 'package:fooddrop_api/src/model/tag_dimension.dart';
 export 'package:fooddrop_api/src/model/tag_dimension_tags_inner.dart';
+export 'package:fooddrop_api/src/model/unit.dart';
 export 'package:fooddrop_api/src/model/upload_target.dart';
 

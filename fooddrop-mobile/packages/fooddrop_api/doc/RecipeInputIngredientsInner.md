@@ -9,7 +9,7 @@ import 'package:fooddrop_api/api.dart';
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **ingredientId** | **String** |  | 
-**quantity** | **String** |  | 
+**quantity** | **String** |  | [optional] 
 **unit** | **String** |  | [optional] 
 **note** | **String** |  | [optional] 
 

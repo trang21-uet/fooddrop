@@ -10,6 +10,7 @@ import 'package:fooddrop/features/timers/data/timer_providers.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../support/pump_app.dart';
+import '../../../support/recipe_fixtures.dart';
 
 class _RecordingGrocery extends GroceryActions {
   _RecordingGrocery(super.ref, this.added);
@@ -38,9 +39,10 @@ final _pho = Recipe(
   rarity: Rarity.pink,
   createdAt: DateTime.utc(2026),
   ingredients: [
-    RecipeIngredient(ingredientId: 'i1', name: 'Xương bò', aisle: 'meat', quantity: 800, unit: 'g'),
-    RecipeIngredient(ingredientId: 'i2', name: 'Hành tây', aisle: 'produce', quantity: 2, unit: 'piece'),
-    RecipeIngredient(ingredientId: 'i3', name: 'Nước mắm', aisle: 'pantry', quantity: 30, unit: 'ml', displayQuantity: '2 thìa'),
+    RecipeIngredient(ingredientId: 'i1', name: 'Xương bò', aisle: 'meat', quantity: 800, unit: gramUnit),
+    RecipeIngredient(ingredientId: 'i2', name: 'Hành tây', aisle: 'produce', quantity: 2),
+    RecipeIngredient(ingredientId: 'i3', name: 'Nước mắm', aisle: 'pantry', unit: tbspUnit, displayQuantity: '2'),
+    RecipeIngredient(ingredientId: 'i4', name: 'Muối', aisle: 'spices', note: 'tùy khẩu vị'),
   ],
   steps: [
     RecipeStep(text: 'Chần xương bò.', timerSeconds: 600),
@@ -87,7 +89,7 @@ void main() {
     await tester.pump();
     expect(find.text('1000 g'), findsOneWidget, reason: '800 x 5/4');
     expect(find.text('2.5'), findsOneWidget, reason: '2 pieces x 5/4');
-    expect(find.text('2 thìa'), findsOneWidget, reason: 'raw offline text cannot be scaled');
+    expect(find.text('2 thìa canh'), findsOneWidget, reason: 'raw offline text cannot be scaled');
 
     await tester.tap(find.byTooltip('Giảm khẩu phần'));
     await tester.pump();

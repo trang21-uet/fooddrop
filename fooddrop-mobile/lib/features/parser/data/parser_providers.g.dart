@@ -48,7 +48,7 @@ final class ParserRemoteProvider
   }
 }
 
-String _$parserRemoteHash() => r'a416c94c3120ec24321c87bb18d2d93f9577e874';
+String _$parserRemoteHash() => r'0310d9133911d2feeaa4d35aad304c22ac4e3c20';
 
 @ProviderFor(photoPicker)
 final photoPickerProvider = PhotoPickerProvider._();

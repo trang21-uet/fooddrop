@@ -13,6 +13,7 @@ import 'package:fooddrop_api/src/api/media_api.dart';
 import 'package:fooddrop_api/src/api/parser_api.dart';
 import 'package:fooddrop_api/src/api/recipes_api.dart';
 import 'package:fooddrop_api/src/api/tags_api.dart';
+import 'package:fooddrop_api/src/api/units_api.dart';
 
 class FooddropApi {
   static const String basePath = r'http://localhost';
@@ -139,5 +140,11 @@ class FooddropApi {
   /// by doing that all interceptors will not be executed
   TagsApi getTagsApi() {
     return TagsApi(dio);
+  }
+
+  /// Get UnitsApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  UnitsApi getUnitsApi() {
+    return UnitsApi(dio);
   }
 }

@@ -22,7 +22,7 @@ class RecipeInputIngredientsInner {
 
     required  this.ingredientId,
 
-    required  this.quantity,
+     this.quantity,
 
      this.unit,
 
@@ -44,12 +44,12 @@ class RecipeInputIngredientsInner {
   @JsonKey(
     
     name: r'quantity',
-    required: true,
+    required: false,
     includeIfNull: false,
   )
 
 
-  final String quantity;
+  final String? quantity;
 
 
 
@@ -89,7 +89,7 @@ class RecipeInputIngredientsInner {
     @override
     int get hashCode =>
         ingredientId.hashCode +
-        quantity.hashCode +
+        (quantity == null ? 0 : quantity.hashCode) +
         (unit == null ? 0 : unit.hashCode) +
         (note == null ? 0 : note.hashCode);
 

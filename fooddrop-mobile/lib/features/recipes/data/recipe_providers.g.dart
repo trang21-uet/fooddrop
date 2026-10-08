@@ -289,6 +289,50 @@ final class TagGroupsProvider
 
 String _$tagGroupsHash() => r'9b8f3056da006b23fd777087c939fb155f062c6a';
 
+/// The unit catalog for pickers, from the local cache so it works offline.
+
+@ProviderFor(units)
+final unitsProvider = UnitsProvider._();
+
+/// The unit catalog for pickers, from the local cache so it works offline.
+
+final class UnitsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<RecipeUnit>>,
+          List<RecipeUnit>,
+          Stream<List<RecipeUnit>>
+        >
+    with $FutureModifier<List<RecipeUnit>>, $StreamProvider<List<RecipeUnit>> {
+  /// The unit catalog for pickers, from the local cache so it works offline.
+  UnitsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'unitsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$unitsHash();
+
+  @$internal
+  @override
+  $StreamProviderElement<List<RecipeUnit>> $createElement(
+    $ProviderPointer pointer,
+  ) => $StreamProviderElement(pointer);
+
+  @override
+  Stream<List<RecipeUnit>> create(Ref ref) {
+    return units(ref);
+  }
+}
+
+String _$unitsHash() => r'656502b8290ef5991f863dfebe941bbab00a8f33';
+
 @ProviderFor(recipeActions)
 final recipeActionsProvider = RecipeActionsProvider._();
 

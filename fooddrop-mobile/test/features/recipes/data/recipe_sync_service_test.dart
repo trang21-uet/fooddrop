@@ -35,6 +35,18 @@ void main() {
     expect(recipes.map((r) => r.id).toSet(), {'a', 'b'});
     expect(recipes.every((r) => r.hasDetail && r.ingredients.isNotEmpty), isTrue);
     expect((await store.watchTagGroups().first).single.slug, 'cuisine');
+    expect((await store.watchUnits().first).map((u) => u.code), ['g', 'tbsp', 'fruit'], reason: 'the unit catalog is cached for offline pickers');
+  });
+
+  test('recipes whose photos use expiring signed URLs are re-fetched on every sync; public URLs are not', () async {
+    remote.server['signed'] = apiDetail(id: 'signed', photoUrl: 'https://s3.example/a.jpg?X-Amz-Signature=abc');
+    remote.server['public'] = apiDetail(id: 'public');
+    await sync.sync();
+    remote.calls.clear();
+
+    await sync.sync();
+
+    expect(remote.calls.where((call) => call.startsWith('get:')), ['get:signed']);
   });
 
   test('a recipe created offline is pushed on the next sync and swapped for the server copy', () async {
