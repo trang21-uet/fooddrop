@@ -10,6 +10,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **name** | **String** |  | [optional] 
 **text** | **String** |  | 
+**note** | **String** |  | [optional] 
 **images** | **List&lt;String&gt;** |  | [optional] 
 **timerSeconds** | **int** |  | [optional] 
 **timerLabel** | **String** |  | [optional] 

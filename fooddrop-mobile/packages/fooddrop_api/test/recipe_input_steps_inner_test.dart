@@ -17,6 +17,11 @@ void main() {
       // TODO
     });
 
+    // String note
+    test('to test the property `note`', () async {
+      // TODO
+    });
+
     // List<String> images
     test('to test the property `images`', () async {
       // TODO

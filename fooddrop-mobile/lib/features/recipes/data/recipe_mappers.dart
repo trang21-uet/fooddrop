@@ -36,6 +36,7 @@ RecipeRows rowsFromDetail(api.RecipeDetail detail) {
             (s) => RecipeStep(
               name: s.name,
               text: s.text,
+              note: s.note,
               images: [for (final image in s.images) RecipeStepImage(key: image.key, url: image.url)],
               timerSeconds: s.timerSeconds,
               timerLabel: s.timerLabel,
@@ -87,6 +88,7 @@ RecipeRows rowsFromDraft(String id, RecipeDraft draft, {required DateTime create
     (step) => RecipeStep(
       name: _blankToNull(step.name),
       text: step.text.trim(),
+      note: _blankToNull(step.note),
       images: step.images,
       timerSeconds: step.timerMinutes == null ? null : step.timerMinutes! * 60,
       timerLabel: step.timerMinutes == null ? null : step.timerLabel,
@@ -185,6 +187,7 @@ api.RecipeInput inputFromDraft(RecipeDraft draft) => api.RecipeInput(
           api.RecipeInputStepsInner(
             name: _blankToNull(step.name),
             text: step.text.trim(),
+            note: _blankToNull(step.note),
             images: [for (final image in step.images) image.key],
             timerSeconds: step.timerMinutes == null ? null : step.timerMinutes! * 60,
             timerLabel: step.timerMinutes == null ? null : step.timerLabel,

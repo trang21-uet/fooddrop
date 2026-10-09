@@ -47,24 +47,43 @@ class DraftIngredient {
 }
 
 class DraftStep {
-  const DraftStep({this.uid = 0, this.name = '', this.text = '', this.images = const [], this.timerMinutes, this.timerLabel});
+  const DraftStep({
+    this.uid = 0,
+    this.name = '',
+    this.text = '',
+    this.note = '',
+    this.images = const [],
+    this.timerMinutes,
+    this.timerLabel,
+  });
 
   final int uid;
 
   /// Optional heading; blank = none.
   final String name;
   final String text;
+
+  /// Optional tip or warning; blank = none.
+  final String note;
   final List<RecipeStepImage> images;
   final int? timerMinutes;
 
   /// Not editable yet; carried through so editing never drops an existing label.
   final String? timerLabel;
 
-  DraftStep copyWith({int? uid, String? name, String? text, List<RecipeStepImage>? images, int? Function()? timerMinutes}) =>
+  DraftStep copyWith({
+    int? uid,
+    String? name,
+    String? text,
+    String? note,
+    List<RecipeStepImage>? images,
+    int? Function()? timerMinutes,
+  }) =>
       DraftStep(
         uid: uid ?? this.uid,
         name: name ?? this.name,
         text: text ?? this.text,
+        note: note ?? this.note,
         images: images ?? this.images,
         timerMinutes: timerMinutes != null ? timerMinutes() : this.timerMinutes,
         timerLabel: timerLabel,
@@ -147,6 +166,7 @@ class RecipeDraft {
             DraftStep(
               name: step.name ?? '',
               text: step.text,
+              note: step.note ?? '',
               images: step.images,
               // Timers are stored in seconds; the form edits whole minutes (ceil keeps a sub-minute timer non-zero).
               timerMinutes: step.timerSeconds == null ? null : (step.timerSeconds! / 60).ceil(),

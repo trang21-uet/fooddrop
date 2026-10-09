@@ -11,6 +11,7 @@ Name | Type | Description | Notes
 **order** | **int** |  | 
 **name** | **String** |  | [optional] 
 **text** | **String** |  | 
+**note** | **String** |  | [optional] 
 **images** | [**List&lt;RecipeDetailStepsInnerImagesInner&gt;**](RecipeDetailStepsInnerImagesInner.md) |  | 
 **timerSeconds** | **int** |  | [optional] 
 **timerLabel** | **String** |  | [optional] 

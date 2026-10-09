@@ -24,6 +24,8 @@ class RecipeInputStepsInner {
 
     required  this.text,
 
+     this.note,
+
      this.images,
 
      this.timerSeconds,
@@ -52,6 +54,18 @@ class RecipeInputStepsInner {
 
 
   final String text;
+
+
+
+  @JsonKey(
+    
+    name: r'note',
+    required: false,
+    includeIfNull: false,
+  )
+
+
+  final String? note;
 
 
 
@@ -99,6 +113,7 @@ class RecipeInputStepsInner {
     bool operator ==(Object other) => identical(this, other) || other is RecipeInputStepsInner &&
       other.name == name &&
       other.text == text &&
+      other.note == note &&
       other.images == images &&
       other.timerSeconds == timerSeconds &&
       other.timerLabel == timerLabel;
@@ -107,6 +122,7 @@ class RecipeInputStepsInner {
     int get hashCode =>
         (name == null ? 0 : name.hashCode) +
         text.hashCode +
+        (note == null ? 0 : note.hashCode) +
         images.hashCode +
         timerSeconds.hashCode +
         timerLabel.hashCode;

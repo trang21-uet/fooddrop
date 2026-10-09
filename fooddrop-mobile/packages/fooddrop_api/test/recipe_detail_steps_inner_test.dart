@@ -22,6 +22,11 @@ void main() {
       // TODO
     });
 
+    // String note
+    test('to test the property `note`', () async {
+      // TODO
+    });
+
     // List<RecipeDetailStepsInnerImagesInner> images
     test('to test the property `images`', () async {
       // TODO

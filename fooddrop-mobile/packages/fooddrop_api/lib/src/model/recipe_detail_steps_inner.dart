@@ -27,6 +27,8 @@ class RecipeDetailStepsInner {
 
     required  this.text,
 
+     this.note,
+
     required  this.images,
 
      this.timerSeconds,
@@ -69,6 +71,18 @@ class RecipeDetailStepsInner {
 
 
   final String text;
+
+
+
+  @JsonKey(
+    
+    name: r'note',
+    required: false,
+    includeIfNull: false,
+  )
+
+
+  final String? note;
 
 
 
@@ -117,6 +131,7 @@ class RecipeDetailStepsInner {
       other.order == order &&
       other.name == name &&
       other.text == text &&
+      other.note == note &&
       other.images == images &&
       other.timerSeconds == timerSeconds &&
       other.timerLabel == timerLabel;
@@ -126,6 +141,7 @@ class RecipeDetailStepsInner {
         order.hashCode +
         name.hashCode +
         text.hashCode +
+        note.hashCode +
         images.hashCode +
         timerSeconds.hashCode +
         timerLabel.hashCode;

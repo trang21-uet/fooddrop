@@ -46,6 +46,7 @@ Recipe _pho({bool withDetail = true}) => Recipe(
               RecipeStep(
                 name: 'Chần xương',
                 text: 'Chần xương bò trong nước sôi.',
+                note: 'Chần kỹ để nước dùng trong.',
                 images: [RecipeStepImage(key: 'recipes/u1/a.jpg')],
                 timerSeconds: 600,
               ),
@@ -96,6 +97,7 @@ void main() {
     expect(find.text('Chần xương'), findsOneWidget, reason: 'the step name is its own heading');
     expect(find.text('Chần xương bò trong nước sôi.'), findsOneWidget);
     expect(find.byType(StepImageView), findsOneWidget, reason: 'one photo on the first step');
+    expect(find.text('Lưu ý: Chần kỹ để nước dùng trong.', findRichText: true), findsOneWidget);
     expect(find.text('10:00'), findsOneWidget);
     expect(find.text('2:30:00'), findsOneWidget);
   });

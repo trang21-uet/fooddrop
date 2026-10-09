@@ -14,6 +14,16 @@ final _stepFields = find.byWidgetPredicate((widget) {
   return widget is TextFormField && key is ValueKey && key.value.toString().startsWith('step-text-');
 });
 
+final _noteFields = find.byWidgetPredicate((widget) {
+  final key = widget.key;
+  return widget is TextFormField && key is ValueKey && key.value.toString().startsWith('step-note-');
+});
+
+final _timerFields = find.byWidgetPredicate((widget) {
+  final key = widget.key;
+  return widget is TextFormField && key is ValueKey && key.value.toString().startsWith('step-timer-');
+});
+
 typedef _Saved = ({RecipeDraft draft, String? id});
 
 class _RecordingActions extends RecipeActions {
@@ -74,16 +84,75 @@ void main() {
     expect(find.text('Hãy mô tả bước này'), findsOneWidget, reason: 'the step is still empty');
   });
 
-  testWidgets('rejects an out-of-range time and servings', (tester) async {
+  testWidgets('rejects an out-of-range time', (tester) async {
     await openNewForm(tester);
     await tester.enterText(find.byKey(const ValueKey('recipe-minutes')), '0');
-    await tester.enterText(find.byKey(const ValueKey('recipe-servings')), '');
     await tester.tap(find.text('Lưu công thức'));
     await tester.pumpAndSettle();
 
     expect(find.text('Nhập từ 1 đến 10080 phút'), findsOneWidget);
-    expect(find.text('Nhập từ 1 đến 100 khẩu phần'), findsOneWidget);
     expect(saved, isEmpty);
+  });
+
+  testWidgets('servings use a stepper that never goes below one', (tester) async {
+    await openNewForm(tester);
+    expect(find.text('2 người'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Tăng khẩu phần'));
+    await tester.pump();
+    expect(find.text('3 người'), findsOneWidget);
+    for (var i = 0; i < 3; i++) {
+      await tester.tap(find.byTooltip('Giảm khẩu phần'));
+      await tester.pump();
+    }
+    expect(find.text('1 người'), findsOneWidget);
+  });
+
+  testWidgets('cancel leaves without saving', (tester) async {
+    await openNewForm(tester);
+    await tester.enterText(find.byKey(const ValueKey('recipe-title')), 'Bún chả');
+
+    await tester.tap(find.text('Hủy'));
+    await tester.pumpAndSettle();
+
+    expect(saved, isEmpty);
+    expect(find.text('mở'), findsOneWidget);
+  });
+
+  testWidgets('a step keeps its note and an optional timer', (tester) async {
+    await openNewForm(tester);
+    await tester.enterText(find.byKey(const ValueKey('recipe-title')), 'Bún chả');
+    await tester.enterText(_stepFields, 'Ướp thịt');
+    await tester.enterText(_noteFields, 'Ướp ít nhất 20 phút');
+
+    await tester.ensureVisible(find.text('Thêm hẹn giờ'));
+    await tester.tap(find.text('Thêm hẹn giờ'));
+    await tester.pump();
+    expect(find.text('Có hẹn giờ'), findsOneWidget);
+    await tester.enterText(_timerFields, '25');
+
+    await tester.tap(find.text('Lưu công thức'));
+    await tester.pumpAndSettle();
+
+    final step = saved.single.draft.steps.single;
+    expect(step.note, 'Ướp ít nhất 20 phút');
+    expect(step.timerMinutes, 25);
+  });
+
+  testWidgets('turning the timer off clears it', (tester) async {
+    await openNewForm(tester);
+    await tester.enterText(find.byKey(const ValueKey('recipe-title')), 'Bún chả');
+    await tester.enterText(_stepFields, 'Ướp thịt');
+    await tester.ensureVisible(find.text('Thêm hẹn giờ'));
+    await tester.tap(find.text('Thêm hẹn giờ'));
+    await tester.pump();
+    await tester.tap(find.text('Có hẹn giờ'));
+    await tester.pump();
+    expect(_timerFields, findsNothing);
+
+    await tester.tap(find.text('Lưu công thức'));
+    await tester.pumpAndSettle();
+    expect(saved.single.draft.steps.single.timerMinutes, isNull);
   });
 
   testWidgets('a valid form is saved once and returns to the previous screen', (tester) async {
@@ -91,8 +160,11 @@ void main() {
 
     await tester.enterText(find.byKey(const ValueKey('recipe-title')), '  Bún chả  ');
     await tester.enterText(_stepFields, 'Nướng thịt');
-    await tester.tap(find.text('4'));
+    // The track is inset by the 20px thumb overlay on each side; level 4 sits at 75%.
+    final slider = tester.getRect(find.byKey(const ValueKey('recipe-difficulty')));
+    await tester.tapAt(Offset(slider.left + 20 + (slider.width - 40) * 0.75, slider.center.dy));
     await tester.pump();
+    expect(find.textContaining('4 · Khó', findRichText: true), findsOneWidget);
     await tester.tap(find.text('Lưu công thức'));
     await tester.pumpAndSettle();
 

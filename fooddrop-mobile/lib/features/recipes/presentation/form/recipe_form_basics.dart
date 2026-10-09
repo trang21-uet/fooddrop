@@ -7,6 +7,8 @@ import '../../../../core/widgets/labeled_text_field.dart';
 import '../../../../core/widgets/pill_chip.dart';
 import '../../data/recipe_providers.dart';
 import 'recipe_form_controller.dart';
+import 'recipe_form_difficulty_slider.dart';
+import 'recipe_form_servings_stepper.dart';
 
 /// Title, description, time, servings and difficulty.
 class RecipeFormBasics extends ConsumerWidget {
@@ -21,6 +23,7 @@ class RecipeFormBasics extends ConsumerWidget {
     final initial = ref.read(provider).draft;
     final errors = ref.watch(provider.select((s) => s.errors));
     final difficulty = ref.watch(provider.select((s) => s.draft.difficulty));
+    final servings = ref.watch(provider.select((s) => s.draft.baseServings));
     final digits = [FilteringTextInputFormatter.digitsOnly];
 
     return Column(
@@ -35,7 +38,7 @@ class RecipeFormBasics extends ConsumerWidget {
           onChanged: controller.setTitle,
           textInputAction: TextInputAction.next,
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 22),
         LabeledTextField(
           label: 'Mô tả (tùy chọn)',
           initialValue: initial.description,
@@ -47,9 +50,17 @@ class RecipeFormBasics extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
+              child: RecipeFormServingsStepper(
+                value: servings,
+                errorText: errors?.baseServings,
+                onChanged: (value) => controller.setServings('$value'),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
               child: LabeledTextField(
                 fieldKey: const ValueKey('recipe-minutes'),
-                label: 'Tổng thời gian (phút)',
+                label: 'Thời gian (phút)',
                 initialValue: '${initial.totalMinutes}',
                 keyboardType: TextInputType.number,
                 inputFormatters: digits,
@@ -57,35 +68,10 @@ class RecipeFormBasics extends ConsumerWidget {
                 onChanged: controller.setTotalMinutes,
               ),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: LabeledTextField(
-                fieldKey: const ValueKey('recipe-servings'),
-                label: 'Khẩu phần',
-                initialValue: '${initial.baseServings}',
-                keyboardType: TextInputType.number,
-                inputFormatters: digits,
-                errorText: errors?.baseServings,
-                onChanged: controller.setServings,
-              ),
-            ),
           ],
         ),
-        const SizedBox(height: 16),
-        const Text('Độ khó', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          children: [
-            for (var level = 1; level <= 5; level++)
-              PillChip(
-                label: '$level',
-                selected: difficulty == level,
-                filledWhenSelected: true,
-                onTap: () => controller.setDifficulty(level),
-              ),
-          ],
-        ),
+        const SizedBox(height: 22),
+        RecipeFormDifficultySlider(value: difficulty, onChanged: controller.setDifficulty),
       ],
     );
   }

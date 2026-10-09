@@ -11,6 +11,8 @@ abstract class _$RecipeInputStepsInnerCWProxy {
 
   RecipeInputStepsInner text(String text);
 
+  RecipeInputStepsInner note(String? note);
+
   RecipeInputStepsInner images(List<String>? images);
 
   RecipeInputStepsInner timerSeconds(int? timerSeconds);
@@ -26,6 +28,7 @@ abstract class _$RecipeInputStepsInnerCWProxy {
   RecipeInputStepsInner call({
     String? name,
     String text,
+    String? note,
     List<String>? images,
     int? timerSeconds,
     String? timerLabel,
@@ -44,6 +47,9 @@ class _$RecipeInputStepsInnerCWProxyImpl
 
   @override
   RecipeInputStepsInner text(String text) => this(text: text);
+
+  @override
+  RecipeInputStepsInner note(String? note) => this(note: note);
 
   @override
   RecipeInputStepsInner images(List<String>? images) => this(images: images);
@@ -66,6 +72,7 @@ class _$RecipeInputStepsInnerCWProxyImpl
   RecipeInputStepsInner call({
     Object? name = const $CopyWithPlaceholder(),
     Object? text = const $CopyWithPlaceholder(),
+    Object? note = const $CopyWithPlaceholder(),
     Object? images = const $CopyWithPlaceholder(),
     Object? timerSeconds = const $CopyWithPlaceholder(),
     Object? timerLabel = const $CopyWithPlaceholder(),
@@ -79,6 +86,10 @@ class _$RecipeInputStepsInnerCWProxyImpl
           ? _value.text
           // ignore: cast_nullable_to_non_nullable
           : text as String,
+      note: note == const $CopyWithPlaceholder()
+          ? _value.note
+          // ignore: cast_nullable_to_non_nullable
+          : note as String?,
       images: images == const $CopyWithPlaceholder()
           ? _value.images
           // ignore: cast_nullable_to_non_nullable
@@ -113,6 +124,7 @@ RecipeInputStepsInner _$RecipeInputStepsInnerFromJson(
   final val = RecipeInputStepsInner(
     name: $checkedConvert('name', (v) => v as String?),
     text: $checkedConvert('text', (v) => v as String),
+    note: $checkedConvert('note', (v) => v as String?),
     images: $checkedConvert(
       'images',
       (v) => (v as List<dynamic>?)?.map((e) => e as String).toList(),
@@ -128,6 +140,7 @@ Map<String, dynamic> _$RecipeInputStepsInnerToJson(
 ) => <String, dynamic>{
   'name': ?instance.name,
   'text': instance.text,
+  'note': ?instance.note,
   'images': ?instance.images,
   'timerSeconds': ?instance.timerSeconds,
   'timerLabel': ?instance.timerLabel,

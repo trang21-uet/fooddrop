@@ -70,21 +70,32 @@ class _FormBodyState extends ConsumerState<_FormBody> {
     final hasErrors = ref.watch(provider.select((s) => s.errors != null && !s.errors!.isEmpty));
 
     return Scaffold(
-      appBar: AppBar(title: Text(title, style: const TextStyle(fontWeight: FontWeight.w700))),
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        titleSpacing: 16,
+        title: Row(
+          children: [
+            _CloseButton(onPressed: () => context.pop()),
+            const SizedBox(width: 12),
+            Expanded(child: Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, letterSpacing: -0.4))),
+          ],
+        ),
+        shape: Border(bottom: BorderSide(color: colors.border)),
+      ),
       body: Column(
         children: [
           Expanded(
             child: ListView(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
               children: [
                 RecipeFormBasics(recipeId: recipeId),
-                const _SectionTitle('Thẻ'),
-                RecipeFormTags(recipeId: recipeId),
                 const _SectionTitle('Nguyên liệu'),
                 RecipeFormIngredients(recipeId: recipeId),
                 const _SectionTitle('Cách làm'),
                 RecipeFormSteps(recipeId: recipeId),
+                const _SectionTitle('Thẻ'),
+                RecipeFormTags(recipeId: recipeId),
               ],
             ),
           ),
@@ -102,16 +113,55 @@ class _FormBodyState extends ConsumerState<_FormBody> {
                       style: TextStyle(fontSize: 13, color: colors.danger),
                     ),
                   ),
-                NeonButton(
-                  label: 'Lưu công thức',
-                  height: 52,
-                  loading: saving,
-                  onPressed: () => _save(context, ref),
+                Row(
+                  children: [
+                    SizedBox(
+                      width: 96,
+                      child: NeonButton(
+                        label: 'Hủy',
+                        style: NeonButtonStyle.outline,
+                        height: 52,
+                        onPressed: saving ? null : () => context.pop(),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: NeonButton(
+                        label: 'Lưu công thức',
+                        height: 52,
+                        loading: saving,
+                        onPressed: () => _save(context, ref),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// 44px bordered close button from the design's header.
+class _CloseButton extends StatelessWidget {
+  const _CloseButton({required this.onPressed});
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    return SizedBox.square(
+      dimension: 44,
+      child: IconButton(
+        tooltip: 'Đóng',
+        onPressed: onPressed,
+        style: IconButton.styleFrom(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14), side: BorderSide(color: colors.border)),
+        ),
+        icon: Icon(Icons.close_rounded, size: 20, color: colors.text),
       ),
     );
   }
@@ -124,7 +174,7 @@ class _SectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(top: 28, bottom: 12),
+        padding: const EdgeInsets.only(top: 26, bottom: 10),
         child: Text(text, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
       );
 }

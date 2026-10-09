@@ -62,29 +62,33 @@ void main() {
     expect(ingredients[2], {'ingredientId': 'i3', 'note': 'tùy khẩu vị'}, reason: 'no quantity, so no unit either');
   });
 
-  test('step names and photos are kept locally and sent as storage keys', () async {
+  test('step names, notes and photos are kept locally and sent as storage keys', () async {
     const draft = RecipeDraft(
       title: 'Bánh mì',
       steps: [
         DraftStep(
           name: ' Sơ chế ',
           text: 'Rửa rau',
+          note: ' Ngâm nước muối ',
           images: [RecipeStepImage(key: 'recipes/u1/a.jpg', url: 'file:///cache/a.jpg')],
         ),
-        DraftStep(text: 'Nướng bánh'),
+        DraftStep(text: 'Nướng bánh', note: '  '),
       ],
     );
     final id = await store.saveLocally(draft);
 
     final steps = (await store.watchById(id).first)!.steps!;
     expect((steps[0].name, steps[0].images.single.key, steps[0].images.single.url), ('Sơ chế', 'recipes/u1/a.jpg', 'file:///cache/a.jpg'));
+    expect(steps[0].note, 'Ngâm nước muối');
     expect(steps[1].name, isNull, reason: 'a blank name is not stored');
+    expect(steps[1].note, isNull, reason: 'a blank note is not stored');
     expect(steps[1].images, isEmpty);
 
     final payload = jsonDecode((await store.pendingOps()).single.payloadJson!) as Map<String, dynamic>;
     final sent = (payload['steps'] as List).cast<Map<String, dynamic>>();
-    expect(sent[0], {'name': 'Sơ chế', 'text': 'Rửa rau', 'images': ['recipes/u1/a.jpg']});
+    expect(sent[0], {'name': 'Sơ chế', 'text': 'Rửa rau', 'note': 'Ngâm nước muối', 'images': ['recipes/u1/a.jpg']});
     expect(sent[1].containsKey('name'), isFalse);
+    expect(sent[1].containsKey('note'), isFalse);
   });
 
   test('details keep the unit names, the grocery base and the step photos from the server', () async {

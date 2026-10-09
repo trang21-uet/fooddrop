@@ -13,11 +13,14 @@ class RecipeStepImage {
 }
 
 class RecipeStep {
-  const RecipeStep({this.name, required this.text, this.images = const [], this.timerSeconds, this.timerLabel});
+  const RecipeStep({this.name, required this.text, this.note, this.images = const [], this.timerSeconds, this.timerLabel});
 
   /// Short heading ("Sơ chế"); the instructions are in [text].
   final String? name;
   final String text;
+
+  /// Optional tip or warning for the step ("Ướp ít nhất 20 phút").
+  final String? note;
   final List<RecipeStepImage> images;
   final int? timerSeconds;
   final String? timerLabel;

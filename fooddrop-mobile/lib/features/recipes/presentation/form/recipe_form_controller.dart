@@ -111,6 +111,8 @@ class RecipeFormController extends _$RecipeFormController {
 
   void updateStepText(int uid, String text) => _editStep(uid, (step) => step.copyWith(text: text));
 
+  void updateStepNote(int uid, String note) => _editStep(uid, (step) => step.copyWith(note: note));
+
   void removeStepImage(int uid, String key) =>
       _editStep(uid, (step) => step.copyWith(images: step.images.where((image) => image.key != key).toList()));
 

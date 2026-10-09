@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../../app/app_theme.dart';
 import '../../../../app/food_drop_colors.dart';
-import '../../../timers/data/timer_providers.dart';
 import '../../domain/recipe.dart';
-import '../shared/step_image_view.dart';
+import 'recipe_step_extras.dart';
 
 class StepsSection extends StatelessWidget {
   const StepsSection({super.key, required this.recipeTitle, required this.steps});
@@ -44,26 +41,7 @@ class StepsSection extends StatelessWidget {
                     child: Text('${index + 1}', style: monoStyle()),
                   ),
                   const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (step.name != null) ...[
-                          Text(step.name!, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
-                          const SizedBox(height: 4),
-                        ],
-                        Text(step.text, style: const TextStyle(fontSize: 14, height: 1.55)),
-                        if (step.images.isNotEmpty) ...[
-                          const SizedBox(height: 10),
-                          _StepImages(images: step.images, stepNumber: index + 1),
-                        ],
-                        if (step.timerSeconds != null) ...[
-                          const SizedBox(height: 10),
-                          _StartTimerChip(step: step, label: step.timerLabel ?? '$recipeTitle · bước ${index + 1}'),
-                        ],
-                      ],
-                    ),
-                  ),
+                  Expanded(child: _StepBody(step: step, number: index + 1, recipeTitle: recipeTitle)),
                 ],
               ),
             ),
@@ -73,118 +51,32 @@ class StepsSection extends StatelessWidget {
   }
 }
 
-/// Starts a timer prefilled from the step.
-class _StartTimerChip extends ConsumerWidget {
-  const _StartTimerChip({required this.step, required this.label});
+/// Title, text, photos, note, timer: the design's order, 10 px apart.
+class _StepBody extends StatelessWidget {
+  const _StepBody({required this.step, required this.number, required this.recipeTitle});
 
   final RecipeStep step;
-  final String label;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final colors = context.colors;
-
-    Future<void> start() async {
-      final messenger = ScaffoldMessenger.of(context);
-      final router = GoRouter.of(context);
-      await ref.read(timerActionsProvider).start(label, Duration(seconds: step.timerSeconds!));
-      messenger
-        ..hideCurrentSnackBar()
-        ..showSnackBar(
-          SnackBar(
-            content: const Text('Đã bắt đầu hẹn giờ'),
-            action: SnackBarAction(label: 'Xem', onPressed: () => router.push('/timers')),
-          ),
-        );
-    }
-
-    return Semantics(
-      button: true,
-      label: 'Bắt đầu hẹn giờ ${formatTimer(step.timerSeconds!)}',
-      excludeSemantics: true,
-      child: Material(
-        color: colors.surfaceRaised,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: BorderSide(color: colors.border)),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(12),
-          onTap: start,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 44),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.timer_outlined, size: 16, color: colors.accent),
-                  const SizedBox(width: 8),
-                  Text(formatTimer(step.timerSeconds!), style: monoStyle()),
-                  if (step.timerLabel != null) ...[
-                    const SizedBox(width: 8),
-                    Flexible(
-                      child: Text(step.timerLabel!, style: TextStyle(fontSize: 13, color: colors.textMuted)),
-                    ),
-                  ],
-                  const SizedBox(width: 10),
-                  Icon(Icons.play_arrow_rounded, size: 20, color: colors.accent),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Step photos as thumbnails; a tap opens the photo full screen with pinch-to-zoom.
-class _StepImages extends StatelessWidget {
-  const _StepImages({required this.images, required this.stepNumber});
-
-  final List<RecipeStepImage> images;
-  final int stepNumber;
+  final int number;
+  final String recipeTitle;
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
+    final children = <Widget>[
+      if (step.name != null)
+        Text(step.name!, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: -0.16)),
+      Text(step.text, style: const TextStyle(fontSize: 14, height: 1.55)),
+      if (step.images.isNotEmpty) StepPhotoStrip(images: step.images, stepNumber: number),
+      if (step.note != null) StepNoteBox(note: step.note!),
+      if (step.timerSeconds != null)
+        StartStepTimerChip(seconds: step.timerSeconds!, label: step.timerLabel ?? '$recipeTitle · bước $number'),
+    ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        for (final (position, image) in images.indexed)
-          Semantics(
-            button: true,
-            label: 'Xem ảnh ${position + 1} của bước $stepNumber',
-            excludeSemantics: true,
-            child: GestureDetector(
-              onTap: () => showDialog<void>(
-                context: context,
-                builder: (dialog) => Dialog.fullscreen(
-                  backgroundColor: Colors.black,
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      InteractiveViewer(child: StepImageView(image: image, fit: BoxFit.contain, cacheWidth: null)),
-                      Positioned(
-                        top: 8,
-                        right: 8,
-                        child: SafeArea(
-                          child: IconButton(
-                            tooltip: 'Đóng',
-                            onPressed: () => Navigator.of(dialog).pop(),
-                            icon: const Icon(Icons.close_rounded, color: Colors.white),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              child: SizedBox(
-                width: 96,
-                height: 96,
-                child: ClipRRect(borderRadius: BorderRadius.circular(12), child: StepImageView(image: image)),
-              ),
-            ),
-          ),
+        for (final (index, child) in children.indexed) ...[
+          if (index > 0) const SizedBox(height: 10),
+          child,
+        ],
       ],
     );
   }
