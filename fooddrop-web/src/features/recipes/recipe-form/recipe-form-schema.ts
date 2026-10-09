@@ -23,11 +23,15 @@ export type StepImage = z.infer<typeof stepImageSchema>;
 export const stepRowSchema = z.object({
   name: z.string().trim().max(100, "Tên bước tối đa 100 ký tự"),
   text: z.string().trim().min(1, "Hãy mô tả bước này").max(2000),
+  note: z.string().trim().max(500, "Lưu ý tối đa 500 ký tự"),
   images: z.array(stepImageSchema).max(MAX_STEP_IMAGES),
   timerMinutes: numberField("Nhập số phút").int("Chỉ nhập số phút nguyên").min(1).max(1440).optional(),
   // Not editable in the UI yet; carried through so editing a recipe never drops an existing label.
   timerLabel: z.string().optional(),
 });
+
+export type StepRow = z.infer<typeof stepRowSchema>;
+export const EMPTY_STEP: StepRow = { name: "", text: "", note: "", images: [] };
 
 export const recipeFormSchema = z.object({
   title: z.string().trim().min(1, "Cần nhập tiêu đề").max(200),
@@ -53,7 +57,7 @@ export const EMPTY_RECIPE_FORM: RecipeFormValues = {
   totalMinutes: 30,
   difficulty: 2,
   ingredients: [],
-  steps: [{ name: "", text: "", images: [] }],
+  steps: [EMPTY_STEP],
   tagIds: [],
 };
 
@@ -70,6 +74,7 @@ export function toRecipeInput(values: RecipeFormValues): RecipeInput {
     steps: values.steps.map((step) => ({
       ...(step.name ? { name: step.name } : {}),
       text: step.text,
+      ...(step.note ? { note: step.note } : {}),
       images: step.images.map((image) => image.key),
       ...(step.timerMinutes ? { timerSeconds: step.timerMinutes * 60 } : {}),
       ...(step.timerMinutes && step.timerLabel ? { timerLabel: step.timerLabel } : {}),
@@ -104,6 +109,7 @@ export function toFormValues(recipe: RecipeDetail): RecipeFormValues {
     steps: recipe.steps.map((step) => ({
       name: step.name ?? "",
       text: step.text,
+      note: step.note ?? "",
       images: step.images,
       // Timers are stored in seconds; the form edits whole minutes (ceil keeps a sub-minute timer non-zero).
       timerMinutes: step.timerSeconds ? Math.ceil(step.timerSeconds / 60) : undefined,

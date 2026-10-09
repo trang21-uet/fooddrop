@@ -1,4 +1,4 @@
-import type { RecipeFormValues } from "../recipes/recipe-form/recipe-form-schema";
+import { EMPTY_STEP, type RecipeFormValues } from "../recipes/recipe-form/recipe-form-schema";
 import type { ParsedRecipeDraft } from "./parser-types";
 
 const FALLBACK_MINUTES = 30;
@@ -26,10 +26,11 @@ export function draftToFormValues(draft: ParsedRecipeDraft): RecipeFormValues {
         ? draft.steps.map((step) => ({
             name: "",
             text: step.text,
+            note: "",
             images: [],
             timerMinutes: step.timerSeconds ? Math.min(1440, Math.ceil(step.timerSeconds / 60)) : undefined,
           }))
-        : [{ name: "", text: "", images: [] }],
+        : [{ ...EMPTY_STEP, images: [] }],
     tagIds: draft.suggestedTagIds,
   };
 }

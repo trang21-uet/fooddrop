@@ -58,6 +58,32 @@ body {
   text-shadow: 0 0 14px color-mix(in srgb, var(--accent) 70%, transparent);
 }
 
+/* Range slider: accent fill up to --fill (a percentage set inline), border colour after it, round accent thumb. */
+@utility range-accent {
+  appearance: none;
+  height: 8px;
+  border-radius: 9999px;
+  background: linear-gradient(to right, var(--accent) var(--fill, 0%), var(--border) var(--fill, 0%));
+  cursor: pointer;
+
+  &::-webkit-slider-thumb {
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 9999px;
+    background: var(--accent);
+    border: none;
+  }
+
+  &::-moz-range-thumb {
+    width: 22px;
+    height: 22px;
+    border-radius: 9999px;
+    background: var(--accent);
+    border: none;
+  }
+}
+
 /* Tailwind v4 preflight no longer sets a pointer cursor on buttons. Disabled ones keep their own cursor utility. */
 @layer base {
   a[href],

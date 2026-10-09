@@ -1,23 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { Controller, useFieldArray, useFormContext, useWatch } from "react-hook-form";
+import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
 import { Button } from "@/components/ui/button";
-import { FormField, inputClass } from "@/components/ui/form-field";
+import { PlusIcon } from "@/components/ui/icons";
 import { defaultUnitForRowUnit, ensureIngredient } from "./ensure-ingredient";
 import { useUnitsQuery } from "../use-units-query";
-import { IngredientAutocomplete } from "./ingredient-autocomplete";
 import type { RecipeFormValues } from "./recipe-form-schema";
+import { addRowButtonClass, cardClass, cardHeadingClass } from "./recipe-form-styles";
+import { RecipeIngredientRow } from "./recipe-ingredient-row";
 
 /** `offerBulkAdd` is for imported drafts, where several names arrive unresolved at once. */
 export function RecipeIngredientsField({ offerBulkAdd = false }: { offerBulkAdd?: boolean }) {
-  const {
-    register,
-    control,
-    setValue,
-    getValues,
-    formState: { errors },
-  } = useFormContext<RecipeFormValues>();
+  const { control, setValue } = useFormContext<RecipeFormValues>();
   const { fields, append, remove } = useFieldArray({ control, name: "ingredients" });
   const units = useUnitsQuery().data ?? [];
   const [addingAll, setAddingAll] = useState(false);
@@ -44,90 +39,17 @@ export function RecipeIngredientsField({ offerBulkAdd = false }: { offerBulkAdd?
   };
 
   return (
-    <section aria-labelledby="ingredients-field-heading" className="flex flex-col gap-4">
-      <h2 id="ingredients-field-heading" className="text-lg font-semibold">
+    <section aria-labelledby="ingredients-field-heading" className={cardClass}>
+      <h2 id="ingredients-field-heading" className={cardHeadingClass}>
         Nguyên liệu
       </h2>
-      <ul className="flex flex-col gap-4">
-        {fields.map((field, index) => {
-          const rowErrors = errors.ingredients?.[index];
-          return (
-            <li key={field.id} className="grid gap-3 rounded-xl border border-border bg-surface p-4 sm:grid-cols-[2fr_1fr_1fr]">
-              <div className="flex flex-col gap-1.5 sm:col-span-3">
-                <span className="text-sm font-medium">Nguyên liệu {index + 1}</span>
-                <Controller
-                  control={control}
-                  name={`ingredients.${index}.ingredientName`}
-                  render={({ field: nameField }) => (
-                    <IngredientAutocomplete
-                      label={`Tên nguyên liệu ${index + 1}`}
-                      name={nameField.value}
-                      invalid={!!rowErrors?.ingredientId}
-                      // Typing invalidates an earlier pick: the user must choose from the list again.
-                      onNameChange={(name) => {
-                        nameField.onChange(name);
-                        setValue(`ingredients.${index}.ingredientId`, "", { shouldDirty: true });
-                      }}
-                      onSelect={(ingredient) => {
-                        nameField.onChange(ingredient.name);
-                        setValue(`ingredients.${index}.ingredientId`, ingredient.id, {
-                          shouldDirty: true,
-                          shouldValidate: true,
-                        });
-                        if (!getValues(`ingredients.${index}.unit`) && ingredient.defaultUnit !== "piece") {
-                          setValue(`ingredients.${index}.unit`, ingredient.defaultUnit);
-                        }
-                      }}
-                    />
-                  )}
-                />
-                {rowErrors?.ingredientId && (
-                  <span role="alert" className="text-xs text-danger">
-                    {rowErrors.ingredientId.message}
-                  </span>
-                )}
-              </div>
-              <FormField label="Số lượng (không bắt buộc)" error={rowErrors?.quantity?.message}>
-                <input
-                  {...register(`ingredients.${index}.quantity`)}
-                  placeholder="ví dụ 1 1/2"
-                  aria-invalid={!!rowErrors?.quantity}
-                  className={inputClass}
-                />
-              </FormField>
-              <FormField label="Đơn vị (không bắt buộc)" hint="Chỉ lưu khi có số lượng" error={rowErrors?.unit?.message}>
-                {/* Controlled, so a saved unit is selected once the catalog finishes loading. */}
-                <Controller
-                  control={control}
-                  name={`ingredients.${index}.unit`}
-                  render={({ field: unitField }) => (
-                    <select {...unitField} className={inputClass}>
-                      <option value="">Không có</option>
-                      {/* Catalog still loading (or failed): keep a saved unit visible instead of showing "Không có". */}
-                      {unitField.value && !units.some((unit) => unit.code === unitField.value) && (
-                        <option value={unitField.value}>{unitField.value}</option>
-                      )}
-                      {units.map((unit) => (
-                        <option key={unit.code} value={unit.code}>
-                          {unit.nameVi}
-                        </option>
-                      ))}
-                    </select>
-                  )}
-                />
-              </FormField>
-              <FormField label="Ghi chú (không bắt buộc)" error={rowErrors?.note?.message}>
-                <input {...register(`ingredients.${index}.note`)} className={inputClass} />
-              </FormField>
-              <div className="sm:col-span-3">
-                <Button variant="danger" aria-label={`Xóa nguyên liệu ${index + 1}`} onClick={() => remove(index)}>
-                  Xóa
-                </Button>
-              </div>
-            </li>
-          );
-        })}
-      </ul>
+      {fields.length > 0 && (
+        <ul className="flex flex-col gap-3">
+          {fields.map((field, index) => (
+            <RecipeIngredientRow key={field.id} index={index} units={units} onRemove={() => remove(index)} />
+          ))}
+        </ul>
+      )}
       {offerBulkAdd && unresolved.length > 0 && (
         <div className="flex flex-col items-start gap-2 rounded-xl border border-accent/40 bg-accent/5 p-4 text-sm">
           <p>
@@ -144,13 +66,14 @@ export function RecipeIngredientsField({ offerBulkAdd = false }: { offerBulkAdd?
           )}
         </div>
       )}
-      <Button
-        variant="secondary"
-        className="self-start"
+      <button
+        type="button"
+        className={addRowButtonClass}
         onClick={() => append({ ingredientId: "", ingredientName: "", quantity: "", unit: "", note: "" })}
       >
+        <PlusIcon width={16} height={16} />
         Thêm nguyên liệu
-      </Button>
+      </button>
     </section>
   );
 }

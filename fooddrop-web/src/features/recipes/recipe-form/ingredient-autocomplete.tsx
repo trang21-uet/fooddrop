@@ -1,8 +1,8 @@
 "use client";
 
 import { useId, useState } from "react";
-import { inputClass } from "@/components/ui/form-field";
 import type { Ingredient } from "../recipe-types";
+import { fieldClass } from "./recipe-form-styles";
 import { createIngredient, useIngredientSearch } from "./use-ingredient-search";
 
 interface IngredientAutocompleteProps {
@@ -79,7 +79,7 @@ export function IngredientAutocomplete({ label, name, invalid, onNameChange, onS
         aria-invalid={invalid}
         autoComplete="off"
         value={name}
-        className={inputClass}
+        className={fieldClass()}
         placeholder="Tìm nguyên liệu…"
         onChange={(event) => {
           onNameChange(event.target.value);
@@ -95,7 +95,7 @@ export function IngredientAutocomplete({ label, name, invalid, onNameChange, onS
         <ul
           id={listId}
           role="listbox"
-          className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-border bg-surface-raised shadow-lg"
+          className="absolute z-10 mt-1.5 max-h-60 w-full overflow-auto rounded-xl border border-accent bg-surface-raised p-1.5 shadow-[0_12px_32px_rgb(0_0_0/0.5)]"
         >
           {matches.map((item, index) => (
             <li
@@ -104,7 +104,7 @@ export function IngredientAutocomplete({ label, name, invalid, onNameChange, onS
               aria-selected={index === active}
               onMouseDown={(event) => event.preventDefault()}
               onClick={() => choose(item)}
-              className="cursor-pointer px-3 py-2 text-sm aria-selected:bg-accent/20"
+              className="flex min-h-11 cursor-pointer items-center rounded-lg px-3 text-[15px] aria-selected:bg-accent/20"
             >
               {item.name}
             </li>
@@ -115,7 +115,7 @@ export function IngredientAutocomplete({ label, name, invalid, onNameChange, onS
               aria-selected={active === matches.length}
               onMouseDown={(event) => event.preventDefault()}
               onClick={() => void addNew()}
-              className="cursor-pointer px-3 py-2 text-sm text-accent aria-selected:bg-accent/20"
+              className="flex min-h-11 cursor-pointer items-center rounded-lg border-t border-border px-3 text-sm font-semibold text-accent aria-selected:bg-accent/20"
             >
               {creating ? "Đang thêm…" : `Thêm “${trimmed}” làm nguyên liệu mới`}
             </li>

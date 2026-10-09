@@ -51,7 +51,7 @@ describe("RecipeForm", () => {
   it("requires an ingredient to be picked from the catalog", async () => {
     renderForm();
     fireEvent.click(screen.getByRole("button", { name: "Thêm nguyên liệu" }));
-    fireEvent.change(screen.getByLabelText("Tiêu đề"), { target: { value: "Egg rice" } });
+    fireEvent.change(screen.getByLabelText("Tên món"), { target: { value: "Egg rice" } });
     fireEvent.change(screen.getByLabelText("Nội dung bước 1"), { target: { value: "Fry it" } });
     fireEvent.click(screen.getByRole("button", { name: "Lưu công thức" }));
 
@@ -62,10 +62,12 @@ describe("RecipeForm", () => {
   it("submits a valid recipe and navigates to its detail page", async () => {
     post.mockResolvedValue({ data: { id: "abc" }, response: new Response(null, { status: 201 }) });
     renderForm();
-    fireEvent.change(screen.getByLabelText("Tiêu đề"), { target: { value: "Egg rice" } });
-    fireEvent.change(screen.getByLabelText("Tên bước 1 (không bắt buộc)"), { target: { value: "Chiên" } });
+    fireEvent.change(screen.getByLabelText("Tên món"), { target: { value: "Egg rice" } });
+    fireEvent.change(screen.getByLabelText("Tên bước 1"), { target: { value: "Chiên" } });
     fireEvent.change(screen.getByLabelText("Nội dung bước 1"), { target: { value: "Fry it" } });
-    fireEvent.change(screen.getByLabelText("Hẹn giờ (phút, không bắt buộc)"), { target: { value: "2" } });
+    fireEvent.change(screen.getByLabelText("Lưu ý bước 1"), { target: { value: "Lửa vừa" } });
+    fireEvent.click(screen.getByRole("button", { name: "Thêm hẹn giờ" }));
+    fireEvent.change(screen.getByLabelText("Số phút hẹn giờ bước 1"), { target: { value: "2" } });
     fireEvent.click(screen.getByRole("button", { name: "Lưu công thức" }));
 
     await waitFor(() => expect(push).toHaveBeenCalledWith("/recipes/abc"));
@@ -74,7 +76,7 @@ describe("RecipeForm", () => {
         title: "Egg rice",
         description: null,
         baseServings: 2,
-        steps: [{ name: "Chiên", text: "Fry it", images: [], timerSeconds: 120 }],
+        steps: [{ name: "Chiên", text: "Fry it", note: "Lửa vừa", images: [], timerSeconds: 120 }],
         ingredients: [],
       }),
     });
@@ -86,7 +88,7 @@ describe("RecipeForm", () => {
     URL.createObjectURL = vi.fn(() => "blob:photo");
     post.mockResolvedValue({ data: { id: "abc" }, response: new Response(null, { status: 201 }) });
     renderForm();
-    fireEvent.change(screen.getByLabelText("Tiêu đề"), { target: { value: "Egg rice" } });
+    fireEvent.change(screen.getByLabelText("Tên món"), { target: { value: "Egg rice" } });
     fireEvent.change(screen.getByLabelText("Nội dung bước 1"), { target: { value: "Fry it" } });
 
     fireEvent.change(screen.getByLabelText("Chọn ảnh cho bước 1"), {
@@ -103,6 +105,35 @@ describe("RecipeForm", () => {
     expect(post.mock.calls[0]![1].body.steps[0].images).toEqual(["recipes/u1/a.jpg"]);
   });
 
+  it("turns a step timer off again without saving it", async () => {
+    post.mockResolvedValue({ data: { id: "abc" }, response: new Response(null, { status: 201 }) });
+    renderForm();
+    fireEvent.change(screen.getByLabelText("Tên món"), { target: { value: "Egg rice" } });
+    fireEvent.change(screen.getByLabelText("Nội dung bước 1"), { target: { value: "Fry it" } });
+    fireEvent.click(screen.getByRole("button", { name: "Thêm hẹn giờ" }));
+    expect(screen.getByLabelText("Số phút hẹn giờ bước 1")).toHaveValue(10);
+    fireEvent.click(screen.getByRole("button", { name: "Có hẹn giờ" }));
+    expect(screen.queryByLabelText("Số phút hẹn giờ bước 1")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Lưu công thức" }));
+
+    await waitFor(() => expect(post).toHaveBeenCalled());
+    expect(post.mock.calls[0]![1].body.steps).toEqual([{ text: "Fry it", images: [] }]);
+  });
+
+  it("picks servings with buttons and difficulty with the slider", async () => {
+    post.mockResolvedValue({ data: { id: "abc" }, response: new Response(null, { status: 201 }) });
+    renderForm();
+    fireEvent.change(screen.getByLabelText("Tên món"), { target: { value: "Egg rice" } });
+    fireEvent.change(screen.getByLabelText("Nội dung bước 1"), { target: { value: "Fry it" } });
+    fireEvent.click(screen.getByRole("button", { name: "Tăng khẩu phần" }));
+    fireEvent.change(screen.getByRole("slider", { name: "Độ khó" }), { target: { value: "4" } });
+    expect(screen.getByRole("slider", { name: "Độ khó" })).toHaveAttribute("aria-valuetext", "4 · Khó");
+    fireEvent.click(screen.getByRole("button", { name: "Lưu công thức" }));
+
+    await waitFor(() => expect(post).toHaveBeenCalled());
+    expect(post.mock.calls[0]![1].body).toMatchObject({ baseServings: 3, difficulty: 4 });
+  });
+
   it("still shows a saved unit while the unit catalog has not loaded", () => {
     renderForm({
       ...EMPTY_RECIPE_FORM,
@@ -117,7 +148,7 @@ describe("RecipeForm", () => {
       response: new Response(null, { status: 400 }),
     });
     renderForm();
-    fireEvent.change(screen.getByLabelText("Tiêu đề"), { target: { value: "Egg rice" } });
+    fireEvent.change(screen.getByLabelText("Tên món"), { target: { value: "Egg rice" } });
     fireEvent.change(screen.getByLabelText("Nội dung bước 1"), { target: { value: "Fry it" } });
     fireEvent.click(screen.getByRole("button", { name: "Lưu công thức" }));
 

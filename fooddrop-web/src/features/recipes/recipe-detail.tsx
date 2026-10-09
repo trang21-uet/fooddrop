@@ -1,99 +1,68 @@
 import Link from "next/link";
 import { buttonClass } from "@/components/ui/button";
+import { BowlIcon } from "@/components/ui/icons";
 import { DeleteRecipeButton } from "./delete-recipe-button";
-import { StartStepTimerButton } from "../timers/start-step-timer-button";
-import { RarityBadge, rarityGlowStyle } from "./rarity-badge";
+import { formatMinutes } from "./format-minutes";
+import { RARITY_STYLES, RarityBadge, rarityGlowStyle } from "./rarity-badge";
 import { RecipeIngredientsPanel } from "./recipe-ingredients-panel";
+import { RecipeStepItem } from "./recipe-step-item";
 import type { RecipeDetail } from "./recipe-types";
 
 /** Server Component: steps and notes are user text, rendered as plain text nodes (React escapes them). */
 export function RecipeDetailView({ recipe }: { recipe: RecipeDetail }) {
   return (
     <article className="flex flex-col gap-8">
-      <header
-        style={rarityGlowStyle(recipe.rarity)}
-        className="glow-rarity flex flex-col gap-4 rounded-2xl bg-surface p-5 sm:p-6"
-      >
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <h1 className="text-3xl font-bold tracking-tight">{recipe.title}</h1>
-          <RarityBadge rarity={recipe.rarity} />
-        </div>
-        {recipe.description && <p className="whitespace-pre-line text-muted">{recipe.description}</p>}
-        <dl className="flex flex-wrap gap-x-8 gap-y-2 text-sm">
-          <Stat label="Thời gian" value={`${recipe.totalMinutes} phút`} />
-          <Stat label="Độ khó" value={`${recipe.difficulty}/5`} />
-          <Stat label="Khẩu phần" value={String(recipe.baseServings)} />
-        </dl>
-        {recipe.tags.length > 0 && (
-          <ul className="flex flex-wrap gap-1.5">
-            {recipe.tags.map((tag) => (
-              <li key={tag.id} className="rounded-md bg-background px-2 py-0.5 text-xs text-muted">
-                {tag.label}
-              </li>
-            ))}
-          </ul>
-        )}
-        <div className="flex flex-wrap items-center gap-3">
-          <Link href={`/recipes/${recipe.id}/edit`} className={buttonClass("secondary")}>
-            Sửa
-          </Link>
-          <DeleteRecipeButton recipeId={recipe.id} />
-          {recipe.sourceUrl && (
-            <a
-              href={recipe.sourceUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm text-accent underline-offset-4 hover:underline"
-            >
-              Nguồn gốc
-            </a>
+      <header className="flex flex-wrap items-stretch gap-8">
+        <RecipeCover recipe={recipe} />
+        <div className="flex flex-[1_1_420px] flex-col justify-center gap-4">
+          <RarityBadge rarity={recipe.rarity} className="self-start" />
+          <h1 className="text-4xl leading-[1.02] font-extrabold tracking-tight sm:text-5xl">{recipe.title}</h1>
+          {recipe.description && (
+            <p className="max-w-[520px] text-[17px] leading-relaxed whitespace-pre-line text-muted">{recipe.description}</p>
           )}
+          <dl className="flex flex-wrap gap-7">
+            <Stat label="Tổng thời gian" value={formatMinutes(recipe.totalMinutes)} />
+            <Stat label="Độ khó" value={`${recipe.difficulty} / 5`} />
+            <Stat label="Khẩu phần" value={`${recipe.baseServings} người`} />
+          </dl>
+          {recipe.tags.length > 0 && (
+            <ul className="flex flex-wrap gap-2">
+              {recipe.tags.map((tag) => (
+                <li key={tag.id} className="rounded-full border border-border bg-surface-raised px-3.5 py-1.5 text-[13px] font-semibold">
+                  {tag.label}
+                </li>
+              ))}
+            </ul>
+          )}
+          <div className="flex flex-wrap items-center gap-3">
+            <Link href={`/recipes/${recipe.id}/edit`} className={buttonClass("secondary")}>
+              Sửa
+            </Link>
+            <DeleteRecipeButton recipeId={recipe.id} />
+            {recipe.sourceUrl && (
+              <a
+                href={recipe.sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-accent underline-offset-4 hover:underline"
+              >
+                Nguồn gốc
+              </a>
+            )}
+          </div>
         </div>
       </header>
 
       <div className="grid gap-8 md:grid-cols-[1fr_2fr]">
         <RecipeIngredientsPanel recipe={recipe} />
 
-        <section aria-labelledby="steps-heading">
-          <h2 id="steps-heading" className="mb-3 text-lg font-semibold">
+        <section aria-labelledby="steps-heading" className="flex min-w-0 flex-col gap-4">
+          <h2 id="steps-heading" className="text-[22px] font-bold">
             Cách làm
           </h2>
-          <ol className="flex flex-col gap-3">
+          <ol className="flex flex-col gap-3.5">
             {recipe.steps.map((step) => (
-              <li key={step.order} className="flex gap-4 rounded-xl border border-border bg-surface p-4">
-                <span aria-hidden className="font-mono text-lg font-bold text-accent">
-                  {step.order}
-                </span>
-                <div className="flex min-w-0 flex-col gap-2">
-                  {step.name && <h3 className="font-semibold">{step.name}</h3>}
-                  <p className="whitespace-pre-line">{step.text}</p>
-                  {step.images.length > 0 && (
-                    <ul className="flex flex-wrap gap-2">
-                      {step.images.map((image, index) =>
-                        image.url ? (
-                          <li key={image.key}>
-                            <a href={image.url} target="_blank" rel="noopener noreferrer">
-                              {/* eslint-disable-next-line @next/next/no-img-element -- signed storage URLs, not optimizable */}
-                              <img
-                                src={image.url}
-                                alt={`Ảnh ${index + 1} của bước ${step.order}`}
-                                loading="lazy"
-                                className="h-32 w-auto max-w-full rounded-lg border border-border object-cover"
-                              />
-                            </a>
-                          </li>
-                        ) : null,
-                      )}
-                    </ul>
-                  )}
-                  {step.timerSeconds && (
-                    <StartStepTimerButton
-                      seconds={step.timerSeconds}
-                      label={step.timerLabel ?? `${recipe.title} · bước ${step.order}`}
-                    />
-                  )}
-                </div>
-              </li>
+              <RecipeStepItem key={step.order} step={step} recipeTitle={recipe.title} />
             ))}
           </ol>
         </section>
@@ -102,11 +71,33 @@ export function RecipeDetailView({ recipe }: { recipe: RecipeDetail }) {
   );
 }
 
+/** Dish photo framed in the rarity glow; a rarity-tinted bowl when there is no photo. */
+function RecipeCover({ recipe }: { recipe: RecipeDetail }) {
+  const color = RARITY_STYLES[recipe.rarity].color;
+  return (
+    <div
+      style={{
+        ...rarityGlowStyle(recipe.rarity),
+        backgroundImage: `linear-gradient(135deg, color-mix(in srgb, ${color} 22%, var(--surface)), var(--background))`,
+      }}
+      className="glow-rarity relative flex min-h-64 flex-[1_1_380px] items-center justify-center overflow-hidden rounded-[20px] sm:min-h-80"
+    >
+      {recipe.imageUrl ? (
+        // User-supplied URL on an arbitrary host, so next/image's remote-host allowlist does not fit.
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={recipe.imageUrl} alt={recipe.title} className="absolute inset-0 size-full object-cover" />
+      ) : (
+        <BowlIcon width={120} height={120} strokeWidth={1} className="text-foreground/80" />
+      )}
+    </div>
+  );
+}
+
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex gap-2">
-      <dt className="text-muted">{label}</dt>
-      <dd className="font-semibold">{value}</dd>
+    <div className="flex flex-col gap-0.5">
+      <dt className="text-xs tracking-[0.08em] text-muted uppercase">{label}</dt>
+      <dd className="text-[22px] font-bold">{value}</dd>
     </div>
   );
 }

@@ -7,7 +7,7 @@ const validValues: RecipeFormValues = {
   ...EMPTY_RECIPE_FORM,
   title: "Phở bò",
   ingredients: [{ ingredientId: INGREDIENT_ID, ingredientName: "Beef", quantity: "1 1/2", unit: "kg", note: "" }],
-  steps: [{ name: "Hầm", text: "Simmer the broth", timerMinutes: 90, images: [{ key: "recipes/u1/a.jpg", url: "blob:a" }] }],
+  steps: [{ name: "Hầm", text: "Simmer the broth", note: "Hớt bọt thường xuyên", timerMinutes: 90, images: [{ key: "recipes/u1/a.jpg", url: "blob:a" }] }],
   tagIds: [3],
 };
 
@@ -32,7 +32,7 @@ describe("recipeFormSchema", () => {
   it("rejects blank step text and unpicked ingredients", () => {
     const issues = issuesFor({
       ...validValues,
-      steps: [{ name: "", text: " ", images: [] }],
+      steps: [{ name: "", text: " ", note: "", images: [] }],
       ingredients: [{ ingredientId: "", ingredientName: "beef", quantity: "", unit: "", note: "" }],
     });
     expect(issues["steps.0.text"]).toBe("Hãy mô tả bước này");
@@ -43,7 +43,7 @@ describe("recipeFormSchema", () => {
 
   it("allows at most 10 photos per step", () => {
     const images = Array.from({ length: 11 }, (_, i) => ({ key: `recipes/u1/${i}.jpg`, url: null }));
-    expect(issuesFor({ ...validValues, steps: [{ name: "", text: "x", images }] })["steps.0.images"]).toBeDefined();
+    expect(issuesFor({ ...validValues, steps: [{ name: "", text: "x", note: "", images }] })["steps.0.images"]).toBeDefined();
   });
 
   it("rejects non-http image URLs", () => {
@@ -61,7 +61,7 @@ describe("toRecipeInput", () => {
   it("converts minutes to seconds and blanks to null", () => {
     const input = toRecipeInput(validValues);
     expect(input.steps).toEqual([
-      { name: "Hầm", text: "Simmer the broth", images: ["recipes/u1/a.jpg"], timerSeconds: 5400 },
+      { name: "Hầm", text: "Simmer the broth", note: "Hớt bọt thường xuyên", images: ["recipes/u1/a.jpg"], timerSeconds: 5400 },
     ]);
     expect(input.description).toBeNull();
     expect(input.imageUrl).toBeNull();
@@ -69,7 +69,8 @@ describe("toRecipeInput", () => {
   });
 
   it("drops a timer label when the timer is cleared", () => {
-    const input = toRecipeInput({ ...validValues, steps: [{ name: "", text: "Stir", timerLabel: "Rest", images: [] }] });
+    const input = toRecipeInput({ ...validValues, steps: [{ name: "", text: "Stir", note: "", timerLabel: "Rest", images: [] }] });
+    // Blank name and note are omitted, not sent as empty strings.
     expect(input.steps).toEqual([{ text: "Stir", images: [] }]);
   });
 
@@ -112,6 +113,7 @@ describe("toFormValues", () => {
         order: 1,
         name: "Chiên",
         text: "Fry the egg",
+        note: "Lửa vừa",
         images: [{ key: "recipes/u1/a.jpg", url: "https://cdn.example/a.jpg" }],
         timerSeconds: 90,
         timerLabel: "Egg",
@@ -138,6 +140,7 @@ describe("toFormValues", () => {
       {
         name: "Chiên",
         text: "Fry the egg",
+        note: "Lửa vừa",
         images: [{ key: "recipes/u1/a.jpg", url: "https://cdn.example/a.jpg" }],
         timerMinutes: 2,
         timerLabel: "Egg",

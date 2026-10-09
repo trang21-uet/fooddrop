@@ -298,6 +298,7 @@ export interface components {
             steps: {
                 name?: string | null;
                 text: string;
+                note?: string | null;
                 /** @default [] */
                 images: string[];
                 timerSeconds?: number;
@@ -349,6 +350,7 @@ export interface components {
                 order: number;
                 name?: string;
                 text: string;
+                note?: string;
                 images: {
                     key: string;
                     url: string | null;

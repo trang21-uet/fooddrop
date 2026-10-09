@@ -2,6 +2,7 @@
 
 import { useState, type ChangeEvent } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
+import { CloseIcon, ImageIcon, PlusIcon } from "@/components/ui/icons";
 import { uploadImage } from "@/lib/images/upload-image";
 import { MAX_STEP_IMAGES, type RecipeFormValues, type StepImage } from "./recipe-form-schema";
 import { useUploadActivity } from "./upload-activity";
@@ -51,42 +52,52 @@ export function StepImagesField({ index }: { index: number }) {
   };
 
   return (
-    <div className="flex flex-col gap-2">
-      <span className="text-sm font-medium">Ảnh minh họa (không bắt buộc)</span>
-      {images.length > 0 && (
-        <ul className="flex flex-wrap gap-2">
-          {images.map((image, position) => (
-            <li key={image.key} className="relative size-24 overflow-hidden rounded-lg border border-border bg-background">
-              {image.url ? (
-                // eslint-disable-next-line @next/next/no-img-element -- signed or blob URLs, not optimizable
-                <img src={image.url} alt={`Ảnh ${position + 1} của bước ${index + 1}`} className="size-full object-cover" />
-              ) : (
-                <span className="flex size-full items-center justify-center text-xs text-muted">Ảnh</span>
-              )}
-              <button
-                type="button"
-                aria-label={`Xóa ảnh ${position + 1} của bước ${index + 1}`}
-                onClick={() => remove(position)}
-                className="absolute right-1 top-1 flex size-6 items-center justify-center rounded-full bg-background/90 text-xs font-bold text-danger"
-              >
-                ✕
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-      <label className="flex w-fit cursor-pointer items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm hover:border-accent">
-        <span>{pending > 0 ? `Đang tải ${pending} ảnh…` : "Thêm ảnh"}</span>
-        <input
-          type="file"
-          accept={ACCEPTED_TYPES}
-          multiple
-          disabled={images.length >= MAX_STEP_IMAGES}
-          aria-label={`Chọn ảnh cho bước ${index + 1}`}
-          onChange={(event) => void onPick(event)}
-          className="sr-only"
-        />
-      </label>
+    <div role="group" aria-label={`Ảnh của bước ${index + 1}`} className="flex flex-col gap-2">
+      <span className="text-sm font-medium">
+        Ảnh minh họa <span className="font-normal text-muted">(có thể chọn nhiều ảnh)</span>
+      </span>
+      <ul className="flex flex-wrap gap-3">
+        {images.map((image, position) => (
+          <li
+            key={image.key}
+            className="relative flex size-21 items-center justify-center rounded-xl border border-border bg-surface"
+          >
+            {image.url ? (
+              // eslint-disable-next-line @next/next/no-img-element -- signed or blob URLs, not optimizable
+              <img
+                src={image.url}
+                alt={`Ảnh ${position + 1} của bước ${index + 1}`}
+                className="size-full rounded-xl object-cover"
+              />
+            ) : (
+              <ImageIcon width={28} height={28} className="text-muted" />
+            )}
+            <button
+              type="button"
+              aria-label={`Xóa ảnh ${position + 1} của bước ${index + 1}`}
+              onClick={() => remove(position)}
+              className="absolute -right-2.5 -top-2.5 flex size-9 items-center justify-center rounded-full border border-border bg-background text-foreground hover:border-danger hover:text-danger"
+            >
+              <CloseIcon width={14} height={14} />
+            </button>
+          </li>
+        ))}
+        <li>
+          <label className="flex size-21 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-accent text-xs font-bold text-accent transition hover:bg-accent/10 has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-40 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-accent">
+            <PlusIcon width={20} height={20} />
+            {pending > 0 ? `Đang tải ${pending}…` : "Thêm ảnh"}
+            <input
+              type="file"
+              accept={ACCEPTED_TYPES}
+              multiple
+              disabled={images.length >= MAX_STEP_IMAGES}
+              aria-label={`Chọn ảnh cho bước ${index + 1}`}
+              onChange={(event) => void onPick(event)}
+              className="sr-only"
+            />
+          </label>
+        </li>
+      </ul>
       {error && (
         <span role="alert" className="text-xs text-danger">
           {error}

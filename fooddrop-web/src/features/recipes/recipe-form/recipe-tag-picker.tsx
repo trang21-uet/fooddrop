@@ -5,6 +5,7 @@ import { Chip } from "@/components/ui/chip";
 import { toggleItem } from "../recipe-filters";
 import { useTagsQuery } from "../use-tags-query";
 import type { RecipeFormValues } from "./recipe-form-schema";
+import { cardClass } from "./recipe-form-styles";
 
 export function RecipeTagPicker() {
   const { control, setValue } = useFormContext<RecipeFormValues>();
@@ -12,8 +13,8 @@ export function RecipeTagPicker() {
   const tags = useTagsQuery();
 
   return (
-    <section aria-labelledby="tags-heading" className="flex flex-col gap-3">
-      <h2 id="tags-heading" className="text-lg font-semibold">
+    <section aria-labelledby="tags-heading" className={cardClass}>
+      <h2 id="tags-heading" className="text-base font-bold">
         Thẻ
       </h2>
       {tags.isPending && <p className="text-sm text-muted">Đang tải thẻ…</p>}
@@ -24,7 +25,7 @@ export function RecipeTagPicker() {
       )}
       {tags.data?.map((dimension) => (
         <fieldset key={dimension.id} className="flex flex-wrap items-center gap-2">
-          <legend className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted">{dimension.label}</legend>
+          <legend className="mb-2.5 text-xs font-semibold uppercase tracking-[0.08em] text-muted">{dimension.label}</legend>
           {dimension.tags.map((tag) => (
             <Chip
               key={tag.id}

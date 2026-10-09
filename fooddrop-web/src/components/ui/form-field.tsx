@@ -9,11 +9,14 @@ export const inputClass =
  */
 export function FormField({
   label,
+  optional = false,
   error,
   hint,
   children,
 }: {
   label: string;
+  /** Appends a muted "(không bắt buộc)" to the label. */
+  optional?: boolean;
   error?: string;
   hint?: string;
   children: ReactNode;
@@ -21,7 +24,10 @@ export function FormField({
   return (
     <div className="flex flex-col gap-1.5 text-sm">
       <label className="flex flex-col gap-1.5">
-        <span className="font-medium">{label}</span>
+        <span className="font-medium">
+          {label}
+          {optional && <span className="font-normal text-muted"> (không bắt buộc)</span>}
+        </span>
         {children}
       </label>
       {hint && !error && <span className="text-xs text-muted">{hint}</span>}

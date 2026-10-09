@@ -37,8 +37,10 @@ export function RecipeListView() {
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const items = recipes.data?.pages.flatMap((page) => page.items) ?? [];
-  // The API is cursor-paginated and returns no total, so a "+" marks that more pages exist.
-  const countLabel = recipes.isSuccess ? `${items.length}${hasNextPage ? "+" : ""} công thức trong thư viện của bạn` : "Đang tải…";
+  // The API is cursor-paginated and returns no total, so a "+" marks that more pages exist. The count is of the
+  // filtered results, so with a filter on it must not claim to be the whole library.
+  const countScope = hasActiveFilters(filters) ? "phù hợp với bộ lọc" : "trong thư viện của bạn";
+  const countLabel = recipes.isSuccess ? `${items.length}${hasNextPage ? "+" : ""} công thức ${countScope}` : "Đang tải…";
 
   return (
     <div className="flex flex-col gap-7">

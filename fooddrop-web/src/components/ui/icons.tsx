@@ -52,3 +52,55 @@ export const BowlIcon = (props: SVGProps<SVGSVGElement>) => (
     <path d="M9 7c0-1.2 1-1.2 1-2.4M13 7c0-1.2 1-1.2 1-2.4" />
   </Icon>
 );
+
+export const ChevronLeftIcon = (props: SVGProps<SVGSVGElement>) => (
+  <Icon strokeWidth={2.2} {...props}>
+    <path d="M15 6l-6 6 6 6" />
+  </Icon>
+);
+
+export const ChevronUpIcon = (props: SVGProps<SVGSVGElement>) => (
+  <Icon strokeWidth={2.2} {...props}>
+    <path d="M6 15l6-6 6 6" />
+  </Icon>
+);
+
+export const ChevronDownIcon = (props: SVGProps<SVGSVGElement>) => (
+  <Icon strokeWidth={2.2} {...props}>
+    <path d="M6 9l6 6 6-6" />
+  </Icon>
+);
+
+export const TrashIcon = (props: SVGProps<SVGSVGElement>) => (
+  <Icon {...props}>
+    <path d="M4 7h16M10 11v6M14 11v6M6 7l1 12h10l1-12M9 7V4h6v3" />
+  </Icon>
+);
+
+export const CloseIcon = (props: SVGProps<SVGSVGElement>) => (
+  <Icon strokeWidth={2.6} {...props}>
+    <path d="M6 6l12 12M18 6L6 18" />
+  </Icon>
+);
+
+export const ImageIcon = (props: SVGProps<SVGSVGElement>) => (
+  <Icon strokeWidth={1.6} {...props}>
+    <rect x="3" y="4" width="18" height="16" rx="3" />
+    <circle cx="9" cy="10" r="1.8" />
+    <path d="M21 16l-5-5-8 9" />
+  </Icon>
+);
+
+export const StopwatchIcon = (props: SVGProps<SVGSVGElement>) => (
+  <Icon {...props}>
+    <circle cx="12" cy="13" r="8" />
+    <path d="M12 9v4l2.5 1.5M9 2h6" />
+  </Icon>
+);
+
+export const InfoIcon = (props: SVGProps<SVGSVGElement>) => (
+  <Icon {...props}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M12 11v5M12 8h.01" />
+  </Icon>
+);

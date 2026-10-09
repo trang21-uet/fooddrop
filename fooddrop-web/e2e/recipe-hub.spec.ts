@@ -28,17 +28,19 @@ test("sign up, create, filter, edit and delete a recipe", async ({ page }) => {
 
   // Create: ingredient autocomplete (diacritic-insensitive), a step with timer, a tag
   await page.getByRole("link", { name: "Thêm công thức" }).first().click();
-  await page.getByLabel("Tiêu đề").fill(title);
+  await page.getByLabel("Tên món").fill(title);
   await page.getByRole("button", { name: "Thêm nguyên liệu" }).click();
   await page.getByRole("combobox", { name: "Tên nguyên liệu 1" }).fill("trung");
   await page.getByRole("listbox").getByRole("option").first().click();
   await page.getByLabel("Số lượng").fill("2");
   await page.getByLabel("Đơn vị").selectOption({ label: "quả" });
-  await page.getByLabel("Tên bước 1 (không bắt buộc)").fill("Chiên trứng");
+  await page.getByLabel("Tên bước 1").fill("Chiên trứng");
   await page.getByRole("textbox", { name: "Nội dung bước 1" }).fill("Fry the egg <b>not bold</b>");
+  await page.getByLabel("Lưu ý bước 1").fill("Để lửa vừa");
   await page.getByLabel("Chọn ảnh cho bước 1").setInputFiles({ name: "step.png", mimeType: "image/png", buffer: TINY_PNG });
   await expect(page.getByAltText("Ảnh 1 của bước 1")).toBeVisible();
-  await page.getByLabel("Hẹn giờ (phút, không bắt buộc)").fill("3");
+  await page.getByRole("button", { name: "Thêm hẹn giờ" }).click();
+  await page.getByLabel("Số phút hẹn giờ bước 1").fill("3");
   await page.getByRole("button", { name: "Món Việt" }).click();
   await page.getByRole("button", { name: "Lưu công thức" }).click();
 
@@ -46,18 +48,21 @@ test("sign up, create, filter, edit and delete a recipe", async ({ page }) => {
   await expect(page.getByRole("heading", { level: 1, name: title })).toBeVisible();
   await expect(page.getByText("Fry the egg <b>not bold</b>")).toBeVisible();
   await expect(page.getByRole("heading", { level: 3, name: "Chiên trứng" })).toBeVisible();
+  await expect(page.getByText("Để lửa vừa")).toBeVisible();
   await expect(page.getByText("2 quả")).toBeVisible();
   await expect(page.getByAltText("Ảnh 1 của bước 1")).toBeVisible();
-  await expect(page.getByText("Hẹn giờ 3 phút")).toBeVisible();
+  await expect(page.getByRole("button", { name: /Bắt đầu hẹn giờ · 3:00/ })).toBeVisible();
 
   // List + URL-synced filters
   await page.goto("/recipes");
   await expect(page.getByRole("link", { name: new RegExp(title) })).toBeVisible();
   await page.getByRole("button", { name: "Món Nhật" }).click();
   await expect(page).toHaveURL(/tags=\d+/);
-  await expect(page.getByText("Không có công thức nào phù hợp với bộ lọc.")).toBeVisible();
+  await expect(page.getByText("Không có công thức nào phù hợp", { exact: true })).toBeVisible();
+  await expect(page.getByText("0 công thức phù hợp với bộ lọc")).toBeVisible();
   await page.getByRole("button", { name: "Xóa bộ lọc" }).click();
   await expect(page).toHaveURL(/\/recipes$/);
+  await expect(page.getByText("1 công thức trong thư viện của bạn")).toBeVisible();
   await page.getByRole("button", { name: "Món Việt" }).click();
   await expect(page).toHaveURL(/tags=\d+/);
   await page.reload(); // filters survive a reload because they live in the URL
@@ -67,8 +72,8 @@ test("sign up, create, filter, edit and delete a recipe", async ({ page }) => {
   // Edit
   await page.getByRole("link", { name: new RegExp(title) }).click();
   await page.getByRole("link", { name: "Sửa" }).click();
-  await expect(page.getByLabel("Tiêu đề")).toHaveValue(title);
-  await page.getByLabel("Tiêu đề").fill(`${title} v2`);
+  await expect(page.getByLabel("Tên món")).toHaveValue(title);
+  await page.getByLabel("Tên món").fill(`${title} v2`);
   await page.getByRole("button", { name: "Lưu công thức" }).click();
   await expect(page.getByRole("heading", { level: 1, name: `${title} v2` })).toBeVisible();
 

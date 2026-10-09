@@ -37,8 +37,8 @@ describe("draftToFormValues", () => {
       totalMinutes: 30,
       tagIds: [3, 7],
       steps: [
-        { name: "", text: "Ướp thịt.", images: [], timerMinutes: undefined },
-        { name: "", text: "Hầm 45 phút.", images: [], timerMinutes: 45 },
+        { name: "", text: "Ướp thịt.", note: "", images: [], timerMinutes: undefined },
+        { name: "", text: "Hầm 45 phút.", note: "", images: [], timerMinutes: 45 },
       ],
     });
     expect(values.ingredients).toEqual([
@@ -60,6 +60,6 @@ describe("draftToFormValues", () => {
   });
 
   it("always leaves one editable step when the source had none", () => {
-    expect(draftToFormValues({ ...draft, steps: [] }).steps).toEqual([{ name: "", text: "", images: [] }]);
+    expect(draftToFormValues({ ...draft, steps: [] }).steps).toEqual([{ name: "", text: "", note: "", images: [] }]);
   });
 });
