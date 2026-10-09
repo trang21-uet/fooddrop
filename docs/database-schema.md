@@ -66,7 +66,7 @@ CREATE TABLE recipes (
          WHEN total_minutes <= 90  AND difficulty <= 3 THEN 'purple'
          WHEN total_minutes <= 180 THEN 'pink'
          ELSE 'red' END) STORED,
-  steps jsonb NOT NULL,                    -- [{order, name?, text, images?: [storageKey], timerSeconds?, timerLabel?}]
+  steps jsonb NOT NULL,                    -- [{order, name?, text, note?, images?: [storageKey], timerSeconds?, timerLabel?}]
   source_url text,
   raw_extract jsonb,                       -- original parser output for debugging / re-parse
   created_at timestamptz(3) NOT NULL DEFAULT now(),   -- ms precision: keyset cursors round-trip through JS Dates
