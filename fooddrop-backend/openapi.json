@@ -1141,6 +1141,11 @@
                   "minLength": 1,
                   "maxLength": 2000
                 },
+                "note": {
+                  "nullable": true,
+                  "type": "string",
+                  "maxLength": 500
+                },
                 "images": {
                   "default": [],
                   "maxItems": 10,
@@ -1362,6 +1367,9 @@
                   "type": "string"
                 },
                 "text": {
+                  "type": "string"
+                },
+                "note": {
                   "type": "string"
                 },
                 "images": {

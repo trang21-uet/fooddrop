@@ -22,6 +22,8 @@ export interface RecipeStep {
   name?: string;
   /** The instructions themselves. */
   text: string;
+  /** Optional tip or warning for the step ("Ướp ít nhất 20 phút"). */
+  note?: string;
   /** Object-storage keys of the step photos, in display order. */
   images?: string[];
   timerSeconds?: number;

@@ -111,7 +111,7 @@ describe('recipes CRUD and ownership (e2e)', () => {
         .expect(400);
     });
 
-    it('stores step names and photos, and only accepts photos the owner uploaded', async () => {
+    it('stores step names, notes and photos, and only accepts photos the owner uploaded', async () => {
       const upload = async (user: typeof fx.alice) =>
         (
           await fx
@@ -124,13 +124,14 @@ describe('recipes CRUD and ownership (e2e)', () => {
       const bobKey = await upload(fx.bob);
       expect(aliceKey).toMatch(new RegExp(`^recipes/${fx.alice.id}/[0-9a-f-]{36}\\.jpg$`));
 
-      const steps = [{ name: 'Sơ chế', text: 'Rửa cá', images: [aliceKey] }, { text: 'Áp chảo' }];
+      const steps = [{ name: 'Sơ chế', text: 'Rửa cá', note: 'Dùng nước lạnh', images: [aliceKey] }, { text: 'Áp chảo', note: '' }];
       const created = await fx.api(fx.alice).post('/recipes').send(fx.recipeBody({ steps })).expect(201);
       expect(created.body.steps).toMatchObject([
-        { order: 1, name: 'Sơ chế', text: 'Rửa cá', images: [{ key: aliceKey, url: expect.any(String) }] },
+        { order: 1, name: 'Sơ chế', text: 'Rửa cá', note: 'Dùng nước lạnh', images: [{ key: aliceKey, url: expect.any(String) }] },
         { order: 2, text: 'Áp chảo', images: [] },
       ]);
       expect(created.body.steps[1]).not.toHaveProperty('name');
+      expect(created.body.steps[1]).not.toHaveProperty('note');
 
       await fx
         .api(fx.alice)

@@ -107,13 +107,14 @@ export class RecipesService {
       totalMinutes: input.totalMinutes,
       difficulty: input.difficulty,
       // Order is positional so clients cannot send gaps or duplicates.
-      steps: input.steps.map(({ name, images, ...step }, index) => {
+      steps: input.steps.map(({ name, note, images, ...step }, index) => {
         if (images.some((key) => !key.startsWith(prefix) || key.includes('..'))) {
           throw new BadRequestException(`Step ${index + 1} has an image that was not uploaded by you`);
         }
         return {
           ...step,
           ...(name ? { name } : {}),
+          ...(note ? { note } : {}),
           ...(images.length > 0 ? { images } : {}),
           order: index + 1,
         };

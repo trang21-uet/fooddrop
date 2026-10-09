@@ -19,6 +19,8 @@ export const recipeStepInputSchema = z.object({
   /** Short heading for the step; the instructions go in `text`. */
   name: z.string().trim().min(1).max(100).nullish(),
   text: z.string().trim().min(1).max(2000),
+  /** Optional tip or warning shown under the instructions. */
+  note: z.string().trim().max(500).nullish(),
   /** Keys returned by `POST /media/uploads` with purpose `recipe-step`, in display order. */
   images: z.array(z.string().min(1).max(300)).max(MAX_STEP_IMAGES).default([]),
   timerSeconds: z.number().int().min(1).max(86_400).optional(),
@@ -87,6 +89,7 @@ export const recipeDetailSchema = recipeSummarySchema.extend({
       order: z.number().int(),
       name: z.string().optional(),
       text: z.string(),
+      note: z.string().optional(),
       images: z.array(
         z.object({
           key: z.string(),
