@@ -14,7 +14,7 @@ import { ObjectStorageService } from '../media/object-storage.service.js';
 import { toBaseQuantity } from '../units/normalize-quantity.js';
 import { decodeCursor, encodeCursor } from './recipe-cursor.js';
 import { buildRecipeFilter } from './recipe-filters.js';
-import { toRecipeDetail, toRecipeSummary } from './recipe-mapper.js';
+import { recipeImageKeys, toRecipeDetail, toRecipeSummary } from './recipe-mapper.js';
 import type {
   ListRecipesQuery,
   RecipeDetail,
@@ -71,7 +71,7 @@ export class RecipesReaderService {
           base: toBaseQuantity(r.quantity, unit, r),
         };
       }),
-      await this.resolveImageUrls(row.steps.flatMap((step) => step.images ?? [])),
+      await this.resolveImageUrls(recipeImageKeys(row)),
     );
   }
 
@@ -97,10 +97,13 @@ export class RecipesReaderService {
       .limit(query.limit + 1);
 
     const page = rows.slice(0, query.limit);
-    const tagsByRecipe = await this.loadTags(page.map((r) => r.id));
+    const [tagsByRecipe, coverUrls] = await Promise.all([
+      this.loadTags(page.map((r) => r.id)),
+      this.resolveImageUrls(page.flatMap((row) => (row.imageKey ? [row.imageKey] : []))),
+    ]);
     const last = page.at(-1);
     return {
-      items: page.map((row) => toRecipeSummary(row, tagsByRecipe.get(row.id) ?? [])),
+      items: page.map((row) => toRecipeSummary(row, tagsByRecipe.get(row.id) ?? [], coverUrls)),
       nextCursor:
         rows.length > query.limit && last ? encodeCursor({ createdAt: last.createdAt, id: last.id }) : null,
     };

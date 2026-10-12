@@ -5,15 +5,14 @@ import { ingredients, recipeIngredients, recipeTags, recipes, tags } from '../..
 import { ObjectStorageService, recipeImagePrefix } from '../media/object-storage.service.js';
 import { InvalidQuantityError, parseAmount } from '../units/normalize-quantity.js';
 import { UnitsService } from '../units/units.service.js';
+import { recipeImageKeys } from './recipe-mapper.js';
 import { RecipesReaderService } from './recipes-reader.service.js';
 import type { RecipeDetail, RecipeInput } from './recipes.schemas.js';
 
 type IngredientRow = typeof recipeIngredients.$inferInsert;
 
-/** Every photo key mentioned by a recipe's steps. */
-export const stepImageKeys = (steps: ReadonlyArray<{ images?: string[] }>): string[] => [
-  ...new Set(steps.flatMap((step) => step.images ?? [])),
-];
+/** A photo key is a capability: only keys under the owner's prefix may be attached to their recipe. */
+const isOwnImageKey = (key: string, prefix: string): boolean => key.startsWith(prefix) && !key.includes('..');
 
 @Injectable()
 export class RecipesService {
@@ -48,7 +47,7 @@ export class RecipesService {
 
     const dropped = await this.db.transaction(async (tx) => {
       const [before] = await tx
-        .select({ steps: recipes.steps })
+        .select({ imageKey: recipes.imageKey, steps: recipes.steps })
         .from(recipes)
         .where(and(eq(recipes.id, id), eq(recipes.ownerId, ownerId)))
         // Concurrent updates must see each other's photo list, or one could delete a photo the other keeps.
@@ -65,8 +64,8 @@ export class RecipesService {
       await tx.delete(recipeIngredients).where(eq(recipeIngredients.recipeId, id));
       await tx.delete(recipeTags).where(eq(recipeTags.recipeId, id));
       await this.writeChildren(tx, id, ingredientRows, input.tagIds);
-      const kept = new Set(columns.steps.flatMap((step) => step.images ?? []));
-      return stepImageKeys(before.steps).filter((key) => !kept.has(key));
+      const kept = new Set(recipeImageKeys(columns));
+      return recipeImageKeys(before).filter((key) => !kept.has(key));
     });
     await this.deleteUnreferencedPhotos(ownerId, id, dropped);
     return this.reader.getDetail(ownerId, id);
@@ -76,39 +75,46 @@ export class RecipesService {
     const deleted = await this.db
       .delete(recipes)
       .where(and(eq(recipes.id, id), eq(recipes.ownerId, ownerId)))
-      .returning({ steps: recipes.steps });
+      .returning({ imageKey: recipes.imageKey, steps: recipes.steps });
     if (deleted.length === 0) throw new NotFoundException('Recipe not found');
-    await this.deleteUnreferencedPhotos(ownerId, id, stepImageKeys(deleted[0]!.steps));
+    await this.deleteUnreferencedPhotos(ownerId, id, recipeImageKeys(deleted[0]!));
   }
 
   /** Removes stored photos that this recipe no longer shows, unless another recipe of the owner still uses the key. */
   private async deleteUnreferencedPhotos(ownerId: string, recipeId: string, keys: string[]): Promise<void> {
     if (keys.length === 0) return;
+    const keyList = sql.join(keys, sql`, `);
     const stillUsed = await this.db.execute<{ key: string }>(sql`
-      SELECT DISTINCT image.key
+      SELECT image.key
       FROM recipes r,
            jsonb_array_elements(r.steps) AS step,
            jsonb_array_elements_text(COALESCE(step -> 'images', '[]'::jsonb)) AS image(key)
-      WHERE r.owner_id = ${ownerId} AND r.id <> ${recipeId} AND image.key IN (${sql.join(keys, sql`, `)})`);
+      WHERE r.owner_id = ${ownerId} AND r.id <> ${recipeId} AND image.key IN (${keyList})
+      UNION
+      SELECT r.image_key FROM recipes r
+      WHERE r.owner_id = ${ownerId} AND r.id <> ${recipeId} AND r.image_key IN (${keyList})`);
     const shared = new Set(stillUsed.rows.map((row) => row.key));
     await this.storage.deleteObjects(keys.filter((key) => !shared.has(key)));
   }
 
   private recipeColumns(ownerId: string, input: RecipeInput) {
-    // A photo key is a capability: only keys under the owner's prefix may be attached, so one user
-    // cannot pull another user's uploads into their own recipe.
+    // One user must not pull another user's uploads into their own recipe.
     const prefix = recipeImagePrefix(ownerId);
+    if (input.imageKey && !isOwnImageKey(input.imageKey, prefix)) {
+      throw new BadRequestException('The recipe photo was not uploaded by you');
+    }
     return {
       title: input.title,
       description: input.description ?? null,
-      imageUrl: input.imageUrl ?? null,
+      imageUrl: input.imageKey ? null : (input.imageUrl ?? null),
+      imageKey: input.imageKey ?? null,
       sourceUrl: input.sourceUrl ?? null,
       baseServings: input.baseServings,
       totalMinutes: input.totalMinutes,
       difficulty: input.difficulty,
       // Order is positional so clients cannot send gaps or duplicates.
       steps: input.steps.map(({ name, note, images, ...step }, index) => {
-        if (images.some((key) => !key.startsWith(prefix) || key.includes('..'))) {
+        if (images.some((key) => !isOwnImageKey(key, prefix))) {
           throw new BadRequestException(`Step ${index + 1} has an image that was not uploaded by you`);
         }
         return {

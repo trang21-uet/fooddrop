@@ -3,12 +3,18 @@ import type { RecipeDetail, RecipeSummary, RecipeTagView } from './recipes.schem
 
 type RecipeRow = typeof recipes.$inferSelect;
 
-export function toRecipeSummary(row: RecipeRow, tags: RecipeTagView[]): RecipeSummary {
+/** `imageUrls` maps a stored object key to the URL clients load it from. */
+export function toRecipeSummary(
+  row: RecipeRow,
+  tags: RecipeTagView[],
+  imageUrls: ReadonlyMap<string, string | null>,
+): RecipeSummary {
   return {
     id: row.id,
     title: row.title,
     description: row.description,
-    imageUrl: row.imageUrl,
+    imageUrl: row.imageKey ? (imageUrls.get(row.imageKey) ?? null) : row.imageUrl,
+    imageKey: row.imageKey,
     baseServings: row.baseServings,
     totalMinutes: row.totalMinutes,
     difficulty: row.difficulty,
@@ -18,7 +24,6 @@ export function toRecipeSummary(row: RecipeRow, tags: RecipeTagView[]): RecipeSu
   };
 }
 
-/** `imageUrls` maps a stored object key to the URL clients load it from. */
 export function toRecipeDetail(
   row: RecipeRow,
   tags: RecipeTagView[],
@@ -26,7 +31,7 @@ export function toRecipeDetail(
   imageUrls: ReadonlyMap<string, string | null>,
 ): RecipeDetail {
   return {
-    ...toRecipeSummary(row, tags),
+    ...toRecipeSummary(row, tags, imageUrls),
     sourceUrl: row.sourceUrl,
     updatedAt: row.updatedAt.toISOString(),
     // Rows saved before step names and photos existed have neither field.
@@ -37,3 +42,8 @@ export function toRecipeDetail(
     ingredients,
   };
 }
+
+/** Every stored photo key a recipe references: its cover and its step photos. */
+export const recipeImageKeys = (row: { imageKey?: string | null; steps: ReadonlyArray<{ images?: string[] }> }): string[] => [
+  ...new Set([...(row.imageKey ? [row.imageKey] : []), ...row.steps.flatMap((step) => step.images ?? [])]),
+];

@@ -15,12 +15,13 @@ const EXTENSIONS: Record<CreateUpload['contentType'], string> = {
 
 /** Keys are namespaced by owner so a job can only read images its own user uploaded. */
 export const userUploadPrefix = (userId: string): string => `parser/${userId}/`;
-/** Step photos of a user's recipes; a recipe may only reference keys under its owner's prefix. */
+/** Cover and step photos of a user's recipes; a recipe may only reference keys under its owner's prefix. */
 export const recipeImagePrefix = (userId: string): string => `recipes/${userId}/`;
 
 const PREFIX_BY_PURPOSE: Record<CreateUpload['purpose'], (userId: string) => string> = {
   parser: userUploadPrefix,
   'recipe-step': recipeImagePrefix,
+  'recipe-cover': recipeImagePrefix,
 };
 // SigV4's maximum. Mobile keeps these URLs offline, so the longer the better; the app also refreshes them on sync.
 const VIEW_URL_TTL_SECONDS = 7 * 24 * 3600;

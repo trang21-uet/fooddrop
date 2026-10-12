@@ -6,7 +6,7 @@ export const IMAGE_CONTENT_TYPES = ['image/jpeg', 'image/png', 'image/webp'] as 
 export const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 
 /** Decides the key prefix, which in turn decides who may reference the object later. */
-export const UPLOAD_PURPOSES = ['parser', 'recipe-step'] as const;
+export const UPLOAD_PURPOSES = ['parser', 'recipe-step', 'recipe-cover'] as const;
 
 export const createUploadSchema = z.object({
   purpose: z.enum(UPLOAD_PURPOSES).default('parser'),

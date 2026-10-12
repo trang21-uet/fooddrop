@@ -588,7 +588,8 @@
             "type": "string",
             "enum": [
               "parser",
-              "recipe-step"
+              "recipe-step",
+              "recipe-cover"
             ]
           },
           "contentType": {
@@ -1101,6 +1102,12 @@
             "maxLength": 2000,
             "format": "uri"
           },
+          "imageKey": {
+            "nullable": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          },
           "sourceUrl": {
             "nullable": true,
             "type": "string",
@@ -1282,6 +1289,10 @@
             "type": "string"
           },
           "imageUrl": {
+            "nullable": true,
+            "type": "string"
+          },
+          "imageKey": {
             "nullable": true,
             "type": "string"
           },
@@ -1523,6 +1534,7 @@
           "title",
           "description",
           "imageUrl",
+          "imageKey",
           "baseServings",
           "totalMinutes",
           "difficulty",
@@ -1557,6 +1569,10 @@
                   "type": "string"
                 },
                 "imageUrl": {
+                  "nullable": true,
+                  "type": "string"
+                },
+                "imageKey": {
                   "nullable": true,
                   "type": "string"
                 },
@@ -1625,6 +1641,7 @@
                 "title",
                 "description",
                 "imageUrl",
+                "imageKey",
                 "baseServings",
                 "totalMinutes",
                 "difficulty",

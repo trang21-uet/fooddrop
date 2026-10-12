@@ -41,18 +41,26 @@ export const recipeIngredientInputSchema = z
     path: ['unit'],
   });
 
-export const recipeInputSchema = z.object({
-  title: z.string().trim().min(1).max(200),
-  description: z.string().trim().max(2000).nullish(),
-  imageUrl: z.url({ protocol: /^https?$/ }).max(2000).nullish(),
-  sourceUrl: z.url({ protocol: /^https?$/ }).max(2000).nullish(),
-  baseServings: z.number().int().min(1).max(100).default(2),
-  totalMinutes: z.number().int().min(1).max(10_080),
-  difficulty: z.number().int().min(1).max(5),
-  steps: z.array(recipeStepInputSchema).min(1).max(100),
-  ingredients: z.array(recipeIngredientInputSchema).max(100).default([]),
-  tagIds: z.array(z.number().int().positive()).max(30).default([]),
-});
+export const recipeInputSchema = z
+  .object({
+    title: z.string().trim().min(1).max(200),
+    description: z.string().trim().max(2000).nullish(),
+    /** A photo hosted elsewhere. Send this or `imageKey`, not both. */
+    imageUrl: z.url({ protocol: /^https?$/ }).max(2000).nullish(),
+    /** Key returned by `POST /media/uploads` with purpose `recipe-cover`. */
+    imageKey: z.string().min(1).max(300).nullish(),
+    sourceUrl: z.url({ protocol: /^https?$/ }).max(2000).nullish(),
+    baseServings: z.number().int().min(1).max(100).default(2),
+    totalMinutes: z.number().int().min(1).max(10_080),
+    difficulty: z.number().int().min(1).max(5),
+    steps: z.array(recipeStepInputSchema).min(1).max(100),
+    ingredients: z.array(recipeIngredientInputSchema).max(100).default([]),
+    tagIds: z.array(z.number().int().positive()).max(30).default([]),
+  })
+  .refine((value) => !(value.imageUrl && value.imageKey), {
+    message: 'Provide at most one of imageUrl or imageKey',
+    path: ['imageKey'],
+  });
 
 export const listRecipesQuerySchema = z.object({
   // Comma-separated tag ids; OR within a dimension, AND across dimensions.
@@ -72,7 +80,10 @@ const recipeSummarySchema = z.object({
   id: z.uuid(),
   title: z.string(),
   description: z.string().nullable(),
+  /** What to display: the uploaded photo's URL when `imageKey` is set, otherwise the external URL. */
   imageUrl: z.string().nullable(),
+  /** Set when the photo was uploaded; send it back on edit to keep the photo. */
+  imageKey: z.string().nullable(),
   baseServings: z.number().int(),
   totalMinutes: z.number().int(),
   difficulty: z.number().int(),

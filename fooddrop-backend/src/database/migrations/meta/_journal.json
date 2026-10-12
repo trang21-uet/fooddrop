@@ -36,6 +36,13 @@
       "when": 1791441527663,
       "tag": "0004_clear-legacy-zero-quantities",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791781564311,
+      "tag": "0005_recipe-cover-image-key",
+      "breakpoints": true
     }
   ]
 }

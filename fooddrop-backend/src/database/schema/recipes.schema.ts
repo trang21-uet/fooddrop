@@ -49,7 +49,10 @@ export const recipes = pgTable(
       .references(() => users.id, { onDelete: 'cascade' }),
     title: text('title').notNull(),
     description: text('description'),
+    /** External photo URL; ignored when `imageKey` is set. */
     imageUrl: text('image_url'),
+    /** Uploaded photo in object storage, under the owner's `recipes/` prefix. */
+    imageKey: text('image_key'),
     baseServings: integer('base_servings').notNull().default(2),
     totalMinutes: integer('total_minutes').notNull(),
     difficulty: smallint('difficulty').notNull(),

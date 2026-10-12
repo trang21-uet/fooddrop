@@ -138,6 +138,7 @@ describe('recipes CRUD and ownership (e2e)', () => {
         .post('/recipes')
         .send(fx.recipeBody({ steps: [{ text: 'Rửa cá', images: [bobKey] }] }))
         .expect(400);
+      await fx.api(fx.alice).post('/recipes').send(fx.recipeBody({ imageKey: bobKey })).expect(400);
       await fx
         .api(fx.alice)
         .post('/recipes')
@@ -149,12 +150,12 @@ describe('recipes CRUD and ownership (e2e)', () => {
       const bytes = new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 1, 2, 3, 4]);
 
       /** Uploads a real object for alice and returns its key. */
-      async function uploadPhoto(): Promise<string> {
+      async function uploadPhoto(purpose = 'recipe-step'): Promise<string> {
         const target = (
           await fx
             .api(fx.alice)
             .post('/media/uploads')
-            .send({ purpose: 'recipe-step', contentType: 'image/jpeg', sizeBytes: bytes.length })
+            .send({ purpose, contentType: 'image/jpeg', sizeBytes: bytes.length })
             .expect(201)
         ).body as { key: string; uploadUrl: string; headers: Record<string, string> };
         const put = await fetch(target.uploadUrl, { method: 'PUT', headers: target.headers, body: bytes });
@@ -203,6 +204,30 @@ describe('recipes CRUD and ownership (e2e)', () => {
         expect(await loads(sharedUrl)).toBe(true);
         expect(urlOf(second)).toBeDefined();
       });
+
+      it('serves an uploaded cover photo in detail and list, and removes it once replaced', async () => {
+        const key = await uploadPhoto('recipe-cover');
+        const created = (await fx.api(fx.alice).post('/recipes').send(fx.recipeBody({ imageKey: key })).expect(201)).body;
+        expect(created).toMatchObject({ imageKey: key, imageUrl: expect.any(String) });
+        expect(await loads(created.imageUrl)).toBe(true);
+        const listed = (await fx.api(fx.alice).get('/recipes').expect(200)).body.items.find((item: { id: string }) => item.id === created.id);
+        expect(listed).toMatchObject({ imageKey: key, imageUrl: expect.any(String) });
+
+        const replaced = (
+          await fx.api(fx.alice).put(`/recipes/${created.id}`).send(fx.recipeBody({ imageUrl: 'https://example.com/a.jpg' })).expect(200)
+        ).body;
+        expect(replaced).toMatchObject({ imageKey: null, imageUrl: 'https://example.com/a.jpg' });
+        expect(await loads(created.imageUrl)).toBe(false);
+      });
+
+      it('keeps a cover photo that a step of another recipe still uses', async () => {
+        const key = await uploadPhoto();
+        const first = (await fx.api(fx.alice).post('/recipes').send(fx.recipeBody({ imageKey: key })).expect(201)).body;
+        await fx.api(fx.alice).post('/recipes').send(fx.recipeBody({ steps: [{ text: 'B', images: [key] }] })).expect(201);
+
+        await fx.api(fx.alice).delete(`/recipes/${first.id}`).expect(204);
+        expect(await loads(first.imageUrl)).toBe(true);
+      });
     });
 
     it('lists the unit catalog with both languages', async () => {
@@ -220,6 +245,7 @@ describe('recipes CRUD and ownership (e2e)', () => {
       ['no steps', { steps: [] }],
       ['difficulty out of range', { difficulty: 9 }],
       ['non-http image url', { imageUrl: 'javascript:alert(1)' }],
+      ['both an image url and an uploaded image', { imageUrl: 'https://example.com/a.jpg', imageKey: 'recipes/x/a.jpg' }],
       ['unknown tag', { tagIds: [999_999] }],
       ['duplicate tags', { tagIds: [1, 1] }],
     ])('rejects %s with 400', async (_name, overrides) => {
