@@ -5,6 +5,11 @@ All notable changes to Food Drop. Format based on [Keep a Changelog](https://kee
 ## [Unreleased]
 
 ### Changed
+- 2026-10-12: **Dish photo can be uploaded from the device** (backend, web, mobile)
+  - **API**: `RecipeInput.imageKey` takes a key from `POST /media/uploads` with the new `purpose: "recipe-cover"` (same `recipes/{userId}/` prefix and ownership check as step photos); send `imageUrl` or `imageKey`, not both (400). Responses add `imageKey`, and `imageUrl` becomes the URL to display (the stored photo's view URL when a key is set, otherwise the external link) in both list and detail. Replacing or removing an uploaded cover, or deleting its recipe, deletes the object unless another recipe of the owner uses the key as cover or step photo. Migration `0005` adds `recipes.image_key`.
+  - **Web**: "Ảnh món" has "Tải ảnh từ máy" (downscaled, signed PUT like step photos), a remove button on the preview, and the URL field ("Hoặc dán đường dẫn ảnh") while no upload is set. Saving waits for an upload in flight.
+  - **Mobile**: the form opens with an "Ảnh món" editor (camera or library, remove, replace); the upload needs a connection, the save stays offline-first. Drift schema v4 adds `recipes.image_key`; a local cover shows from its `file:` URI until the next sync (`PhotoUrlView`, shared with step photos).
+  - Regenerated the OpenAPI contract, web types and the Dart client.
 - 2026-10-09: **Recipe detail aligned with the "Chi tiết công thức" design boards** (web, mobile)
   - **Web**: the header shows the dish photo (`imageUrl`) in a rarity-glow frame beside the title, with a rarity-tinted bowl when there is none; facts are stacked label/value ("Tổng thời gian", "3 giờ"). Step cards put photos before the note; the note is a boxed "Lưu ý:" callout; the timer button reads "Bắt đầu hẹn giờ · 10:00" plus the step's timer label.
   - **Web list count**: with a filter on, the subtitle reads "N công thức phù hợp với bộ lọc" instead of claiming the filtered count is the whole library ("trong thư viện của bạn"). The API still returns no total.

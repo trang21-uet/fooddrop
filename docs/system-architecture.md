@@ -57,7 +57,7 @@
 | `gacha` | Weighted draw, rarity, case types (cook / lazy), spin history |
 | `context` | Weather lookup (Open-Meteo) + boost rules, Places lookup |
 | `grocery` | Server-side aggregation endpoint (clients may also compute locally) |
-| `media` | Signed upload URLs for S3/R2 (parser photos and recipe step photos) and view URLs for stored photos |
+| `media` | Signed upload URLs for S3/R2 (parser photos, recipe cover and step photos) and view URLs for stored photos |
 
 ## Key flows
 

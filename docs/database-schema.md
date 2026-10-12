@@ -56,7 +56,8 @@ CREATE TABLE recipes (
   owner_id uuid NOT NULL REFERENCES users ON DELETE CASCADE,
   title text NOT NULL,
   description text,
-  image_url text,
+  image_url text,                -- external photo link; null when image_key is set
+  image_key text,                -- uploaded photo, recipes/{userId}/{uuid}.jpg
   base_servings int NOT NULL DEFAULT 2 CHECK (base_servings > 0),
   total_minutes int NOT NULL CHECK (total_minutes > 0),
   difficulty smallint NOT NULL CHECK (difficulty BETWEEN 1 AND 5),
@@ -156,7 +157,7 @@ CREATE TABLE parse_jobs (
 - **Recipe lines are stored as written; the grocery base is derived.** `quantity` and `unit` keep what the cook chose (2 thìa canh). On read, the units module computes `base` = `{quantity, unit: g | ml | piece}` from `units.to_base`, `default_unit` and `density_g_per_ml` (mass↔volume conversion so one ingredient sums in one unit). A line without a quantity, or with a unit that cannot be summed (`to_base` NULL), has base quantity 0 in the ingredient's default unit. A quantity without a unit is a count of pieces. Because `base` is not stored, a change to a conversion factor corrects old recipes too.
 - **Parser units:** raw unit text from a source is mapped to a catalog code by `modules/units/unit-aliases.ts` (Vietnamese and English spellings). Spoons keep their count; units outside the catalog are converted to g / ml (cup → 236.588 ml, lb → 453.592 g); a bare "oz" means fluid ounces for liquids. An unknown unit leaves quantity and unit empty with the wording in `note`.
 - **Quantity parsing:** a comma followed by exactly three digits is a thousands separator ("1,000" = 1000); any other comma is a decimal ("1,5" = 1.5). Ranges resolve to their midpoint.
-- **Step photos:** steps hold storage keys (`recipes/{userId}/{uuid}.jpg`), never URLs. The API turns keys into URLs on read (`S3_PUBLIC_URL` or a 7-day signed GET). The API deletes an object when no step of the owner references it any more (step edit, recipe delete); photos from forms that were never saved are not swept.
+- **Step and cover photos:** steps (and `image_key`) hold storage keys (`recipes/{userId}/{uuid}.jpg`), never URLs. The API turns keys into URLs on read (`S3_PUBLIC_URL` or a 7-day signed GET). The API deletes an object when no step or cover of the owner references it any more (step edit, recipe delete); photos from forms that were never saved are not swept.
 - **Indexes:** every `user_id` / `ingredient_id` foreign key that is queried or cascaded has an index (migration `0002_add-foreign-key-indexes`).
 - **Search:** diacritic-insensitive matching uses the `unaccent` extension (migration `0001_enable-unaccent`).
 - **Ingredients are a shared catalog:** user-added entries (`POST /ingredients`) are visible to everyone; there is no owner column.
