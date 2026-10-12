@@ -4,7 +4,7 @@ import { useState, type ChangeEvent } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import { CloseIcon, ImageIcon, PlusIcon } from "@/components/ui/icons";
 import { uploadImage } from "@/lib/images/upload-image";
-import { MAX_STEP_IMAGES, type RecipeFormValues, type StepImage } from "./recipe-form-schema";
+import { MAX_STEP_IMAGES, type RecipeFormValues, type UploadedImage } from "./recipe-form-schema";
 import { useUploadActivity } from "./upload-activity";
 
 const ACCEPTED_TYPES = "image/jpeg,image/png,image/webp";
@@ -30,7 +30,7 @@ export function StepImagesField({ index }: { index: number }) {
     activity.begin(accepted.length);
 
     const results = await Promise.allSettled(
-      accepted.map(async (file): Promise<StepImage> => ({ key: await uploadImage(file, "recipe-step"), url: URL.createObjectURL(file) })),
+      accepted.map(async (file): Promise<UploadedImage> => ({ key: await uploadImage(file, "recipe-step"), url: URL.createObjectURL(file) })),
     );
     const uploaded = results.flatMap((result) => (result.status === "fulfilled" ? [result.value] : []));
     const failed = results.find((result): result is PromiseRejectedResult => result.status === "rejected");

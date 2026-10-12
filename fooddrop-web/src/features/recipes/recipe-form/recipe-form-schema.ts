@@ -17,14 +17,14 @@ export const ingredientRowSchema = z.object({
 export const MAX_STEP_IMAGES = 10;
 
 /** `url` is a local preview for a photo uploaded in this session, or the server's URL for a saved one. */
-export const stepImageSchema = z.object({ key: z.string().min(1), url: z.string().nullable() });
-export type StepImage = z.infer<typeof stepImageSchema>;
+export const uploadedImageSchema = z.object({ key: z.string().min(1), url: z.string().nullable() });
+export type UploadedImage = z.infer<typeof uploadedImageSchema>;
 
 export const stepRowSchema = z.object({
   name: z.string().trim().max(100, "Tên bước tối đa 100 ký tự"),
   text: z.string().trim().min(1, "Hãy mô tả bước này").max(2000),
   note: z.string().trim().max(500, "Lưu ý tối đa 500 ký tự"),
-  images: z.array(stepImageSchema).max(MAX_STEP_IMAGES),
+  images: z.array(uploadedImageSchema).max(MAX_STEP_IMAGES),
   timerMinutes: numberField("Nhập số phút").int("Chỉ nhập số phút nguyên").min(1).max(1440).optional(),
   // Not editable in the UI yet; carried through so editing a recipe never drops an existing label.
   timerLabel: z.string().optional(),
@@ -36,7 +36,10 @@ export const EMPTY_STEP: StepRow = { name: "", text: "", note: "", images: [] };
 export const recipeFormSchema = z.object({
   title: z.string().trim().min(1, "Cần nhập tiêu đề").max(200),
   description: z.string().trim().max(2000),
+  /** A photo hosted elsewhere; ignored while `coverImage` is set. */
   imageUrl: optionalUrl,
+  /** A photo uploaded from the device; takes precedence over `imageUrl`. */
+  coverImage: uploadedImageSchema.nullable(),
   sourceUrl: optionalUrl,
   baseServings: numberField("Nhập số khẩu phần").int("Chỉ nhập số khẩu phần nguyên").min(1).max(100),
   totalMinutes: numberField("Nhập tổng số phút").int("Chỉ nhập số phút nguyên").min(1).max(10_080),
@@ -52,6 +55,7 @@ export const EMPTY_RECIPE_FORM: RecipeFormValues = {
   title: "",
   description: "",
   imageUrl: "",
+  coverImage: null,
   sourceUrl: "",
   baseServings: 2,
   totalMinutes: 30,
@@ -66,7 +70,8 @@ export function toRecipeInput(values: RecipeFormValues): RecipeInput {
   return {
     title: values.title,
     description: values.description || null,
-    imageUrl: values.imageUrl || null,
+    imageUrl: values.coverImage ? null : values.imageUrl || null,
+    imageKey: values.coverImage?.key ?? null,
     sourceUrl: values.sourceUrl || null,
     baseServings: values.baseServings,
     totalMinutes: values.totalMinutes,
@@ -94,7 +99,8 @@ export function toFormValues(recipe: RecipeDetail): RecipeFormValues {
   return {
     title: recipe.title,
     description: recipe.description ?? "",
-    imageUrl: recipe.imageUrl ?? "",
+    imageUrl: recipe.imageKey ? "" : (recipe.imageUrl ?? ""),
+    coverImage: recipe.imageKey ? { key: recipe.imageKey, url: recipe.imageUrl } : null,
     sourceUrl: recipe.sourceUrl ?? "",
     baseServings: recipe.baseServings,
     totalMinutes: recipe.totalMinutes,

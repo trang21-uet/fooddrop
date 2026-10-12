@@ -9,6 +9,7 @@ export function draftToFormValues(draft: ParsedRecipeDraft): RecipeFormValues {
     title: draft.title,
     description: draft.description ?? "",
     imageUrl: draft.imageUrl ?? "",
+    coverImage: null,
     sourceUrl: draft.sourceUrl ?? "",
     baseServings: draft.baseServings,
     totalMinutes: draft.totalMinutes ?? FALLBACK_MINUTES,

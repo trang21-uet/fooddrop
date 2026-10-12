@@ -168,7 +168,7 @@ export interface components {
              * @default parser
              * @enum {string}
              */
-            purpose: "parser" | "recipe-step";
+            purpose: "parser" | "recipe-step" | "recipe-cover";
             /** @enum {string} */
             contentType: "image/jpeg" | "image/png" | "image/webp";
             sizeBytes: number;
@@ -289,6 +289,7 @@ export interface components {
             description?: string | null;
             /** Format: uri */
             imageUrl?: string | null;
+            imageKey?: string | null;
             /** Format: uri */
             sourceUrl?: string | null;
             /** @default 2 */
@@ -330,6 +331,7 @@ export interface components {
             title: string;
             description: string | null;
             imageUrl: string | null;
+            imageKey: string | null;
             baseServings: number;
             totalMinutes: number;
             difficulty: number;
@@ -389,6 +391,7 @@ export interface components {
                 title: string;
                 description: string | null;
                 imageUrl: string | null;
+                imageKey: string | null;
                 baseServings: number;
                 totalMinutes: number;
                 difficulty: number;

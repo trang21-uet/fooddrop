@@ -2,7 +2,7 @@ import { apiClient } from "@/lib/api/api-client";
 import { ApiError, unwrap } from "@/lib/api/api-error";
 import { prepareImageUpload } from "./prepare-image-upload";
 
-export type UploadPurpose = "parser" | "recipe-step";
+export type UploadPurpose = "parser" | "recipe-step" | "recipe-cover";
 
 /** Downscales a photo and uploads it straight to object storage with a signed URL; resolves to its key. */
 export async function uploadImage(file: File, purpose: UploadPurpose): Promise<string> {

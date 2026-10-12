@@ -1,14 +1,14 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { FormProvider, useForm } from "react-hook-form";
-import { MAX_STEP_IMAGES, type RecipeFormValues, type StepImage } from "./recipe-form-schema";
+import { MAX_STEP_IMAGES, type RecipeFormValues, type UploadedImage } from "./recipe-form-schema";
 import { StepImagesField } from "./step-images-field";
 
 const uploadImage = vi.fn();
 vi.mock("@/lib/images/upload-image", () => ({ uploadImage: (...args: unknown[]) => uploadImage(...args) }));
 
-let latest: StepImage[] = [];
+let latest: UploadedImage[] = [];
 
-function Harness({ initial = [] }: { initial?: StepImage[] }) {
+function Harness({ initial = [] }: { initial?: UploadedImage[] }) {
   const methods = useForm<Pick<RecipeFormValues, "steps">>({
     defaultValues: { steps: [{ name: "", text: "", images: initial }] },
   });

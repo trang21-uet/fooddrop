@@ -68,6 +68,20 @@ describe("toRecipeInput", () => {
     expect(input.ingredients).toEqual([{ ingredientId: INGREDIENT_ID, quantity: "1 1/2", unit: "kg", note: null }]);
   });
 
+  it("sends an uploaded cover photo by key and drops the URL beside it", () => {
+    const input = toRecipeInput({
+      ...validValues,
+      imageUrl: "https://example.com/a.jpg",
+      coverImage: { key: "recipes/u1/cover.jpg", url: "blob:cover" },
+    });
+    expect(input.imageKey).toBe("recipes/u1/cover.jpg");
+    expect(input.imageUrl).toBeNull();
+    expect(toRecipeInput({ ...validValues, imageUrl: "https://example.com/a.jpg" })).toMatchObject({
+      imageUrl: "https://example.com/a.jpg",
+      imageKey: null,
+    });
+  });
+
   it("drops a timer label when the timer is cleared", () => {
     const input = toRecipeInput({ ...validValues, steps: [{ name: "", text: "Stir", note: "", timerLabel: "Rest", images: [] }] });
     // Blank name and note are omitted, not sent as empty strings.
@@ -100,6 +114,7 @@ describe("toFormValues", () => {
     title: "Egg rice",
     description: null,
     imageUrl: null,
+    imageKey: null,
     sourceUrl: null,
     baseServings: 1,
     totalMinutes: 10,
@@ -152,5 +167,12 @@ describe("toFormValues", () => {
       ["", ""],
     ]);
     expect(recipeFormSchema.safeParse(values).success).toBe(true);
+  });
+
+  it("keeps an uploaded cover photo as the upload, not as a URL to edit", () => {
+    const values = toFormValues({ ...detail, imageKey: "recipes/u1/cover.jpg", imageUrl: "https://cdn.example/cover.jpg" });
+    expect(values.coverImage).toEqual({ key: "recipes/u1/cover.jpg", url: "https://cdn.example/cover.jpg" });
+    expect(values.imageUrl).toBe("");
+    expect(toFormValues({ ...detail, imageUrl: "https://example.com/a.jpg" })).toMatchObject({ imageUrl: "https://example.com/a.jpg", coverImage: null });
   });
 });
