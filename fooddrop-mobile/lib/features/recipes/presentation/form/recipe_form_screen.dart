@@ -7,6 +7,7 @@ import '../../../../core/widgets/neon_button.dart';
 import '../../../parser/data/parser_providers.dart';
 import '../../data/recipe_providers.dart';
 import 'recipe_form_basics.dart';
+import 'recipe_form_cover_image.dart';
 import 'recipe_form_controller.dart';
 import 'recipe_form_ingredients.dart';
 import 'recipe_form_steps.dart';
@@ -89,6 +90,8 @@ class _FormBodyState extends ConsumerState<_FormBody> {
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
               children: [
+                RecipeFormCoverImage(recipeId: recipeId),
+                const SizedBox(height: 22),
                 RecipeFormBasics(recipeId: recipeId),
                 const _SectionTitle('Nguyên liệu'),
                 RecipeFormIngredients(recipeId: recipeId),

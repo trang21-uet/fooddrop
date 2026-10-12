@@ -10,6 +10,8 @@ class RecipeFormState {
     this.addingIngredients = false,
     this.ingredientError,
     this.uploadingSteps = const {},
+    this.uploadingCover = false,
+    this.coverError,
     this.imageError,
   });
 
@@ -26,6 +28,8 @@ class RecipeFormState {
 
   /// Uids of steps with photos still uploading.
   final Set<int> uploadingSteps;
+  final bool uploadingCover;
+  final String? coverError;
   final String? imageError;
 
   RecipeFormState copyWith({
@@ -36,6 +40,8 @@ class RecipeFormState {
     bool? addingIngredients,
     String? ingredientError,
     Set<int>? uploadingSteps,
+    bool? uploadingCover,
+    String? coverError,
     String? imageError,
   }) =>
       RecipeFormState(
@@ -46,6 +52,8 @@ class RecipeFormState {
         addingIngredients: addingIngredients ?? this.addingIngredients,
         ingredientError: ingredientError,
         uploadingSteps: uploadingSteps ?? this.uploadingSteps,
+        uploadingCover: uploadingCover ?? this.uploadingCover,
+        coverError: coverError,
         imageError: imageError,
       );
 }

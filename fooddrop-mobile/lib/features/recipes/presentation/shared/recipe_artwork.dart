@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../app/food_drop_colors.dart';
 import '../../domain/recipe.dart';
+import 'photo_url_view.dart';
 
 /// Recipe picture: the photo when there is one and it loads, otherwise a rarity-tinted tile with
 /// a bowl icon (also what shows offline).
@@ -26,16 +27,7 @@ class RecipeArtwork extends StatelessWidget {
     );
 
     final url = recipe.imageUrl;
-    final child = url == null
-        ? placeholder
-        : Image.network(
-            url,
-            fit: BoxFit.cover,
-            cacheWidth: 600,
-            excludeFromSemantics: true,
-            errorBuilder: (context, error, stackTrace) => placeholder,
-            loadingBuilder: (context, child, progress) => progress == null ? child : placeholder,
-          );
+    final child = url == null ? placeholder : PhotoUrlView(url: url, placeholder: placeholder, cacheWidth: 600);
     return ClipRRect(borderRadius: borderRadius ?? BorderRadius.circular(12), child: child);
   }
 }

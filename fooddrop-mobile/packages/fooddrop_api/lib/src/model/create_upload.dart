@@ -94,7 +94,9 @@ enum CreateUploadPurposeEnum {
 @JsonValue(r'parser')
 parser(r'parser'),
 @JsonValue(r'recipe-step')
-recipeStep(r'recipe-step');
+recipeStep(r'recipe-step'),
+@JsonValue(r'recipe-cover')
+recipeCover(r'recipe-cover');
 
 const CreateUploadPurposeEnum(this.value);
 

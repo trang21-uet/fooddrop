@@ -15,6 +15,8 @@ abstract class _$RecipeListItemsInnerCWProxy {
 
   RecipeListItemsInner imageUrl(String? imageUrl);
 
+  RecipeListItemsInner imageKey(String? imageKey);
+
   RecipeListItemsInner baseServings(int baseServings);
 
   RecipeListItemsInner totalMinutes(int totalMinutes);
@@ -38,6 +40,7 @@ abstract class _$RecipeListItemsInnerCWProxy {
     String title,
     String? description,
     String? imageUrl,
+    String? imageKey,
     int baseServings,
     int totalMinutes,
     int difficulty,
@@ -66,6 +69,9 @@ class _$RecipeListItemsInnerCWProxyImpl
 
   @override
   RecipeListItemsInner imageUrl(String? imageUrl) => this(imageUrl: imageUrl);
+
+  @override
+  RecipeListItemsInner imageKey(String? imageKey) => this(imageKey: imageKey);
 
   @override
   RecipeListItemsInner baseServings(int baseServings) =>
@@ -103,6 +109,7 @@ class _$RecipeListItemsInnerCWProxyImpl
     Object? title = const $CopyWithPlaceholder(),
     Object? description = const $CopyWithPlaceholder(),
     Object? imageUrl = const $CopyWithPlaceholder(),
+    Object? imageKey = const $CopyWithPlaceholder(),
     Object? baseServings = const $CopyWithPlaceholder(),
     Object? totalMinutes = const $CopyWithPlaceholder(),
     Object? difficulty = const $CopyWithPlaceholder(),
@@ -127,6 +134,10 @@ class _$RecipeListItemsInnerCWProxyImpl
           ? _value.imageUrl
           // ignore: cast_nullable_to_non_nullable
           : imageUrl as String?,
+      imageKey: imageKey == const $CopyWithPlaceholder()
+          ? _value.imageKey
+          // ignore: cast_nullable_to_non_nullable
+          : imageKey as String?,
       baseServings: baseServings == const $CopyWithPlaceholder()
           ? _value.baseServings
           // ignore: cast_nullable_to_non_nullable
@@ -176,6 +187,7 @@ RecipeListItemsInner _$RecipeListItemsInnerFromJson(
       'title',
       'description',
       'imageUrl',
+      'imageKey',
       'baseServings',
       'totalMinutes',
       'difficulty',
@@ -189,6 +201,7 @@ RecipeListItemsInner _$RecipeListItemsInnerFromJson(
     title: $checkedConvert('title', (v) => v as String),
     description: $checkedConvert('description', (v) => v as String?),
     imageUrl: $checkedConvert('imageUrl', (v) => v as String?),
+    imageKey: $checkedConvert('imageKey', (v) => v as String?),
     baseServings: $checkedConvert('baseServings', (v) => (v as num).toInt()),
     totalMinutes: $checkedConvert('totalMinutes', (v) => (v as num).toInt()),
     difficulty: $checkedConvert('difficulty', (v) => (v as num).toInt()),
@@ -214,6 +227,7 @@ Map<String, dynamic> _$RecipeListItemsInnerToJson(
   'title': instance.title,
   'description': instance.description,
   'imageUrl': instance.imageUrl,
+  'imageKey': instance.imageKey,
   'baseServings': instance.baseServings,
   'totalMinutes': instance.totalMinutes,
   'difficulty': instance.difficulty,

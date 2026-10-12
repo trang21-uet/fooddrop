@@ -22,6 +22,11 @@ void main() {
       // TODO
     });
 
+    // String imageKey
+    test('to test the property `imageKey`', () async {
+      // TODO
+    });
+
     // String sourceUrl
     test('to test the property `sourceUrl`', () async {
       // TODO

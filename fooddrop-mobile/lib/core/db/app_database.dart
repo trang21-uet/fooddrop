@@ -11,7 +11,11 @@ class Recipes extends Table {
   TextColumn get id => text()();
   TextColumn get title => text()();
   TextColumn get description => text().nullable()();
+  /// What to display: the server URL, an external link, or a `file:` URI before an upload has synced.
   TextColumn get imageUrl => text().nullable()();
+
+  /// Storage key of an uploaded photo; null when [imageUrl] is an external link.
+  TextColumn get imageKey => text().nullable()();
   TextColumn get sourceUrl => text().nullable()();
   IntColumn get baseServings => integer()();
   IntColumn get totalMinutes => integer()();
@@ -144,7 +148,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -189,6 +193,7 @@ class AppDatabase extends _$AppDatabase {
                   .write(OutboxCompanion(payloadJson: Value(upgradeLegacyOutboxPayload(payload))));
             }
           }
+          if (from < 4) await m.addColumn(recipes, recipes.imageKey);
         },
         beforeOpen: (details) async {
           await customStatement('PRAGMA foreign_keys = ON');

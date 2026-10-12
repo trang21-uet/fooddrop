@@ -118,6 +118,7 @@ class Recipe {
     required this.createdAt,
     this.description,
     this.imageUrl,
+    this.imageKey,
     this.sourceUrl,
     this.tagIds = const [],
     this.ingredients = const [],
@@ -128,7 +129,11 @@ class Recipe {
   final String id;
   final String title;
   final String? description;
+  /// The photo to show: a server or external URL, or a `file:` URI before an upload has synced.
   final String? imageUrl;
+
+  /// Set when the photo was uploaded; [imageUrl] is then just how to display it.
+  final String? imageKey;
   final String? sourceUrl;
   final int baseServings;
   final int totalMinutes;

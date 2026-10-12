@@ -15,6 +15,8 @@ abstract class _$RecipeDetailCWProxy {
 
   RecipeDetail imageUrl(String? imageUrl);
 
+  RecipeDetail imageKey(String? imageKey);
+
   RecipeDetail baseServings(int baseServings);
 
   RecipeDetail totalMinutes(int totalMinutes);
@@ -46,6 +48,7 @@ abstract class _$RecipeDetailCWProxy {
     String title,
     String? description,
     String? imageUrl,
+    String? imageKey,
     int baseServings,
     int totalMinutes,
     int difficulty,
@@ -77,6 +80,9 @@ class _$RecipeDetailCWProxyImpl implements _$RecipeDetailCWProxy {
 
   @override
   RecipeDetail imageUrl(String? imageUrl) => this(imageUrl: imageUrl);
+
+  @override
+  RecipeDetail imageKey(String? imageKey) => this(imageKey: imageKey);
 
   @override
   RecipeDetail baseServings(int baseServings) =>
@@ -123,6 +129,7 @@ class _$RecipeDetailCWProxyImpl implements _$RecipeDetailCWProxy {
     Object? title = const $CopyWithPlaceholder(),
     Object? description = const $CopyWithPlaceholder(),
     Object? imageUrl = const $CopyWithPlaceholder(),
+    Object? imageKey = const $CopyWithPlaceholder(),
     Object? baseServings = const $CopyWithPlaceholder(),
     Object? totalMinutes = const $CopyWithPlaceholder(),
     Object? difficulty = const $CopyWithPlaceholder(),
@@ -151,6 +158,10 @@ class _$RecipeDetailCWProxyImpl implements _$RecipeDetailCWProxy {
           ? _value.imageUrl
           // ignore: cast_nullable_to_non_nullable
           : imageUrl as String?,
+      imageKey: imageKey == const $CopyWithPlaceholder()
+          ? _value.imageKey
+          // ignore: cast_nullable_to_non_nullable
+          : imageKey as String?,
       baseServings: baseServings == const $CopyWithPlaceholder()
           ? _value.baseServings
           // ignore: cast_nullable_to_non_nullable
@@ -215,6 +226,7 @@ RecipeDetail _$RecipeDetailFromJson(
       'title',
       'description',
       'imageUrl',
+      'imageKey',
       'baseServings',
       'totalMinutes',
       'difficulty',
@@ -232,6 +244,7 @@ RecipeDetail _$RecipeDetailFromJson(
     title: $checkedConvert('title', (v) => v as String),
     description: $checkedConvert('description', (v) => v as String?),
     imageUrl: $checkedConvert('imageUrl', (v) => v as String?),
+    imageKey: $checkedConvert('imageKey', (v) => v as String?),
     baseServings: $checkedConvert('baseServings', (v) => (v as num).toInt()),
     totalMinutes: $checkedConvert('totalMinutes', (v) => (v as num).toInt()),
     difficulty: $checkedConvert('difficulty', (v) => (v as num).toInt()),
@@ -276,6 +289,7 @@ Map<String, dynamic> _$RecipeDetailToJson(RecipeDetail instance) =>
       'title': instance.title,
       'description': instance.description,
       'imageUrl': instance.imageUrl,
+      'imageKey': instance.imageKey,
       'baseServings': instance.baseServings,
       'totalMinutes': instance.totalMinutes,
       'difficulty': instance.difficulty,

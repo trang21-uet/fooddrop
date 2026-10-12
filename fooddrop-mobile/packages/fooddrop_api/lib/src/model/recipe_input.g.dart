@@ -13,6 +13,8 @@ abstract class _$RecipeInputCWProxy {
 
   RecipeInput imageUrl(String? imageUrl);
 
+  RecipeInput imageKey(String? imageKey);
+
   RecipeInput sourceUrl(String? sourceUrl);
 
   RecipeInput baseServings(int? baseServings);
@@ -37,6 +39,7 @@ abstract class _$RecipeInputCWProxy {
     String title,
     String? description,
     String? imageUrl,
+    String? imageKey,
     String? sourceUrl,
     int? baseServings,
     int totalMinutes,
@@ -62,6 +65,9 @@ class _$RecipeInputCWProxyImpl implements _$RecipeInputCWProxy {
 
   @override
   RecipeInput imageUrl(String? imageUrl) => this(imageUrl: imageUrl);
+
+  @override
+  RecipeInput imageKey(String? imageKey) => this(imageKey: imageKey);
 
   @override
   RecipeInput sourceUrl(String? sourceUrl) => this(sourceUrl: sourceUrl);
@@ -98,6 +104,7 @@ class _$RecipeInputCWProxyImpl implements _$RecipeInputCWProxy {
     Object? title = const $CopyWithPlaceholder(),
     Object? description = const $CopyWithPlaceholder(),
     Object? imageUrl = const $CopyWithPlaceholder(),
+    Object? imageKey = const $CopyWithPlaceholder(),
     Object? sourceUrl = const $CopyWithPlaceholder(),
     Object? baseServings = const $CopyWithPlaceholder(),
     Object? totalMinutes = const $CopyWithPlaceholder(),
@@ -119,6 +126,10 @@ class _$RecipeInputCWProxyImpl implements _$RecipeInputCWProxy {
           ? _value.imageUrl
           // ignore: cast_nullable_to_non_nullable
           : imageUrl as String?,
+      imageKey: imageKey == const $CopyWithPlaceholder()
+          ? _value.imageKey
+          // ignore: cast_nullable_to_non_nullable
+          : imageKey as String?,
       sourceUrl: sourceUrl == const $CopyWithPlaceholder()
           ? _value.sourceUrl
           // ignore: cast_nullable_to_non_nullable
@@ -172,6 +183,7 @@ RecipeInput _$RecipeInputFromJson(
     title: $checkedConvert('title', (v) => v as String),
     description: $checkedConvert('description', (v) => v as String?),
     imageUrl: $checkedConvert('imageUrl', (v) => v as String?),
+    imageKey: $checkedConvert('imageKey', (v) => v as String?),
     sourceUrl: $checkedConvert('sourceUrl', (v) => v as String?),
     baseServings: $checkedConvert(
       'baseServings',
@@ -207,6 +219,7 @@ Map<String, dynamic> _$RecipeInputToJson(RecipeInput instance) =>
       'title': instance.title,
       'description': ?instance.description,
       'imageUrl': ?instance.imageUrl,
+      'imageKey': ?instance.imageKey,
       'sourceUrl': ?instance.sourceUrl,
       'baseServings': ?instance.baseServings,
       'totalMinutes': instance.totalMinutes,

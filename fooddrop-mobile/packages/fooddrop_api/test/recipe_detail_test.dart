@@ -27,6 +27,11 @@ void main() {
       // TODO
     });
 
+    // String imageKey
+    test('to test the property `imageKey`', () async {
+      // TODO
+    });
+
     // int baseServings
     test('to test the property `baseServings`', () async {
       // TODO

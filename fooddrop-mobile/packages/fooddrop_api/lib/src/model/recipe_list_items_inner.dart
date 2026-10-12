@@ -29,6 +29,8 @@ class RecipeListItemsInner {
 
     required  this.imageUrl,
 
+    required  this.imageKey,
+
     required  this.baseServings,
 
     required  this.totalMinutes,
@@ -87,6 +89,18 @@ class RecipeListItemsInner {
 
 
   final String? imageUrl;
+
+
+
+  @JsonKey(
+    
+    name: r'imageKey',
+    required: true,
+    includeIfNull: true,
+  )
+
+
+  final String? imageKey;
 
 
 
@@ -176,6 +190,7 @@ class RecipeListItemsInner {
       other.title == title &&
       other.description == description &&
       other.imageUrl == imageUrl &&
+      other.imageKey == imageKey &&
       other.baseServings == baseServings &&
       other.totalMinutes == totalMinutes &&
       other.difficulty == difficulty &&
@@ -189,6 +204,7 @@ class RecipeListItemsInner {
         title.hashCode +
         (description == null ? 0 : description.hashCode) +
         (imageUrl == null ? 0 : imageUrl.hashCode) +
+        (imageKey == null ? 0 : imageKey.hashCode) +
         baseServings.hashCode +
         totalMinutes.hashCode +
         difficulty.hashCode +

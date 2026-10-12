@@ -1,3 +1,4 @@
+import 'package:fooddrop_api/fooddrop_api.dart' as api;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../../core/media/media_providers.dart';
@@ -52,6 +53,34 @@ class RecipeFormController extends _$RecipeFormController {
     if (!next.remove(tagId)) next.add(tagId);
     _edit(_draft.copyWith(tagIds: next));
   }
+
+  // ---- Cover photo -------------------------------------------------------------------------
+
+  /// Picks one photo and uploads it straight to storage (needs a connection); it replaces any
+  /// earlier photo, uploaded or linked.
+  Future<void> setCoverPhoto(PhotoSource source) async {
+    final PickedPhoto? photo;
+    try {
+      photo = await ref.read(photoPickerProvider).pick(source);
+    } catch (_) {
+      state = state.copyWith(coverError: 'Không mở được máy ảnh hoặc thư viện ảnh.');
+      return;
+    }
+    if (photo == null || !ref.mounted) return;
+
+    state = state.copyWith(uploadingCover: true);
+    final result = await uploadStepPhotos(
+      [photo],
+      ref.read(mediaUploaderProvider),
+      purpose: api.CreateUploadPurposeEnum.recipeCover,
+    );
+    if (!ref.mounted) return;
+    final uploaded = result.images.firstOrNull;
+    if (uploaded != null) _edit(_draft.withCover(imageKey: uploaded.key, imageUrl: uploaded.url));
+    state = state.copyWith(uploadingCover: false, coverError: result.error);
+  }
+
+  void removeCover() => _edit(_draft.withCover());
 
   // ---- Ingredients --------------------------------------------------------------------------
 

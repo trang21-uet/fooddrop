@@ -48,6 +48,17 @@ class $RecipesTable extends Recipes with TableInfo<$RecipesTable, RecipeRow> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _imageKeyMeta = const VerificationMeta(
+    'imageKey',
+  );
+  @override
+  late final GeneratedColumn<String> imageKey = GeneratedColumn<String>(
+    'image_key',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _sourceUrlMeta = const VerificationMeta(
     'sourceUrl',
   );
@@ -129,6 +140,7 @@ class $RecipesTable extends Recipes with TableInfo<$RecipesTable, RecipeRow> {
     title,
     description,
     imageUrl,
+    imageKey,
     sourceUrl,
     baseServings,
     totalMinutes,
@@ -175,6 +187,12 @@ class $RecipesTable extends Recipes with TableInfo<$RecipesTable, RecipeRow> {
       context.handle(
         _imageUrlMeta,
         imageUrl.isAcceptableOrUnknown(data['image_url']!, _imageUrlMeta),
+      );
+    }
+    if (data.containsKey('image_key')) {
+      context.handle(
+        _imageKeyMeta,
+        imageKey.isAcceptableOrUnknown(data['image_key']!, _imageKeyMeta),
       );
     }
     if (data.containsKey('source_url')) {
@@ -260,6 +278,10 @@ class $RecipesTable extends Recipes with TableInfo<$RecipesTable, RecipeRow> {
         DriftSqlType.string,
         data['${effectivePrefix}image_url'],
       ),
+      imageKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}image_key'],
+      ),
       sourceUrl: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}source_url'],
@@ -301,7 +323,12 @@ class RecipeRow extends DataClass implements Insertable<RecipeRow> {
   final String id;
   final String title;
   final String? description;
+
+  /// What to display: the server URL, an external link, or a `file:` URI before an upload has synced.
   final String? imageUrl;
+
+  /// Storage key of an uploaded photo; null when [imageUrl] is an external link.
+  final String? imageKey;
   final String? sourceUrl;
   final int baseServings;
   final int totalMinutes;
@@ -314,6 +341,7 @@ class RecipeRow extends DataClass implements Insertable<RecipeRow> {
     required this.title,
     this.description,
     this.imageUrl,
+    this.imageKey,
     this.sourceUrl,
     required this.baseServings,
     required this.totalMinutes,
@@ -332,6 +360,9 @@ class RecipeRow extends DataClass implements Insertable<RecipeRow> {
     }
     if (!nullToAbsent || imageUrl != null) {
       map['image_url'] = Variable<String>(imageUrl);
+    }
+    if (!nullToAbsent || imageKey != null) {
+      map['image_key'] = Variable<String>(imageKey);
     }
     if (!nullToAbsent || sourceUrl != null) {
       map['source_url'] = Variable<String>(sourceUrl);
@@ -357,6 +388,9 @@ class RecipeRow extends DataClass implements Insertable<RecipeRow> {
       imageUrl: imageUrl == null && nullToAbsent
           ? const Value.absent()
           : Value(imageUrl),
+      imageKey: imageKey == null && nullToAbsent
+          ? const Value.absent()
+          : Value(imageKey),
       sourceUrl: sourceUrl == null && nullToAbsent
           ? const Value.absent()
           : Value(sourceUrl),
@@ -381,6 +415,7 @@ class RecipeRow extends DataClass implements Insertable<RecipeRow> {
       title: serializer.fromJson<String>(json['title']),
       description: serializer.fromJson<String?>(json['description']),
       imageUrl: serializer.fromJson<String?>(json['imageUrl']),
+      imageKey: serializer.fromJson<String?>(json['imageKey']),
       sourceUrl: serializer.fromJson<String?>(json['sourceUrl']),
       baseServings: serializer.fromJson<int>(json['baseServings']),
       totalMinutes: serializer.fromJson<int>(json['totalMinutes']),
@@ -398,6 +433,7 @@ class RecipeRow extends DataClass implements Insertable<RecipeRow> {
       'title': serializer.toJson<String>(title),
       'description': serializer.toJson<String?>(description),
       'imageUrl': serializer.toJson<String?>(imageUrl),
+      'imageKey': serializer.toJson<String?>(imageKey),
       'sourceUrl': serializer.toJson<String?>(sourceUrl),
       'baseServings': serializer.toJson<int>(baseServings),
       'totalMinutes': serializer.toJson<int>(totalMinutes),
@@ -413,6 +449,7 @@ class RecipeRow extends DataClass implements Insertable<RecipeRow> {
     String? title,
     Value<String?> description = const Value.absent(),
     Value<String?> imageUrl = const Value.absent(),
+    Value<String?> imageKey = const Value.absent(),
     Value<String?> sourceUrl = const Value.absent(),
     int? baseServings,
     int? totalMinutes,
@@ -425,6 +462,7 @@ class RecipeRow extends DataClass implements Insertable<RecipeRow> {
     title: title ?? this.title,
     description: description.present ? description.value : this.description,
     imageUrl: imageUrl.present ? imageUrl.value : this.imageUrl,
+    imageKey: imageKey.present ? imageKey.value : this.imageKey,
     sourceUrl: sourceUrl.present ? sourceUrl.value : this.sourceUrl,
     baseServings: baseServings ?? this.baseServings,
     totalMinutes: totalMinutes ?? this.totalMinutes,
@@ -441,6 +479,7 @@ class RecipeRow extends DataClass implements Insertable<RecipeRow> {
           ? data.description.value
           : this.description,
       imageUrl: data.imageUrl.present ? data.imageUrl.value : this.imageUrl,
+      imageKey: data.imageKey.present ? data.imageKey.value : this.imageKey,
       sourceUrl: data.sourceUrl.present ? data.sourceUrl.value : this.sourceUrl,
       baseServings: data.baseServings.present
           ? data.baseServings.value
@@ -464,6 +503,7 @@ class RecipeRow extends DataClass implements Insertable<RecipeRow> {
           ..write('title: $title, ')
           ..write('description: $description, ')
           ..write('imageUrl: $imageUrl, ')
+          ..write('imageKey: $imageKey, ')
           ..write('sourceUrl: $sourceUrl, ')
           ..write('baseServings: $baseServings, ')
           ..write('totalMinutes: $totalMinutes, ')
@@ -481,6 +521,7 @@ class RecipeRow extends DataClass implements Insertable<RecipeRow> {
     title,
     description,
     imageUrl,
+    imageKey,
     sourceUrl,
     baseServings,
     totalMinutes,
@@ -497,6 +538,7 @@ class RecipeRow extends DataClass implements Insertable<RecipeRow> {
           other.title == this.title &&
           other.description == this.description &&
           other.imageUrl == this.imageUrl &&
+          other.imageKey == this.imageKey &&
           other.sourceUrl == this.sourceUrl &&
           other.baseServings == this.baseServings &&
           other.totalMinutes == this.totalMinutes &&
@@ -511,6 +553,7 @@ class RecipesCompanion extends UpdateCompanion<RecipeRow> {
   final Value<String> title;
   final Value<String?> description;
   final Value<String?> imageUrl;
+  final Value<String?> imageKey;
   final Value<String?> sourceUrl;
   final Value<int> baseServings;
   final Value<int> totalMinutes;
@@ -524,6 +567,7 @@ class RecipesCompanion extends UpdateCompanion<RecipeRow> {
     this.title = const Value.absent(),
     this.description = const Value.absent(),
     this.imageUrl = const Value.absent(),
+    this.imageKey = const Value.absent(),
     this.sourceUrl = const Value.absent(),
     this.baseServings = const Value.absent(),
     this.totalMinutes = const Value.absent(),
@@ -538,6 +582,7 @@ class RecipesCompanion extends UpdateCompanion<RecipeRow> {
     required String title,
     this.description = const Value.absent(),
     this.imageUrl = const Value.absent(),
+    this.imageKey = const Value.absent(),
     this.sourceUrl = const Value.absent(),
     required int baseServings,
     required int totalMinutes,
@@ -558,6 +603,7 @@ class RecipesCompanion extends UpdateCompanion<RecipeRow> {
     Expression<String>? title,
     Expression<String>? description,
     Expression<String>? imageUrl,
+    Expression<String>? imageKey,
     Expression<String>? sourceUrl,
     Expression<int>? baseServings,
     Expression<int>? totalMinutes,
@@ -572,6 +618,7 @@ class RecipesCompanion extends UpdateCompanion<RecipeRow> {
       if (title != null) 'title': title,
       if (description != null) 'description': description,
       if (imageUrl != null) 'image_url': imageUrl,
+      if (imageKey != null) 'image_key': imageKey,
       if (sourceUrl != null) 'source_url': sourceUrl,
       if (baseServings != null) 'base_servings': baseServings,
       if (totalMinutes != null) 'total_minutes': totalMinutes,
@@ -588,6 +635,7 @@ class RecipesCompanion extends UpdateCompanion<RecipeRow> {
     Value<String>? title,
     Value<String?>? description,
     Value<String?>? imageUrl,
+    Value<String?>? imageKey,
     Value<String?>? sourceUrl,
     Value<int>? baseServings,
     Value<int>? totalMinutes,
@@ -602,6 +650,7 @@ class RecipesCompanion extends UpdateCompanion<RecipeRow> {
       title: title ?? this.title,
       description: description ?? this.description,
       imageUrl: imageUrl ?? this.imageUrl,
+      imageKey: imageKey ?? this.imageKey,
       sourceUrl: sourceUrl ?? this.sourceUrl,
       baseServings: baseServings ?? this.baseServings,
       totalMinutes: totalMinutes ?? this.totalMinutes,
@@ -627,6 +676,9 @@ class RecipesCompanion extends UpdateCompanion<RecipeRow> {
     }
     if (imageUrl.present) {
       map['image_url'] = Variable<String>(imageUrl.value);
+    }
+    if (imageKey.present) {
+      map['image_key'] = Variable<String>(imageKey.value);
     }
     if (sourceUrl.present) {
       map['source_url'] = Variable<String>(sourceUrl.value);
@@ -662,6 +714,7 @@ class RecipesCompanion extends UpdateCompanion<RecipeRow> {
           ..write('title: $title, ')
           ..write('description: $description, ')
           ..write('imageUrl: $imageUrl, ')
+          ..write('imageKey: $imageKey, ')
           ..write('sourceUrl: $sourceUrl, ')
           ..write('baseServings: $baseServings, ')
           ..write('totalMinutes: $totalMinutes, ')
@@ -3640,6 +3693,7 @@ typedef $$RecipesTableCreateCompanionBuilder =
       required String title,
       Value<String?> description,
       Value<String?> imageUrl,
+      Value<String?> imageKey,
       Value<String?> sourceUrl,
       required int baseServings,
       required int totalMinutes,
@@ -3655,6 +3709,7 @@ typedef $$RecipesTableUpdateCompanionBuilder =
       Value<String> title,
       Value<String?> description,
       Value<String?> imageUrl,
+      Value<String?> imageKey,
       Value<String?> sourceUrl,
       Value<int> baseServings,
       Value<int> totalMinutes,
@@ -3735,6 +3790,11 @@ class $$RecipesTableFilterComposer
 
   ColumnFilters<String> get imageUrl => $composableBuilder(
     column: $table.imageUrl,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get imageKey => $composableBuilder(
+    column: $table.imageKey,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3853,6 +3913,11 @@ class $$RecipesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get imageKey => $composableBuilder(
+    column: $table.imageKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get sourceUrl => $composableBuilder(
     column: $table.sourceUrl,
     builder: (column) => ColumnOrderings(column),
@@ -3911,6 +3976,9 @@ class $$RecipesTableAnnotationComposer
 
   GeneratedColumn<String> get imageUrl =>
       $composableBuilder(column: $table.imageUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get imageKey =>
+      $composableBuilder(column: $table.imageKey, builder: (column) => column);
 
   GeneratedColumn<String> get sourceUrl =>
       $composableBuilder(column: $table.sourceUrl, builder: (column) => column);
@@ -4026,6 +4094,7 @@ class $$RecipesTableTableManager
                 Value<String> title = const Value.absent(),
                 Value<String?> description = const Value.absent(),
                 Value<String?> imageUrl = const Value.absent(),
+                Value<String?> imageKey = const Value.absent(),
                 Value<String?> sourceUrl = const Value.absent(),
                 Value<int> baseServings = const Value.absent(),
                 Value<int> totalMinutes = const Value.absent(),
@@ -4039,6 +4108,7 @@ class $$RecipesTableTableManager
                 title: title,
                 description: description,
                 imageUrl: imageUrl,
+                imageKey: imageKey,
                 sourceUrl: sourceUrl,
                 baseServings: baseServings,
                 totalMinutes: totalMinutes,
@@ -4054,6 +4124,7 @@ class $$RecipesTableTableManager
                 required String title,
                 Value<String?> description = const Value.absent(),
                 Value<String?> imageUrl = const Value.absent(),
+                Value<String?> imageKey = const Value.absent(),
                 Value<String?> sourceUrl = const Value.absent(),
                 required int baseServings,
                 required int totalMinutes,
@@ -4067,6 +4138,7 @@ class $$RecipesTableTableManager
                 title: title,
                 description: description,
                 imageUrl: imageUrl,
+                imageKey: imageKey,
                 sourceUrl: sourceUrl,
                 baseServings: baseServings,
                 totalMinutes: totalMinutes,

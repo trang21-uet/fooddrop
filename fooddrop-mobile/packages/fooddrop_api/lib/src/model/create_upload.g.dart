@@ -110,6 +110,7 @@ Map<String, dynamic> _$CreateUploadToJson(
 const _$CreateUploadPurposeEnumEnumMap = {
   CreateUploadPurposeEnum.parser: 'parser',
   CreateUploadPurposeEnum.recipeStep: 'recipe-step',
+  CreateUploadPurposeEnum.recipeCover: 'recipe-cover',
 };
 
 const _$CreateUploadContentTypeEnumEnumMap = {

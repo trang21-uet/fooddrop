@@ -11,6 +11,7 @@ Name | Type | Description | Notes
 **title** | **String** |  | 
 **description** | **String** |  | [optional] 
 **imageUrl** | **String** |  | [optional] 
+**imageKey** | **String** |  | [optional] 
 **sourceUrl** | **String** |  | [optional] 
 **baseServings** | **int** |  | [optional] [default to 2]
 **totalMinutes** | **int** |  | 

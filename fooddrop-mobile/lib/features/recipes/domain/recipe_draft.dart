@@ -96,6 +96,7 @@ class RecipeDraft {
     this.title = '',
     this.description = '',
     this.imageUrl,
+    this.imageKey,
     this.sourceUrl,
     this.baseServings = 2,
     this.totalMinutes = 30,
@@ -108,8 +109,12 @@ class RecipeDraft {
   final String title;
   final String description;
 
-  /// No editor on mobile yet; preserved so edits never clear them.
+  /// The recipe photo: an external link (kept from the web or an import), or how to display the
+  /// upload in [imageKey]. Only the key is sent when both are set.
   final String? imageUrl;
+  final String? imageKey;
+
+  /// No editor on mobile yet; preserved so edits never clear it.
   final String? sourceUrl;
   final int baseServings;
   final int totalMinutes;
@@ -132,6 +137,7 @@ class RecipeDraft {
         title: title ?? this.title,
         description: description ?? this.description,
         imageUrl: imageUrl,
+        imageKey: imageKey,
         sourceUrl: sourceUrl,
         baseServings: baseServings ?? this.baseServings,
         totalMinutes: totalMinutes ?? this.totalMinutes,
@@ -141,10 +147,26 @@ class RecipeDraft {
         steps: steps ?? this.steps,
       );
 
+  /// Replaces the photo; `withCover()` removes it.
+  RecipeDraft withCover({String? imageUrl, String? imageKey}) => RecipeDraft(
+        title: title,
+        description: description,
+        imageUrl: imageUrl,
+        imageKey: imageKey,
+        sourceUrl: sourceUrl,
+        baseServings: baseServings,
+        totalMinutes: totalMinutes,
+        difficulty: difficulty,
+        tagIds: tagIds,
+        ingredients: ingredients,
+        steps: steps,
+      );
+
   factory RecipeDraft.fromRecipe(Recipe recipe) => RecipeDraft(
         title: recipe.title,
         description: recipe.description ?? '',
         imageUrl: recipe.imageUrl,
+        imageKey: recipe.imageKey,
         sourceUrl: recipe.sourceUrl,
         baseServings: recipe.baseServings,
         totalMinutes: recipe.totalMinutes,

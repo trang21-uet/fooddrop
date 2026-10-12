@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/food_drop_colors.dart';
-import '../../../parser/data/photo_picker.dart';
 import '../../data/step_photo_uploader.dart';
 import '../../domain/recipe_draft.dart';
 import '../shared/step_image_view.dart';
+import 'photo_source_sheet.dart';
 import 'recipe_form_controller.dart';
 
 const _thumbSize = 88.0;
@@ -27,26 +27,7 @@ class StepImagesEditor extends ConsumerWidget {
     final canAdd = step.images.length < maxStepImages && !uploading;
 
     Future<void> choose() async {
-      final source = await showModalBottomSheet<PhotoSource>(
-        context: context,
-        builder: (sheet) => SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.photo_camera_outlined),
-                title: const Text('Chụp ảnh'),
-                onTap: () => Navigator.of(sheet).pop(PhotoSource.camera),
-              ),
-              ListTile(
-                leading: const Icon(Icons.photo_library_outlined),
-                title: const Text('Chọn từ thư viện (nhiều ảnh)'),
-                onTap: () => Navigator.of(sheet).pop(PhotoSource.gallery),
-              ),
-            ],
-          ),
-        ),
-      );
+      final source = await showPhotoSourceSheet(context, galleryLabel: 'Chọn từ thư viện (nhiều ảnh)');
       if (source != null) await controller.addStepPhotos(step.uid, source);
     }
 

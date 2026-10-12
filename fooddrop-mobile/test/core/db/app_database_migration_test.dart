@@ -48,6 +48,7 @@ void main() {
     expect((salt.quantity, salt.unit, salt.unitNameVi, salt.unitKind, salt.note), (null, null, null, null, '1 nắm'), reason: 'legacy "0 g" line keeps only its note');
     expect(salt.baseQuantity, 0);
     expect(await db.select(db.units).get(), isEmpty, reason: 'the catalog arrives with the next sync');
+    expect((await db.select(db.recipes).getSingle()).imageKey, isNull, reason: 'v4 adds the uploaded-photo key');
   });
 
   test('upgrading rewrites queued edits so a free-text unit is not rejected by the server', () async {

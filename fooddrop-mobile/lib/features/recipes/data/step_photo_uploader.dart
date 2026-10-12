@@ -27,7 +27,12 @@ class StepPhotoUpload {
 }
 
 /// Uploads picked photos straight to object storage, all at once. A failure drops only that photo.
-Future<StepPhotoUpload> uploadStepPhotos(List<PickedPhoto> photos, MediaUploader uploader) async {
+/// The cover photo goes through here too, with [purpose] `recipeCover`.
+Future<StepPhotoUpload> uploadStepPhotos(
+  List<PickedPhoto> photos,
+  MediaUploader uploader, {
+  api.CreateUploadPurposeEnum purpose = api.CreateUploadPurposeEnum.recipeStep,
+}) async {
   String? error;
   final uploads = await Future.wait([
     for (final photo in photos)
@@ -37,7 +42,7 @@ Future<StepPhotoUpload> uploadStepPhotos(List<PickedPhoto> photos, MediaUploader
           return null;
         }
         try {
-          final key = await uploader.upload(photo.bytes, photo.contentType, api.CreateUploadPurposeEnum.recipeStep);
+          final key = await uploader.upload(photo.bytes, photo.contentType, purpose);
           // The picked file stays on disk, so the photo can be shown before the next sync brings the server URL.
           return RecipeStepImage(key: key, url: photo.path == null ? null : Uri.file(photo.path!).toString());
         } catch (e) {

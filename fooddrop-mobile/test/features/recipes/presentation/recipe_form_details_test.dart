@@ -1,63 +1,22 @@
 import 'dart:typed_data';
 
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fooddrop/core/media/media_providers.dart';
-import 'package:fooddrop/core/media/media_uploader.dart';
 import 'package:fooddrop/features/parser/data/parser_providers.dart';
 import 'package:fooddrop/features/parser/data/photo_picker.dart';
 import 'package:fooddrop/features/recipes/data/recipe_providers.dart';
 import 'package:fooddrop/features/recipes/domain/rarity.dart';
 import 'package:fooddrop/features/recipes/domain/recipe.dart';
-import 'package:fooddrop/features/recipes/domain/recipe_draft.dart';
 import 'package:fooddrop/features/recipes/presentation/form/recipe_form_screen.dart';
 import 'package:fooddrop_api/fooddrop_api.dart' as api;
 import 'package:go_router/go_router.dart';
 
-import '../../../support/fake_recipe_remote.dart';
 import '../../../support/parser_fixtures.dart';
 import '../../../support/pump_app.dart';
 import '../../../support/recipe_fixtures.dart';
-
-typedef _Saved = ({RecipeDraft draft, String? id});
-
-class _RecordingActions extends RecipeActions {
-  _RecordingActions(super.ref, this.saved);
-
-  final List<_Saved> saved;
-
-  @override
-  Future<String> save(RecipeDraft draft, {String? id}) async {
-    saved.add((draft: draft, id: id));
-    return id ?? 'local-new';
-  }
-}
-
-/// Storage stand-in: hands out numbered keys, or fails like a dropped connection.
-class _FakeUploader implements MediaUploader {
-  _FakeUploader({this.fail = false, this.failStatus});
-
-  final bool fail;
-  final int? failStatus;
-  final purposes = <api.CreateUploadPurposeEnum>[];
-
-  @override
-  Future<String> upload(
-    Uint8List bytes,
-    api.CreateUploadContentTypeEnum contentType,
-    api.CreateUploadPurposeEnum purpose,
-  ) async {
-    if (failStatus != null) throw dioError(DioExceptionType.badResponse, status: failStatus);
-    if (fail) throw dioError(DioExceptionType.connectionError);
-    purposes.add(purpose);
-    return 'recipes/u1/${purposes.length}.jpg';
-  }
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
-}
+import '../../../support/recipe_form_fakes.dart';
 
 PickedPhoto _photo() => PickedPhoto(Uint8List(8), api.CreateUploadContentTypeEnum.imageSlashJpeg);
 
@@ -71,7 +30,7 @@ final _stepName = find.byWidgetPredicate((widget) {
 });
 
 void main() {
-  late List<_Saved> saved;
+  late List<SavedDraft> saved;
 
   setUp(() => saved = []);
 
@@ -79,7 +38,7 @@ void main() {
     await pumpRoutes(
       tester,
       overrides: [
-        recipeActionsProvider.overrideWith((ref) => _RecordingActions(ref, saved)),
+        recipeActionsProvider.overrideWith((ref) => RecordingRecipeActions(ref, saved)),
         tagGroupsProvider.overrideWith((ref) => Stream.value(const [])),
         unitsProvider.overrideWith((ref) => Stream.value(const [gramUnit, tbspUnit, fruitUnit])),
         ...overrides,
@@ -115,7 +74,7 @@ void main() {
   });
 
   testWidgets('several photos can be added to a step, removed again, and are saved as storage keys', (tester) async {
-    final uploader = _FakeUploader();
+    final uploader = FakeMediaUploader();
     await openForm(
       tester,
       overrides: [
@@ -147,7 +106,7 @@ void main() {
       tester,
       overrides: [
         photoPickerProvider.overrideWithValue(FakePhotoPicker(null, many: [_photo()])),
-        mediaUploaderProvider.overrideWithValue(_FakeUploader(fail: true)),
+        mediaUploaderProvider.overrideWithValue(FakeMediaUploader(fail: true)),
       ],
     );
 
@@ -162,7 +121,7 @@ void main() {
       tester,
       overrides: [
         photoPickerProvider.overrideWithValue(FakePhotoPicker(null, many: [_photo()])),
-        mediaUploaderProvider.overrideWithValue(_FakeUploader(failStatus: 503)),
+        mediaUploaderProvider.overrideWithValue(FakeMediaUploader(failStatus: 503)),
       ],
     );
 
@@ -172,7 +131,7 @@ void main() {
   });
 
   testWidgets('an oversized photo is refused before uploading', (tester) async {
-    final uploader = _FakeUploader();
+    final uploader = FakeMediaUploader();
     final big = PickedPhoto(Uint8List(maxPhotoBytes + 1), api.CreateUploadContentTypeEnum.imageSlashJpeg);
     await openForm(
       tester,

@@ -65,7 +65,7 @@ final class RecipeFormControllerProvider
 }
 
 String _$recipeFormControllerHash() =>
-    r'8283c12e303e7e84eceba4b65c586c2295db7840';
+    r'b825f4c52147ed93624e1f7f4bba2b308029e14c';
 
 /// Form state for creating (`recipeId == null`) or editing a recipe. Edits go through the
 /// controller so the screen holds no state beyond its text controllers.

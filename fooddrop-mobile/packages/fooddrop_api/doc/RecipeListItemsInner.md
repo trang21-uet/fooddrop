@@ -12,6 +12,7 @@ Name | Type | Description | Notes
 **title** | **String** |  | 
 **description** | **String** |  | 
 **imageUrl** | **String** |  | 
+**imageKey** | **String** |  | 
 **baseServings** | **int** |  | 
 **totalMinutes** | **int** |  | 
 **difficulty** | **int** |  | 

@@ -28,6 +28,8 @@ class RecipeInput {
 
      this.imageUrl,
 
+     this.imageKey,
+
      this.sourceUrl,
 
      this.baseServings = 2,
@@ -76,6 +78,18 @@ class RecipeInput {
 
 
   final String? imageUrl;
+
+
+
+  @JsonKey(
+    
+    name: r'imageKey',
+    required: false,
+    includeIfNull: false,
+  )
+
+
+  final String? imageKey;
 
 
 
@@ -176,6 +190,7 @@ class RecipeInput {
       other.title == title &&
       other.description == description &&
       other.imageUrl == imageUrl &&
+      other.imageKey == imageKey &&
       other.sourceUrl == sourceUrl &&
       other.baseServings == baseServings &&
       other.totalMinutes == totalMinutes &&
@@ -189,6 +204,7 @@ class RecipeInput {
         title.hashCode +
         (description == null ? 0 : description.hashCode) +
         (imageUrl == null ? 0 : imageUrl.hashCode) +
+        (imageKey == null ? 0 : imageKey.hashCode) +
         (sourceUrl == null ? 0 : sourceUrl.hashCode) +
         baseServings.hashCode +
         totalMinutes.hashCode +
