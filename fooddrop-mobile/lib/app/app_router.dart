@@ -5,6 +5,9 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../core/auth/auth_controller.dart';
 import '../features/auth/presentation/login_screen.dart';
 import '../features/auth/presentation/register_screen.dart';
+import '../features/gacha/domain/gacha_case.dart';
+import '../features/gacha/presentation/case_select_screen.dart';
+import '../features/gacha/presentation/drop_screen.dart';
 import '../features/grocery/presentation/grocery_screen.dart';
 import '../features/parser/presentation/recipe_import_screen.dart';
 import '../features/recipes/presentation/detail/recipe_detail_screen.dart';
@@ -72,6 +75,20 @@ GoRouter appRouter(Ref ref) {
                         RecipeFormScreen(recipeId: state.pathParameters['id']),
                   ),
                 ],
+              ),
+            ],
+          ),
+          GoRoute(
+            path: '/drop',
+            builder: (context, state) => const CaseSelectScreen(),
+            routes: [
+              GoRoute(
+                path: ':caseId',
+                // An unknown case (old link, typo) goes back to the picker.
+                redirect: (context, state) =>
+                    GachaCaseId.fromApi(state.pathParameters['caseId']!) == null ? '/drop' : null,
+                builder: (context, state) =>
+                    DropScreen(caseId: GachaCaseId.fromApi(state.pathParameters['caseId']!)!),
               ),
             ],
           ),

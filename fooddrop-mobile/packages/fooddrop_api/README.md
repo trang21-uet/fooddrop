@@ -48,13 +48,13 @@ Please follow the [installation procedure](#installation--usage) and then run th
 import 'package:fooddrop_api/fooddrop_api.dart';
 
 
-final api = FooddropApi().getHealthApi();
+final api = FooddropApi().getGachaApi();
 
 try {
-    final response = await api.healthControllerGetHealth();
+    final response = await api.gachaControllerCases();
     print(response);
 } on DioException catch (e) {
-    print("Exception when calling HealthApi->healthControllerGetHealth: $e\n");
+    print("Exception when calling GachaApi->gachaControllerCases: $e\n");
 }
 
 ```
@@ -65,6 +65,9 @@ All URIs are relative to *http://localhost*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
+[*GachaApi*](doc/GachaApi.md) | [**gachaControllerCases**](doc/GachaApi.md#gachacontrollercases) | **GET** /gacha/cases | 
+[*GachaApi*](doc/GachaApi.md) | [**gachaControllerHistory**](doc/GachaApi.md#gachacontrollerhistory) | **GET** /gacha/spins | 
+[*GachaApi*](doc/GachaApi.md) | [**gachaControllerSpin**](doc/GachaApi.md#gachacontrollerspin) | **POST** /gacha/spins | 
 [*HealthApi*](doc/HealthApi.md) | [**healthControllerGetHealth**](doc/HealthApi.md#healthcontrollergethealth) | **GET** /health | 
 [*IngredientsApi*](doc/IngredientsApi.md) | [**ingredientsControllerCreate**](doc/IngredientsApi.md#ingredientscontrollercreate) | **POST** /ingredients | 
 [*IngredientsApi*](doc/IngredientsApi.md) | [**ingredientsControllerSearch**](doc/IngredientsApi.md#ingredientscontrollersearch) | **GET** /ingredients | 
@@ -82,12 +85,23 @@ Class | Method | HTTP request | Description
 
 ## Documentation For Models
 
+ - [CreateGachaSpin](doc/CreateGachaSpin.md)
  - [CreateIngredient](doc/CreateIngredient.md)
  - [CreateParseJob](doc/CreateParseJob.md)
  - [CreateUpload](doc/CreateUpload.md)
+ - [GachaCases](doc/GachaCases.md)
+ - [GachaCasesItemsInner](doc/GachaCasesItemsInner.md)
+ - [GachaCasesItemsInnerRarityCounts](doc/GachaCasesItemsInnerRarityCounts.md)
+ - [GachaError](doc/GachaError.md)
+ - [GachaSpin](doc/GachaSpin.md)
+ - [GachaSpinHistory](doc/GachaSpinHistory.md)
+ - [GachaSpinHistoryItemsInner](doc/GachaSpinHistoryItemsInner.md)
+ - [GachaSpinHistoryItemsInnerResult](doc/GachaSpinHistoryItemsInnerResult.md)
+ - [GachaSpinResult](doc/GachaSpinResult.md)
  - [HealthChecksDto](doc/HealthChecksDto.md)
  - [HealthResponseDto](doc/HealthResponseDto.md)
  - [Ingredient](doc/Ingredient.md)
+ - [ListGachaSpinsQuery](doc/ListGachaSpinsQuery.md)
  - [ListRecipesQuery](doc/ListRecipesQuery.md)
  - [ParseJob](doc/ParseJob.md)
  - [ParseJobResult](doc/ParseJobResult.md)

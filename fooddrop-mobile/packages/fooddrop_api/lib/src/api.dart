@@ -7,6 +7,7 @@ import 'package:fooddrop_api/src/auth/api_key_auth.dart';
 import 'package:fooddrop_api/src/auth/basic_auth.dart';
 import 'package:fooddrop_api/src/auth/bearer_auth.dart';
 import 'package:fooddrop_api/src/auth/oauth.dart';
+import 'package:fooddrop_api/src/api/gacha_api.dart';
 import 'package:fooddrop_api/src/api/health_api.dart';
 import 'package:fooddrop_api/src/api/ingredients_api.dart';
 import 'package:fooddrop_api/src/api/media_api.dart';
@@ -104,6 +105,12 @@ class FooddropApi {
     if (this.dio.interceptors.any((i) => i is ApiKeyAuthInterceptor)) {
       (this.dio.interceptors.firstWhere((element) => element is ApiKeyAuthInterceptor) as ApiKeyAuthInterceptor).apiKeys.remove(name);
     }
+  }
+
+  /// Get GachaApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  GachaApi getGachaApi() {
+    return GachaApi(dio);
   }
 
   /// Get HealthApi instance, base route and serializer can be overridden by a given but be careful,

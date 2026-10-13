@@ -10,7 +10,7 @@ Read the root `../CLAUDE.md` and `../docs/code-standards.md` first.
 
 ## Stack
 
-Flutter 3.44, Riverpod (with `riverpod_generator`), Drift, Dio + OpenAPI-generated Dart client, go_router, flutter_soloud, flutter_local_notifications, Rive.
+Flutter 3.44, Riverpod (with `riverpod_generator`), Drift, Dio + OpenAPI-generated Dart client, go_router, flutter_soloud, flutter_local_notifications.
 
 ## Commands
 
@@ -62,7 +62,8 @@ The API client is the generated path package `packages/fooddrop_api` (dart-dio);
 - `AnimationController` (6–8s) + `CurvedAnimation(curve: Cubic(0.1, 0.7, 0.1, 1))` driving `Transform.translate` on a strip of ~70 cards inside a `ClipRect`.
 - In the listener compute `(offset / cardWidth).floor()`; when it changes, play the tick via `flutter_soloud` (preloaded) and fire `HapticFeedback.selectionClick()`.
 - Wrap the reel in a `RepaintBoundary`; avoid rebuilding cards per frame.
-- Reveal effect by rarity with Rive/Lottie. Original or licensed sounds only; no Valve assets.
+- `features/gacha/`: `CaseSelectScreen` (`/drop`, `gachaCasesProvider`, copy/colours in `gacha_case_style.dart`), `DropScreen(caseId)` (`/drop/:caseId`), `GachaController` (status + spin, `spin(caseId)`), `CaseReel` (offset in a `ValueNotifier`, geometry in `domain/reel_geometry.dart`), `RevealOverlay` with a `CustomPainter` burst (no Rive asset yet). `ReelSoundPlayer` (`SoLoudReelSoundPlayer`) also fires the haptics; tests override `reelSoundPlayerProvider`, `gachaRemoteProvider` and `spinDurationProvider` (fakes in `test/support/gacha_fakes.dart`).
+- Sounds in `assets/sounds/` come from `../scripts/generate-gacha-sounds.mjs`. Original or licensed sounds only; no Valve assets.
 
 ## Utilities (resizer, grocery, timers)
 

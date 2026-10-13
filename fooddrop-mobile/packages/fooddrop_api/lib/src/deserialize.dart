@@ -1,9 +1,20 @@
+import 'package:fooddrop_api/src/model/create_gacha_spin.dart';
 import 'package:fooddrop_api/src/model/create_ingredient.dart';
 import 'package:fooddrop_api/src/model/create_parse_job.dart';
 import 'package:fooddrop_api/src/model/create_upload.dart';
+import 'package:fooddrop_api/src/model/gacha_cases.dart';
+import 'package:fooddrop_api/src/model/gacha_cases_items_inner.dart';
+import 'package:fooddrop_api/src/model/gacha_cases_items_inner_rarity_counts.dart';
+import 'package:fooddrop_api/src/model/gacha_error.dart';
+import 'package:fooddrop_api/src/model/gacha_spin.dart';
+import 'package:fooddrop_api/src/model/gacha_spin_history.dart';
+import 'package:fooddrop_api/src/model/gacha_spin_history_items_inner.dart';
+import 'package:fooddrop_api/src/model/gacha_spin_history_items_inner_result.dart';
+import 'package:fooddrop_api/src/model/gacha_spin_result.dart';
 import 'package:fooddrop_api/src/model/health_checks_dto.dart';
 import 'package:fooddrop_api/src/model/health_response_dto.dart';
 import 'package:fooddrop_api/src/model/ingredient.dart';
+import 'package:fooddrop_api/src/model/list_gacha_spins_query.dart';
 import 'package:fooddrop_api/src/model/list_recipes_query.dart';
 import 'package:fooddrop_api/src/model/parse_job.dart';
 import 'package:fooddrop_api/src/model/parse_job_result.dart';
@@ -47,18 +58,40 @@ final _regMap = RegExp(r'^Map<String,(.*)>$');
           return (valueString == 'true' || valueString == '1') as ReturnType;
         case 'double':
           return (value is double ? value : double.parse('$value')) as ReturnType;
+        case 'CreateGachaSpin':
+          return CreateGachaSpin.fromJson(value as Map<String, dynamic>) as ReturnType;
         case 'CreateIngredient':
           return CreateIngredient.fromJson(value as Map<String, dynamic>) as ReturnType;
         case 'CreateParseJob':
           return CreateParseJob.fromJson(value as Map<String, dynamic>) as ReturnType;
         case 'CreateUpload':
           return CreateUpload.fromJson(value as Map<String, dynamic>) as ReturnType;
+        case 'GachaCases':
+          return GachaCases.fromJson(value as Map<String, dynamic>) as ReturnType;
+        case 'GachaCasesItemsInner':
+          return GachaCasesItemsInner.fromJson(value as Map<String, dynamic>) as ReturnType;
+        case 'GachaCasesItemsInnerRarityCounts':
+          return GachaCasesItemsInnerRarityCounts.fromJson(value as Map<String, dynamic>) as ReturnType;
+        case 'GachaError':
+          return GachaError.fromJson(value as Map<String, dynamic>) as ReturnType;
+        case 'GachaSpin':
+          return GachaSpin.fromJson(value as Map<String, dynamic>) as ReturnType;
+        case 'GachaSpinHistory':
+          return GachaSpinHistory.fromJson(value as Map<String, dynamic>) as ReturnType;
+        case 'GachaSpinHistoryItemsInner':
+          return GachaSpinHistoryItemsInner.fromJson(value as Map<String, dynamic>) as ReturnType;
+        case 'GachaSpinHistoryItemsInnerResult':
+          return GachaSpinHistoryItemsInnerResult.fromJson(value as Map<String, dynamic>) as ReturnType;
+        case 'GachaSpinResult':
+          return GachaSpinResult.fromJson(value as Map<String, dynamic>) as ReturnType;
         case 'HealthChecksDto':
           return HealthChecksDto.fromJson(value as Map<String, dynamic>) as ReturnType;
         case 'HealthResponseDto':
           return HealthResponseDto.fromJson(value as Map<String, dynamic>) as ReturnType;
         case 'Ingredient':
           return Ingredient.fromJson(value as Map<String, dynamic>) as ReturnType;
+        case 'ListGachaSpinsQuery':
+          return ListGachaSpinsQuery.fromJson(value as Map<String, dynamic>) as ReturnType;
         case 'ListRecipesQuery':
           return ListRecipesQuery.fromJson(value as Map<String, dynamic>) as ReturnType;
         case 'ParseJob':

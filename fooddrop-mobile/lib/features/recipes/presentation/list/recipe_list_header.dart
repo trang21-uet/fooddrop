@@ -43,6 +43,12 @@ class RecipeListHeader extends ConsumerWidget {
             ),
           ),
           IconButton(
+            tooltip: 'Quay món',
+            constraints: const BoxConstraints.tightFor(width: 44, height: 44),
+            onPressed: () => context.push('/drop'),
+            icon: Icon(Icons.casino_outlined, color: colors.accent),
+          ),
+          IconButton(
             tooltip: 'Đi chợ',
             constraints: const BoxConstraints.tightFor(width: 44, height: 44),
             onPressed: () => context.push('/grocery'),

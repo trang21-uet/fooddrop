@@ -9,6 +9,7 @@ export 'package:fooddrop_api/src/auth/bearer_auth.dart';
 export 'package:fooddrop_api/src/auth/oauth.dart';
 
 
+export 'package:fooddrop_api/src/api/gacha_api.dart';
 export 'package:fooddrop_api/src/api/health_api.dart';
 export 'package:fooddrop_api/src/api/ingredients_api.dart';
 export 'package:fooddrop_api/src/api/media_api.dart';
@@ -17,12 +18,23 @@ export 'package:fooddrop_api/src/api/recipes_api.dart';
 export 'package:fooddrop_api/src/api/tags_api.dart';
 export 'package:fooddrop_api/src/api/units_api.dart';
 
+export 'package:fooddrop_api/src/model/create_gacha_spin.dart';
 export 'package:fooddrop_api/src/model/create_ingredient.dart';
 export 'package:fooddrop_api/src/model/create_parse_job.dart';
 export 'package:fooddrop_api/src/model/create_upload.dart';
+export 'package:fooddrop_api/src/model/gacha_cases.dart';
+export 'package:fooddrop_api/src/model/gacha_cases_items_inner.dart';
+export 'package:fooddrop_api/src/model/gacha_cases_items_inner_rarity_counts.dart';
+export 'package:fooddrop_api/src/model/gacha_error.dart';
+export 'package:fooddrop_api/src/model/gacha_spin.dart';
+export 'package:fooddrop_api/src/model/gacha_spin_history.dart';
+export 'package:fooddrop_api/src/model/gacha_spin_history_items_inner.dart';
+export 'package:fooddrop_api/src/model/gacha_spin_history_items_inner_result.dart';
+export 'package:fooddrop_api/src/model/gacha_spin_result.dart';
 export 'package:fooddrop_api/src/model/health_checks_dto.dart';
 export 'package:fooddrop_api/src/model/health_response_dto.dart';
 export 'package:fooddrop_api/src/model/ingredient.dart';
+export 'package:fooddrop_api/src/model/list_gacha_spins_query.dart';
 export 'package:fooddrop_api/src/model/list_recipes_query.dart';
 export 'package:fooddrop_api/src/model/parse_job.dart';
 export 'package:fooddrop_api/src/model/parse_job_result.dart';

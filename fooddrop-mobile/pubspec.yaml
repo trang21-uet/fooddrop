@@ -80,6 +80,7 @@ flutter:
   assets:
     - assets/images/auth-hero.jpg
     - assets/icon/app-icon-foreground.png
+    - assets/sounds/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
