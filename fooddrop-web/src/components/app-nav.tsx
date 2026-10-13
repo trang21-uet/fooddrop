@@ -3,10 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-// "Quay món" is a placeholder for a later phase (not a link, so no 404).
 const NAV_ITEMS = [
   { label: "Công thức", href: "/recipes" },
-  { label: "Quay món" },
+  { label: "Quay món", href: "/drop" },
   { label: "Đi chợ", href: "/grocery" },
   { label: "Hẹn giờ", href: "/timers" },
 ] as const;
@@ -19,18 +18,6 @@ export function AppNav() {
   return (
     <nav aria-label="Điều hướng chính" className="flex flex-1 items-center gap-1 overflow-x-auto">
       {NAV_ITEMS.map((item) => {
-        if (!("href" in item)) {
-          return (
-            <span
-              key={item.label}
-              aria-disabled="true"
-              title="Sắp ra mắt"
-              className={`${itemClass} cursor-not-allowed border-transparent font-medium text-muted/60`}
-            >
-              {item.label}
-            </span>
-          );
-        }
         const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
         return (
           <Link

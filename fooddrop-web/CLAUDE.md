@@ -4,7 +4,7 @@ Read the root `../CLAUDE.md` and `../docs/code-standards.md` first.
 
 ## Stack
 
-Next.js 15 App Router, React 19, TypeScript (strict), Tailwind CSS, TanStack Query, Zustand, GSAP (or Motion), Web Audio API, Dexie (IndexedDB).
+Next.js 15 App Router, React 19, TypeScript (strict), Tailwind CSS, TanStack Query, Zustand, Web Audio API, Dexie (IndexedDB).
 
 ## Commands
 
@@ -37,8 +37,9 @@ Run `lint`, `typecheck` and `test` after every change.
 ## Gacha reel
 
 - Render ~70 cards in a horizontal strip; animate a single wrapper with `transform: translateX` and `will-change: transform`.
-- Duration 6–8s, ease `cubic-bezier(0.1, 0.7, 0.1, 1)`; target = `winningIndex × cardWidth − centerOffset + offsetJitter`.
-- Tick: in `onUpdate`, compute `Math.floor(offset / cardWidth)`; when it changes, play a pre-decoded `AudioBuffer` via a new `AudioBufferSourceNode`. Unlock the `AudioContext` on the user's click.
+- `/drop` is the case picker (`case-select-view.tsx`, data from `GET /gacha/cases`, copy/colours in `gacha-case-styles.ts`); `/drop/[caseId]` the reel (`drop-view.tsx`). The store keeps the spin's `caseId` so another case's page never shows it.
+- `features/gacha/`: `use-reel-animation.ts` runs `requestAnimationFrame` for 7 s with `reelEase` (`cubic-bezier.ts`, no GSAP) and writes `transform` on the strip; card width and gap are measured from the DOM. Geometry is pure in `reel-geometry.ts` (`targetOffset`, `slotUnderMarker`), same math as mobile.
+- Tick: when `slotUnderMarker` changes, `playTick()` (`tick-sound-player.ts`) starts a pre-decoded `AudioBuffer`. `prepareReelSounds()` builds the AudioContext when the drop page mounts (its constructor can block for seconds on a bad audio device); `unlockReelSounds()` only resumes it inside the spin click. History is invalidated only after landing so it never spoils the result.
 - Respect `prefers-reduced-motion`: shorten to a quick fade reveal.
 - Use only original or licensed sounds in `public/sounds/`; no Valve assets.
 

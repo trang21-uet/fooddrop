@@ -54,15 +54,10 @@ export function RecipeListView() {
             Nhập từ liên kết / ảnh
             <InDevelopmentBadge />
           </Link>
-          {/* Gacha page lands in a later phase; mirror the disabled nav item until then. */}
-          <span
-            aria-disabled="true"
-            title="Sắp ra mắt"
-            className={`${buttonClass("neon")} min-h-12 cursor-not-allowed opacity-60`}
-          >
+          <Link href="/drop" className={`${buttonClass("neon")} min-h-12`}>
             <CubeIcon width={20} height={20} className="text-accent" />
             Quay món
-          </span>
+          </Link>
         </div>
       </div>
 

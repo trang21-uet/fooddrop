@@ -148,6 +148,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/gacha/cases": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GachaController_cases"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/gacha/spins": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GachaController_history"];
+        put?: never;
+        post: operations["GachaController_spin"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -181,6 +213,102 @@ export interface components {
                 [key: string]: string;
             };
             expiresInSeconds: number;
+        };
+        CreateGachaSpin: {
+            /** @enum {string} */
+            caseType: "cook";
+            /** @enum {string} */
+            caseId: "all" | "breakfast" | "lunch" | "dinner" | "quick" | "epic";
+        };
+        ListGachaSpinsQuery: {
+            /** @default 20 */
+            limit: number;
+        };
+        GachaSpin: {
+            /** Format: uuid */
+            spinId: string;
+            /** @enum {string} */
+            caseType: "cook";
+            /** Format: date-time */
+            createdAt: string;
+            result: {
+                /** Format: uuid */
+                id: string;
+                title: string;
+                imageUrl: string | null;
+                /** @enum {string} */
+                rarity: "white" | "blue" | "purple" | "pink" | "red";
+                totalMinutes: number;
+                difficulty: number;
+                baseServings: number;
+            };
+            reel: {
+                /** Format: uuid */
+                id: string;
+                title: string;
+                imageUrl: string | null;
+                /** @enum {string} */
+                rarity: "white" | "blue" | "purple" | "pink" | "red";
+                totalMinutes: number;
+                difficulty: number;
+                baseServings: number;
+            }[];
+            winningIndex: number;
+            offsetJitter: number;
+            poolSize: number;
+        };
+        GachaCases: {
+            items: {
+                /** @enum {string} */
+                id: "all" | "breakfast" | "lunch" | "dinner" | "quick" | "epic";
+                recipeCount: number;
+                rarityCounts: {
+                    white: number;
+                    blue: number;
+                    purple: number;
+                    pink: number;
+                    red: number;
+                };
+                preview: {
+                    /** Format: uuid */
+                    id: string;
+                    title: string;
+                    imageUrl: string | null;
+                    /** @enum {string} */
+                    rarity: "white" | "blue" | "purple" | "pink" | "red";
+                    totalMinutes: number;
+                    difficulty: number;
+                    baseServings: number;
+                }[];
+            }[];
+        };
+        GachaSpinHistory: {
+            items: {
+                /** Format: uuid */
+                id: string;
+                /** @enum {string} */
+                caseType: "cook";
+                /** Format: date-time */
+                createdAt: string;
+                result: {
+                    /** Format: uuid */
+                    id: string;
+                    title: string;
+                    imageUrl: string | null;
+                    /** @enum {string} */
+                    rarity: "white" | "blue" | "purple" | "pink" | "red";
+                    totalMinutes: number;
+                    difficulty: number;
+                    baseServings: number;
+                } | null;
+            }[];
+        };
+        GachaError: {
+            statusCode: number;
+            /** @enum {string} */
+            code: "gacha_rate_limit" | "gacha_empty_pool";
+            message: string;
+            retryAfterSeconds?: number;
         };
         CreateParseJob: {
             /** Format: uri */
@@ -721,6 +849,89 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ParseJob"];
+                };
+            };
+        };
+    };
+    GachaController_cases: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GachaCases"];
+                };
+            };
+        };
+    };
+    GachaController_history: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GachaSpinHistory"];
+                };
+            };
+        };
+    };
+    GachaController_spin: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateGachaSpin"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GachaSpin"];
+                };
+            };
+            /** @description The case holds no recipe (`gacha_empty_pool`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GachaError"];
+                };
+            };
+            /** @description Too many spins this minute (`gacha_rate_limit`, with `retryAfterSeconds`) */
+            429: {
+                headers: {
+                    /** @description Seconds until spins are allowed again */
+                    "Retry-After"?: number;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GachaError"];
                 };
             };
         };
