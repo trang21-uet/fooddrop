@@ -9,6 +9,7 @@ import 'package:fooddrop_api/src/model/parse_job.dart';
 import 'package:fooddrop_api/src/model/parse_job_result.dart';
 import 'package:fooddrop_api/src/model/parse_job_result_ingredients_inner.dart';
 import 'package:fooddrop_api/src/model/parse_job_result_steps_inner.dart';
+import 'package:fooddrop_api/src/model/parse_job_result_steps_inner_images_inner.dart';
 import 'package:fooddrop_api/src/model/parse_rate_limit_error.dart';
 import 'package:fooddrop_api/src/model/recipe_detail.dart';
 import 'package:fooddrop_api/src/model/recipe_detail_ingredients_inner.dart';
@@ -16,7 +17,6 @@ import 'package:fooddrop_api/src/model/recipe_detail_ingredients_inner_base.dart
 import 'package:fooddrop_api/src/model/recipe_detail_ingredients_inner_ingredient.dart';
 import 'package:fooddrop_api/src/model/recipe_detail_ingredients_inner_unit.dart';
 import 'package:fooddrop_api/src/model/recipe_detail_steps_inner.dart';
-import 'package:fooddrop_api/src/model/recipe_detail_steps_inner_images_inner.dart';
 import 'package:fooddrop_api/src/model/recipe_detail_tags_inner.dart';
 import 'package:fooddrop_api/src/model/recipe_input.dart';
 import 'package:fooddrop_api/src/model/recipe_input_ingredients_inner.dart';
@@ -69,6 +69,8 @@ final _regMap = RegExp(r'^Map<String,(.*)>$');
           return ParseJobResultIngredientsInner.fromJson(value as Map<String, dynamic>) as ReturnType;
         case 'ParseJobResultStepsInner':
           return ParseJobResultStepsInner.fromJson(value as Map<String, dynamic>) as ReturnType;
+        case 'ParseJobResultStepsInnerImagesInner':
+          return ParseJobResultStepsInnerImagesInner.fromJson(value as Map<String, dynamic>) as ReturnType;
         case 'ParseRateLimitError':
           return ParseRateLimitError.fromJson(value as Map<String, dynamic>) as ReturnType;
         case 'RecipeDetail':
@@ -83,8 +85,6 @@ final _regMap = RegExp(r'^Map<String,(.*)>$');
           return RecipeDetailIngredientsInnerUnit.fromJson(value as Map<String, dynamic>) as ReturnType;
         case 'RecipeDetailStepsInner':
           return RecipeDetailStepsInner.fromJson(value as Map<String, dynamic>) as ReturnType;
-        case 'RecipeDetailStepsInnerImagesInner':
-          return RecipeDetailStepsInnerImagesInner.fromJson(value as Map<String, dynamic>) as ReturnType;
         case 'RecipeDetailTagsInner':
           return RecipeDetailTagsInner.fromJson(value as Map<String, dynamic>) as ReturnType;
         case 'RecipeInput':

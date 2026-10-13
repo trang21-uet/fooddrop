@@ -15,7 +15,9 @@ abstract class _$RecipeDetailStepsInnerCWProxy {
 
   RecipeDetailStepsInner note(String? note);
 
-  RecipeDetailStepsInner images(List<RecipeDetailStepsInnerImagesInner> images);
+  RecipeDetailStepsInner images(
+    List<ParseJobResultStepsInnerImagesInner> images,
+  );
 
   RecipeDetailStepsInner timerSeconds(int? timerSeconds);
 
@@ -32,7 +34,7 @@ abstract class _$RecipeDetailStepsInnerCWProxy {
     String? name,
     String text,
     String? note,
-    List<RecipeDetailStepsInnerImagesInner> images,
+    List<ParseJobResultStepsInnerImagesInner> images,
     int? timerSeconds,
     String? timerLabel,
   });
@@ -59,7 +61,7 @@ class _$RecipeDetailStepsInnerCWProxyImpl
 
   @override
   RecipeDetailStepsInner images(
-    List<RecipeDetailStepsInnerImagesInner> images,
+    List<ParseJobResultStepsInnerImagesInner> images,
   ) => this(images: images);
 
   @override
@@ -106,7 +108,7 @@ class _$RecipeDetailStepsInnerCWProxyImpl
       images: images == const $CopyWithPlaceholder()
           ? _value.images
           // ignore: cast_nullable_to_non_nullable
-          : images as List<RecipeDetailStepsInnerImagesInner>,
+          : images as List<ParseJobResultStepsInnerImagesInner>,
       timerSeconds: timerSeconds == const $CopyWithPlaceholder()
           ? _value.timerSeconds
           // ignore: cast_nullable_to_non_nullable
@@ -143,7 +145,7 @@ RecipeDetailStepsInner _$RecipeDetailStepsInnerFromJson(
       'images',
       (v) => (v as List<dynamic>)
           .map(
-            (e) => RecipeDetailStepsInnerImagesInner.fromJson(
+            (e) => ParseJobResultStepsInnerImagesInner.fromJson(
               e as Map<String, dynamic>,
             ),
           )

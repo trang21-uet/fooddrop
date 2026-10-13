@@ -44,7 +44,7 @@ api.RecipeDetail apiDetail({
           order: 1,
           name: 'Chần',
           text: 'Chần xương',
-          images: [api.RecipeDetailStepsInnerImagesInner(key: 'recipes/u1/a.jpg', url: photoUrl)],
+          images: [api.ParseJobResultStepsInnerImagesInner(key: 'recipes/u1/a.jpg', url: photoUrl)],
           timerSeconds: 600,
         ),
         api.RecipeDetailStepsInner(order: 0, text: 'Sơ chế', images: []),

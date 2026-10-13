@@ -28,6 +28,7 @@ export 'package:fooddrop_api/src/model/parse_job.dart';
 export 'package:fooddrop_api/src/model/parse_job_result.dart';
 export 'package:fooddrop_api/src/model/parse_job_result_ingredients_inner.dart';
 export 'package:fooddrop_api/src/model/parse_job_result_steps_inner.dart';
+export 'package:fooddrop_api/src/model/parse_job_result_steps_inner_images_inner.dart';
 export 'package:fooddrop_api/src/model/parse_rate_limit_error.dart';
 export 'package:fooddrop_api/src/model/recipe_detail.dart';
 export 'package:fooddrop_api/src/model/recipe_detail_ingredients_inner.dart';
@@ -35,7 +36,6 @@ export 'package:fooddrop_api/src/model/recipe_detail_ingredients_inner_base.dart
 export 'package:fooddrop_api/src/model/recipe_detail_ingredients_inner_ingredient.dart';
 export 'package:fooddrop_api/src/model/recipe_detail_ingredients_inner_unit.dart';
 export 'package:fooddrop_api/src/model/recipe_detail_steps_inner.dart';
-export 'package:fooddrop_api/src/model/recipe_detail_steps_inner_images_inner.dart';
 export 'package:fooddrop_api/src/model/recipe_detail_tags_inner.dart';
 export 'package:fooddrop_api/src/model/recipe_input.dart';
 export 'package:fooddrop_api/src/model/recipe_input_ingredients_inner.dart';

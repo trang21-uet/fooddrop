@@ -12,7 +12,7 @@ Name | Type | Description | Notes
 **name** | **String** |  | [optional] 
 **text** | **String** |  | 
 **note** | **String** |  | [optional] 
-**images** | [**List&lt;RecipeDetailStepsInnerImagesInner&gt;**](RecipeDetailStepsInnerImagesInner.md) |  | 
+**images** | [**List&lt;ParseJobResultStepsInnerImagesInner&gt;**](ParseJobResultStepsInnerImagesInner.md) |  | 
 **timerSeconds** | **int** |  | [optional] 
 **timerLabel** | **String** |  | [optional] 
 

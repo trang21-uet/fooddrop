@@ -1,5 +1,6 @@
 import 'package:fooddrop_api/fooddrop_api.dart' as api;
 
+import '../../recipes/domain/recipe.dart';
 import '../../recipes/domain/recipe_draft.dart';
 
 /// Formats a parsed quantity for the form's raw-text field: "500", "1.5", never "500.0"; empty when
@@ -36,7 +37,10 @@ RecipeDraft draftFromParseResult(api.ParseJobResult result) => RecipeDraft(
           : [
               for (final step in result.steps)
                 DraftStep(
+                  name: step.name ?? '',
                   text: step.text,
+                  note: step.note ?? '',
+                  images: [for (final image in step.images) RecipeStepImage(key: image.key, url: image.url)],
                   timerMinutes: step.timerSeconds == null ? null : (step.timerSeconds! / 60).ceil().clamp(1, 1440),
                 ),
             ],

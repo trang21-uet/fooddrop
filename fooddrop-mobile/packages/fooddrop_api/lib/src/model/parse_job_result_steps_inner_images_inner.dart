@@ -6,7 +6,7 @@
 import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-part 'recipe_detail_steps_inner_images_inner.g.dart';
+part 'parse_job_result_steps_inner_images_inner.g.dart';
 
 
 @CopyWith()
@@ -16,9 +16,9 @@ part 'recipe_detail_steps_inner_images_inner.g.dart';
   disallowUnrecognizedKeys: false,
   explicitToJson: true,
 )
-class RecipeDetailStepsInnerImagesInner {
-  /// Returns a new [RecipeDetailStepsInnerImagesInner] instance.
-  RecipeDetailStepsInnerImagesInner({
+class ParseJobResultStepsInnerImagesInner {
+  /// Returns a new [ParseJobResultStepsInnerImagesInner] instance.
+  ParseJobResultStepsInnerImagesInner({
 
     required  this.key,
 
@@ -52,7 +52,7 @@ class RecipeDetailStepsInnerImagesInner {
 
 
     @override
-    bool operator ==(Object other) => identical(this, other) || other is RecipeDetailStepsInnerImagesInner &&
+    bool operator ==(Object other) => identical(this, other) || other is ParseJobResultStepsInnerImagesInner &&
       other.key == key &&
       other.url == url;
 
@@ -61,9 +61,9 @@ class RecipeDetailStepsInnerImagesInner {
         key.hashCode +
         (url == null ? 0 : url.hashCode);
 
-  factory RecipeDetailStepsInnerImagesInner.fromJson(Map<String, dynamic> json) => _$RecipeDetailStepsInnerImagesInnerFromJson(json);
+  factory ParseJobResultStepsInnerImagesInner.fromJson(Map<String, dynamic> json) => _$ParseJobResultStepsInnerImagesInnerFromJson(json);
 
-  Map<String, dynamic> toJson() => _$RecipeDetailStepsInnerImagesInnerToJson(this);
+  Map<String, dynamic> toJson() => _$ParseJobResultStepsInnerImagesInnerToJson(this);
 
   @override
   String toString() {

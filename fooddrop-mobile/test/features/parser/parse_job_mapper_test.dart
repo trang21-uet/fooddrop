@@ -17,6 +17,11 @@ void main() {
       expect(draft.totalMinutes, 30, reason: 'unknown time falls back to the form default');
       expect(draft.tagIds, {3, 7});
       expect(draft.steps.map((s) => s.timerMinutes), [null, 45]);
+      final [marinate, simmer] = draft.steps;
+      expect((marinate.name, marinate.note), ('Ướp thịt', 'Ướp ít nhất 20 phút'));
+      expect(marinate.images.map((i) => (i.key, i.url)), [('recipes/u1/a.jpg', 'https://cdn.example/a.jpg')]);
+      expect((simmer.name, simmer.note), ('', ''));
+      expect(simmer.images, isEmpty);
 
       final [pork, quail] = draft.ingredients;
       expect((pork.ingredientId, pork.name, pork.quantityText, pork.unitCode), ('ing-pork', 'Thịt ba chỉ', '500', 'g'));

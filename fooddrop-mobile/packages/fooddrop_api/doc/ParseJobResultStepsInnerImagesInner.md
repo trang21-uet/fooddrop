@@ -1,4 +1,4 @@
-# fooddrop_api.model.RecipeDetailStepsInnerImagesInner
+# fooddrop_api.model.ParseJobResultStepsInnerImagesInner
 
 ## Load the model package
 ```dart

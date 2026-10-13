@@ -27,7 +27,7 @@ void main() {
       // TODO
     });
 
-    // List<RecipeDetailStepsInnerImagesInner> images
+    // List<ParseJobResultStepsInnerImagesInner> images
     test('to test the property `images`', () async {
       // TODO
     });

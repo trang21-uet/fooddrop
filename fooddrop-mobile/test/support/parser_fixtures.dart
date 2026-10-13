@@ -39,7 +39,16 @@ api.ParseJobResult parseResult({
               isNew: true,
             ),
           ],
-      steps: steps ?? [api.ParseJobResultStepsInner(text: 'Ướp thịt.'), api.ParseJobResultStepsInner(text: 'Hầm.', timerSeconds: 2700)],
+      steps: steps ??
+          [
+            api.ParseJobResultStepsInner(
+              name: 'Ướp thịt',
+              text: 'Ướp thịt.',
+              note: 'Ướp ít nhất 20 phút',
+              images: [api.ParseJobResultStepsInnerImagesInner(key: 'recipes/u1/a.jpg', url: 'https://cdn.example/a.jpg')],
+            ),
+            api.ParseJobResultStepsInner(name: null, text: 'Hầm.', note: null, timerSeconds: 2700, images: const []),
+          ],
       suggestedTagIds: [3, 7],
     );
 

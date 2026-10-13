@@ -3,7 +3,7 @@
 //
 
 // ignore_for_file: unused_element
-import 'package:fooddrop_api/src/model/recipe_detail_steps_inner_images_inner.dart';
+import 'package:fooddrop_api/src/model/parse_job_result_steps_inner_images_inner.dart';
 import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -94,7 +94,7 @@ class RecipeDetailStepsInner {
   )
 
 
-  final List<RecipeDetailStepsInnerImagesInner> images;
+  final List<ParseJobResultStepsInnerImagesInner> images;
 
 
 

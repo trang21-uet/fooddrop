@@ -7,8 +7,23 @@ void main() {
   // TODO add properties to the entity
 
   group(ParseJobResultStepsInner, () {
+    // String name
+    test('to test the property `name`', () async {
+      // TODO
+    });
+
     // String text
     test('to test the property `text`', () async {
+      // TODO
+    });
+
+    // String note
+    test('to test the property `note`', () async {
+      // TODO
+    });
+
+    // List<ParseJobResultStepsInnerImagesInner> images
+    test('to test the property `images`', () async {
       // TODO
     });
 
