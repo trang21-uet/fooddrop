@@ -1,4 +1,4 @@
-import { parseIngredientLine } from './parse-ingredient-line.js';
+import { parseIngredientLine, splitAmount } from './parse-ingredient-line.js';
 
 const parse = (line: string) => {
   const { name, quantity, unit, note } = parseIngredientLine(line);
@@ -20,6 +20,11 @@ describe('parseIngredientLine', () => {
 
   it('keeps ranges and moves parentheticals to the note', () => {
     expect(parse('2-3 cloves garlic (minced)')).toEqual({ name: 'garlic', quantity: '2-3', unit: 'cloves', note: 'minced' });
+  });
+
+  it('reads three-word Vietnamese units before or after the name', () => {
+    expect(parse('2 muỗng cà phê giấm')).toMatchObject({ quantity: '2', unit: 'muỗng cà phê', name: 'giấm' });
+    expect(parse('Giấm 2 muỗng cà phê')).toMatchObject({ quantity: '2', unit: 'muỗng cà phê', name: 'Giấm' });
   });
 
   it('treats a count with no unit as a bare quantity', () => {
@@ -58,5 +63,15 @@ describe('parseIngredientLine amount qualifiers', () => {
       name: 'sunflower or vegetable oil', quantity: '2', unit: 'tbsp', note: 'plus a little extra for frying',
     });
     expect(parseIngredientLine('1 lemon, cut into wedges, to serve')).toMatchObject({ name: 'lemon', note: expect.stringContaining('to serve') });
+  });
+});
+
+describe('splitAmount', () => {
+  it('splits an amount written apart from the name, keeping unknown units raw', () => {
+    expect(splitAmount('2 muỗng cà phê')).toEqual({ quantity: '2', unit: 'muỗng cà phê', note: null });
+    expect(splitAmount('1 ít')).toEqual({ quantity: '1', unit: 'ít', note: null });
+    expect(splitAmount('½ quả')).toEqual({ quantity: '1/2', unit: 'quả', note: null });
+    expect(splitAmount('vừa đủ')).toEqual({ quantity: null, unit: null, note: 'vừa đủ' });
+    expect(splitAmount('')).toEqual({ quantity: null, unit: null, note: null });
   });
 });

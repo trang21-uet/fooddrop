@@ -82,6 +82,17 @@ describe('buildDraft', () => {
     expect(buildDraft(raw(), context)).toMatchObject({ baseServings: 2, totalMinutes: null });
   });
 
+  it('carries step headings, notes and imported photos, trimmed to the recipe form limits', () => {
+    const photo = { key: 'recipes/u1/a.jpg', url: 'https://cdn.example/a.jpg' };
+    const draft = buildDraft(
+      raw({ steps: [{ name: 'Luộc thịt', text: 'Luộc.', note: 'x'.repeat(600) }, { name: '  ', text: 'Ăn.' }] }),
+      { ...context, stepImages: [Array.from({ length: 12 }, () => photo), []] },
+    );
+    expect(draft.steps[0]).toMatchObject({ name: 'Luộc thịt', note: 'x'.repeat(500) });
+    expect(draft.steps[0]!.images).toHaveLength(10);
+    expect(draft.steps[1]).toEqual({ name: null, text: 'Ăn.', note: null, images: [] });
+  });
+
   it('drops non-http image URLs and uses the extractor difficulty when given', () => {
     expect(buildDraft(raw({ imageUrl: 'javascript:alert(1)' }), context).imageUrl).toBeNull();
     expect(buildDraft(raw({ difficulty: 4 }), context).difficulty).toBe(4);

@@ -15,15 +15,15 @@ const UNICODE_FRACTIONS: Record<string, string> = {
 const NUMBER = String.raw`(?:\d+\s+\d+\/\d+|\d+\/\d+|\d+(?:[.,]\d+)?|[.,]\d+)`;
 const LEADING_QUANTITY = new RegExp(String.raw`^(${NUMBER}(?:\s*(?:-|–|—|to|đến)\s*${NUMBER})?)\s*`, 'iu');
 // "Thịt bò 300g" / "Hành lá: 2 cây": Vietnamese recipes often put the amount after the name.
-const TRAILING_AMOUNT = new RegExp(String.raw`^(.+?)\s*[:\-–]?\s+(${NUMBER})\s*(\p{L}+)?$`, 'u');
+const TRAILING_AMOUNT = new RegExp(String.raw`^(.+?)\s*[:\-–]?\s+(${NUMBER})\s*(\p{L}+(?:\s+\p{L}+){0,2})?$`, 'u');
 // Trailing wording that qualifies the amount, not the ingredient: "to taste", "to serve", "plus extra for frying".
 const AMOUNT_QUALIFIER =
   /(?:\s*,\s*|\s+)(to taste|to serve|as needed|for serving|for frying|for dusting|for greasing|for brushing|for garnish(?:ing)?|plus .+|vừa đủ|tùy thích|tuỳ thích|tùy ý|tuỳ ý)\.?$/iu;
 
-/** Longest unit first so "muỗng canh" wins over a stray "muỗng". Returns the remainder after the unit. */
+/** Longest unit first so "muỗng cà phê" wins over a stray "muỗng". Returns the remainder after the unit. */
 function takeUnit(text: string): { unit: string; rest: string } | null {
   const words = text.split(/\s+/);
-  for (const count of [2, 1]) {
+  for (const count of [3, 2, 1]) {
     if (words.length < count) continue;
     const candidate = words.slice(0, count).join(' ').replace(/[.,]$/, '');
     if (lookupUnitAlias(candidate)) return { unit: candidate, rest: words.slice(count).join(' ') };
@@ -89,4 +89,12 @@ export function parseIngredientLine(line: string): ParsedIngredientLine {
     unit,
     note: notes.length > 0 ? notes.join('; ') : null,
   };
+}
+
+/** An amount written apart from the name ("2 muỗng cà phê", "1 ít", "vừa đủ"): unknown units stay raw. */
+export function splitAmount(amount: string): Pick<ParsedIngredientLine, 'quantity' | 'unit' | 'note'> {
+  const text = amount.replace(/[½⅓⅔¼¾⅛]/g, (ch) => ` ${UNICODE_FRACTIONS[ch]} `).replace(/\s+/g, ' ').trim();
+  const leading = LEADING_QUANTITY.exec(text);
+  if (!leading) return { quantity: null, unit: null, note: text || null };
+  return { quantity: leading[1]!.trim(), unit: text.slice(leading[0].length).trim() || null, note: null };
 }

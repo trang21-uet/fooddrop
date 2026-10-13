@@ -4,12 +4,14 @@ import { ConfigService } from '@nestjs/config';
 import type { Env } from '../../config/env.schema.js';
 import { z } from 'zod';
 import { ParseJobError } from './parse-job-error.js';
-import { rawRecipeSchema, type RawRecipe } from './parser.schemas.js';
+import { llmStepSchema, rawRecipeSchema, type RawRecipe } from './parser.schemas.js';
 
 const TOOL_NAME = 'save_recipe';
 const MAX_OUTPUT_TOKENS = 4096;
 
-const toolInputSchema = rawRecipeSchema.extend({
+// Step photos only come from structured markup; the model never supplies URLs.
+const llmRecipeSchema = rawRecipeSchema.extend({ steps: z.array(llmStepSchema).max(100) });
+const toolInputSchema = llmRecipeSchema.extend({
   isRecipe: z.boolean().describe('false when the content is not a single cooking recipe'),
 });
 const verdictSchema = z.object({ isRecipe: z.boolean() });
@@ -21,7 +23,7 @@ Rules:
 - If the content is not a single cooking recipe, call ${TOOL_NAME} with isRecipe=false and empty fields.
 - Write title, steps and notes in the recipe's own language (Vietnamese or English). Do not translate.
 - ingredients: one entry per ingredient. "name" is the base ingredient only ("chicken breast", "hành lá"), without quantity or preparation; put preparation such as "finely chopped" in "note". Copy "quantity" and "unit" exactly as written in the source ("1 1/2", "2-3", "1,5", "muỗng canh"). Do NOT convert units or do arithmetic. Use null when the source gives no quantity or unit.
-- steps: keep the source order and wording, one entry per step, without numbering. Set timerSeconds only when the step states a wait or cook time, converted to seconds.
+- steps: keep the source order and wording, one entry per numbered step, without numbering. A step written as several lines or sentences stays one entry (join the lines with a newline). Put the step's heading, if the source gives one, in "name". A tip or warning attached to a step ("Lưu ý", "Mẹo", "Note") goes in that step's "note", never in a step of its own. If the page offers several versions of the dish, extract only the first one. Set timerSeconds only when the step states a wait or cook time, converted to seconds.
 - servings and totalMinutes: only if stated or clearly implied; otherwise null. difficulty is your 1 (very easy) to 5 (hard) estimate.
 - suggestedTags: pick up to 8 slugs from the allowed list below that clearly fit; never invent slugs.`;
 
@@ -93,7 +95,7 @@ export class ClaudeRecipeExtractor {
     const verdict = verdictSchema.safeParse(input);
     if (!verdict.success) throw new ParseJobError('parser_unavailable', 'malformed tool input');
     if (!verdict.data.isRecipe) throw new ParseJobError('not_a_recipe');
-    const parsed = rawRecipeSchema.safeParse(input);
+    const parsed = llmRecipeSchema.safeParse(input);
     if (!parsed.success) throw new ParseJobError('parser_unavailable', z.prettifyError(parsed.error));
     // A "recipe" with nothing to cook or buy is the model hedging, not a savable draft.
     if (parsed.data.ingredients.length === 0 && parsed.data.steps.length === 0) throw new ParseJobError('not_a_recipe');

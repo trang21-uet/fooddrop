@@ -786,8 +786,36 @@
                 "items": {
                   "type": "object",
                   "properties": {
+                    "name": {
+                      "nullable": true,
+                      "type": "string"
+                    },
                     "text": {
                       "type": "string"
+                    },
+                    "note": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "images": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "key": {
+                            "type": "string"
+                          },
+                          "url": {
+                            "nullable": true,
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "key",
+                          "url"
+                        ],
+                        "additionalProperties": false
+                      }
                     },
                     "timerSeconds": {
                       "type": "integer",
@@ -796,7 +824,10 @@
                     }
                   },
                   "required": [
-                    "text"
+                    "name",
+                    "text",
+                    "note",
+                    "images"
                   ],
                   "additionalProperties": false
                 }

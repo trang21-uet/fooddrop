@@ -24,10 +24,19 @@ export const DEFAULT_FETCH_LIMITS: FetchLimits = { maxBytes: 5 * 1024 * 1024, ti
 // Plenty of food blogs answer 403 to unknown bots, so identify as a regular browser.
 const HEADERS = {
   'User-Agent': 'Mozilla/5.0 (compatible; FoodDrop/1.0; recipe import) AppleWebKit/537.36 Chrome/124.0 Safari/537.36',
-  Accept: 'text/html,application/xhtml+xml',
   'Accept-Encoding': 'gzip, deflate, br',
   'Accept-Language': 'vi,en;q=0.8',
 };
+
+interface Accepted {
+  /** Sent as the Accept header. */
+  header: string;
+  /** Responses whose Content-Type does not match are rejected unread. */
+  contentType: RegExp;
+}
+
+const PAGE: Accepted = { header: 'text/html,application/xhtml+xml', contentType: /html|xml|text\/plain/i };
+const IMAGE: Accepted = { header: 'image/jpeg,image/png,image/webp', contentType: /^image\//i };
 
 /** Rejects anything that is not a plain http(s) URL on a standard port without embedded credentials. */
 export function assertFetchableUrl(raw: string, allowedPorts: readonly string[] = DEFAULT_FETCH_LIMITS.allowedPorts): URL {
@@ -96,10 +105,10 @@ function decode(body: Buffer, contentType: string): string {
   }
 }
 
-function request(url: URL, signal: AbortSignal, lookup: SafeLookup): Promise<http.IncomingMessage> {
+function request(url: URL, accept: string, signal: AbortSignal, lookup: SafeLookup): Promise<http.IncomingMessage> {
   const transport = url.protocol === 'https:' ? https : http;
   return new Promise((resolve, reject) => {
-    const req = transport.request(url, { method: 'GET', headers: HEADERS, lookup, signal }, resolve);
+    const req = transport.request(url, { method: 'GET', headers: { ...HEADERS, Accept: accept }, lookup, signal }, resolve);
     req.on('error', reject);
     req.end();
   });
@@ -114,11 +123,30 @@ export async function fetchPublicPage(
   limits: FetchLimits = DEFAULT_FETCH_LIMITS,
   lookup: SafeLookup = safeLookup,
 ): Promise<FetchedPage> {
+  const { finalUrl, body, contentType } = await fetchPublic(rawUrl, PAGE, limits, lookup);
+  return { finalUrl, html: decode(body, contentType) };
+}
+
+/** Same guarantees as `fetchPublicPage`, for a step photo referenced by an imported page. */
+export async function fetchPublicImage(
+  rawUrl: string,
+  limits: FetchLimits = DEFAULT_FETCH_LIMITS,
+  lookup: SafeLookup = safeLookup,
+): Promise<Buffer> {
+  return (await fetchPublic(rawUrl, IMAGE, limits, lookup)).body;
+}
+
+async function fetchPublic(
+  rawUrl: string,
+  accepted: Accepted,
+  limits: FetchLimits,
+  lookup: SafeLookup,
+): Promise<{ finalUrl: string; body: Buffer; contentType: string }> {
   const signal = AbortSignal.timeout(limits.timeoutMs);
   let url = assertFetchableUrl(rawUrl, limits.allowedPorts);
   try {
     for (let hop = 0; hop <= limits.maxRedirects; hop++) {
-      const response = await request(url, signal, lookup);
+      const response = await request(url, accepted.header, signal, lookup);
       const status = response.statusCode ?? 0;
       if (status >= 300 && status < 400 && response.headers.location) {
         response.resume();
@@ -130,12 +158,12 @@ export async function fetchPublicPage(
         throw new ParseJobError('fetch_failed', `HTTP ${status}`);
       }
       const contentType = response.headers['content-type'] ?? '';
-      if (!/html|xml|text\/plain/i.test(contentType)) {
+      if (!accepted.contentType.test(contentType)) {
         response.resume();
         throw new ParseJobError('fetch_failed', `unsupported content-type ${contentType}`);
       }
       const body = await readBody(response, limits.maxBytes);
-      return { finalUrl: url.toString(), html: decode(body, contentType) };
+      return { finalUrl: url.toString(), body, contentType };
     }
     throw new ParseJobError('fetch_failed', 'too many redirects');
   } catch (error) {

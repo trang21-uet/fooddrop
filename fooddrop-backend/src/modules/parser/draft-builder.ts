@@ -1,13 +1,18 @@
+import { MAX_STEP_IMAGES } from '../recipes/recipes.schemas.js';
 import { InvalidQuantityError, parseAmount } from '../units/normalize-quantity.js';
 import { lookupUnitAlias } from '../units/unit-aliases.js';
 import { createIngredientMatcher, matchTagIds, type CatalogIngredient, type CatalogTag } from './ingredient-matcher.js';
+import { inferTagSlugs } from './infer-tag-slugs.js';
 import type { ParsedRecipeDraft, RawRecipe } from './parser.schemas.js';
+import type { StepImage } from './step-image-importer.js';
 
 export interface DraftContext {
   source: ParsedRecipeDraft['source'];
   sourceUrl: string | null;
   catalog: CatalogIngredient[];
   tags: CatalogTag[];
+  /** Photos already copied into storage, one list per raw step. */
+  stepImages?: StepImage[][];
 }
 
 const clamp = (value: number, min: number, max: number): number => Math.min(max, Math.max(min, value));
@@ -83,8 +88,12 @@ export function buildDraft(raw: RawRecipe, context: DraftContext): ParsedRecipeD
   const match = createIngredientMatcher(context.catalog);
   const totalMinutes = raw.totalMinutes ? clamp(Math.round(raw.totalMinutes), 1, 10_080) : null;
   const ingredients = raw.ingredients.slice(0, 100).map((ingredient) => buildIngredient(ingredient, match));
-  const steps = raw.steps.slice(0, 100).map((step) => ({
+  // Limits match the recipe form, so a draft always saves as-is.
+  const steps = raw.steps.slice(0, 100).map((step, index) => ({
+    name: step.name?.trim().slice(0, 100) || null,
     text: step.text.slice(0, 2000),
+    note: step.note?.trim().slice(0, 500) || null,
+    images: (context.stepImages?.[index] ?? []).slice(0, MAX_STEP_IMAGES),
     ...(step.timerSeconds ? { timerSeconds: clamp(Math.round(step.timerSeconds), 1, 86_400) } : {}),
   }));
 
@@ -99,6 +108,7 @@ export function buildDraft(raw: RawRecipe, context: DraftContext): ParsedRecipeD
     difficulty: raw.difficulty ?? guessDifficulty(ingredients.length, steps.length, totalMinutes),
     ingredients,
     steps,
-    suggestedTagIds: matchTagIds(raw.suggestedTags, context.tags),
+    // Sources rarely use catalog labels verbatim ("Món chiên", "cách làm heo quay bằng nồi chiên không dầu").
+    suggestedTagIds: matchTagIds([...raw.suggestedTags, ...inferTagSlugs([raw.title, ...raw.suggestedTags])], context.tags),
   };
 }

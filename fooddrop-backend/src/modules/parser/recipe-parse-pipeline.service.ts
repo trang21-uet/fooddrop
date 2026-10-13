@@ -8,17 +8,19 @@ import { REDIS_CLIENT } from '../../redis/redis.module.js';
 import { MAX_IMAGE_BYTES } from '../media/media.schemas.js';
 import { ObjectStorageService, userUploadPrefix } from '../media/object-storage.service.js';
 import { ClaudeRecipeExtractor } from './claude-recipe-extractor.js';
+import { extractDienMayXanhSections } from './dienmayxanh-recipe-extractor.js';
 import { buildDraft } from './draft-builder.js';
 import { sniffImageType } from './image-sniffer.js';
 import { extractJsonLdRecipe } from './json-ld-recipe-extractor.js';
 import { ParseJobError } from './parse-job-error.js';
 import { rawRecipeSchema, type ParsedRecipeDraft, type RawRecipe } from './parser.schemas.js';
 import { cleanHtmlToText } from './readability-cleaner.js';
+import { importStepImages } from './step-image-importer.js';
 import { assertFetchableUrl, fetchPublicPage } from './url-fetcher.js';
 
 const URL_CACHE_TTL_SECONDS = 7 * 24 * 3600;
 // Bump when extraction logic changes so stale cached output is not served for a week.
-const URL_CACHE_VERSION = 2;
+const URL_CACHE_VERSION = 4;
 
 type DraftSource = ParsedRecipeDraft['source'];
 
@@ -33,6 +35,8 @@ export interface ParseJobInput {
   userId: string;
   sourceType: 'url' | 'image';
   source: string;
+  /** Batch imports: fail with `not_a_recipe` instead of calling the paid LLM when the page has no JSON-LD recipe. */
+  structuredOnly?: boolean;
 }
 
 @Injectable()
@@ -65,21 +69,23 @@ export class RecipeParsePipeline {
     let source: DraftSource;
     let sourceUrl: string | null = null;
     if (job.sourceType === 'url') {
-      ({ raw, source, finalUrl: sourceUrl } = await this.extractFromUrl(job.source, slugs));
+      ({ raw, source, finalUrl: sourceUrl } = await this.extractFromUrl(job.source, slugs, job.structuredOnly));
     } else {
       raw = await this.extractFromImage(job.userId, job.source, slugs);
       source = 'llm-vision';
     }
-    return buildDraft(raw, { source, sourceUrl, catalog, tags: tagCatalog });
+    const stepImages = await importStepImages(this.storage, job.userId, raw.steps, sourceUrl);
+    return buildDraft(raw, { source, sourceUrl, catalog, tags: tagCatalog, stepImages });
   }
 
-  private async extractFromUrl(url: string, tagSlugs: string[]) {
+  private async extractFromUrl(url: string, tagSlugs: string[], structuredOnly = false) {
     const key = `parser:url:v${URL_CACHE_VERSION}:${createHash('sha256').update(assertFetchableUrl(url).toString()).digest('hex')}`;
     const cached = await this.readCache(key);
     if (cached) return cached;
 
     const page = await fetchPublicPage(url);
-    const jsonLd = extractJsonLdRecipe(page.html);
+    const jsonLd = this.withSiteSections(extractJsonLdRecipe(page.html), page.html, page.finalUrl);
+    if (!jsonLd && structuredOnly) throw new ParseJobError('not_a_recipe', 'no JSON-LD recipe');
     const extract = jsonLd
       ? { raw: jsonLd, source: 'json-ld' as const, finalUrl: page.finalUrl }
       : {
@@ -89,6 +95,19 @@ export class RecipeParsePipeline {
         };
     await this.writeCache(key, extract);
     return extract;
+  }
+
+  /** Sites whose JSON-LD loses structure the HTML keeps: JSON-LD stays the base, the HTML sections win. */
+  private withSiteSections(jsonLd: RawRecipe | null, html: string, pageUrl: string): RawRecipe | null {
+    const sections = jsonLd && extractDienMayXanhSections(html, pageUrl);
+    if (!jsonLd || !sections) return jsonLd;
+    return {
+      ...jsonLd,
+      ingredients: sections.ingredients,
+      steps: sections.steps,
+      servings: sections.servings ?? jsonLd.servings,
+      difficulty: sections.difficulty ?? jsonLd.difficulty,
+    };
   }
 
   private async extractFromImage(userId: string, key: string, tagSlugs: string[]): Promise<RawRecipe> {

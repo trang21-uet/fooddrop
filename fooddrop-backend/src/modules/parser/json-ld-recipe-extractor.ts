@@ -57,14 +57,33 @@ function yieldToServings(value: unknown): number | null {
   return null;
 }
 
-/** HowToStep, HowToSection (nested itemListElement), plain strings and HTML blobs all flatten to lines. */
-function collectSteps(value: unknown): string[] {
-  if (typeof value === 'string') return htmlToLines(value);
+type RawStep = RawRecipe['steps'][number];
+
+function imageUrls(value: unknown): string[] {
+  return asArray(value)
+    .map((item) => (typeof item === 'string' ? item.trim() : isObject(item) && typeof item['url'] === 'string' ? item['url'].trim() : ''))
+    .filter(Boolean)
+    .slice(0, 10);
+}
+
+/** One HowToStep is one step: its lines stay together, its heading and photos are kept. */
+function howToStep(node: Json): RawStep[] {
+  const text = typeof node['text'] === 'string' ? htmlToLines(node['text']).join('\n') : '';
+  const name = typeof node['name'] === 'string' ? htmlToText(node['name']) : '';
+  if (!text) return name ? [{ text: name }] : [];
+  // Some sites copy (or truncate) the text into `name`; only a distinct heading counts as one.
+  const heading = name && !text.startsWith(name.replace(/(\.\.\.|…)$/, '')) ? clip(name, 200) : null;
+  const photos = imageUrls(node['image']);
+  return [{ ...(heading ? { name: heading } : {}), text: clip(text, 4000), ...(photos.length > 0 ? { imageUrls: photos } : {}) }];
+}
+
+/** HowToStep, HowToSection (nested itemListElement) and plain strings; a bare string or HTML blob splits into lines. */
+function collectSteps(value: unknown): RawStep[] {
+  if (typeof value === 'string') return htmlToLines(value).map((text) => ({ text: clip(text, 4000) }));
   if (Array.isArray(value)) return value.flatMap(collectSteps);
   if (!isObject(value)) return [];
   if (value['itemListElement'] !== undefined) return collectSteps(value['itemListElement']);
-  const text = value['text'] ?? value['name'];
-  return typeof text === 'string' ? htmlToLines(text) : [];
+  return howToStep(value);
 }
 
 function collectTags(node: Json): string[] {
@@ -92,7 +111,7 @@ function toRawRecipe(node: Json): RawRecipe | null {
     .filter(Boolean)
     .map(parseIngredientLine)
     .map((line) => ({ ...line, name: clip(line.name, 200), note: line.note && clip(line.note, 300) }));
-  const steps = collectSteps(node['recipeInstructions']).map((text) => ({ text: clip(text, 4000) }));
+  const steps = collectSteps(node['recipeInstructions']);
   // Without ingredients and steps the markup is metadata only; let the LLM read the page instead.
   if (ingredients.length === 0 || steps.length === 0) return null;
 

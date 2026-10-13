@@ -45,6 +45,25 @@ describe('extractJsonLdRecipe', () => {
     expect(recipe?.steps).toHaveLength(3);
   });
 
+  it('keeps each HowToStep whole with its heading and photos', () => {
+    const steps = extractJsonLdRecipe(fixture('dienmayxanh-two-versions.html'))?.steps;
+    expect(steps?.[0]).toEqual({
+      name: 'Luộc thịt',
+      text: 'Thịt mua về rửa sạch.\nLuộc 7 phút.\nĐể ý không luộc quá lâu.',
+      imageUrls: ['https://cdn.tgdd.vn/GalleryStep/luoc-thit.jpg'],
+    });
+    // Many sites repeat (or truncate) the text into `name`; that is not a heading.
+    const echoed = JSON.stringify({
+      '@type': 'Recipe',
+      name: 'Soup',
+      recipeIngredient: ['1 onion'],
+      recipeInstructions: [{ '@type': 'HowToStep', name: 'Chop the onion…', text: 'Chop the onion finely.' }],
+    });
+    expect(extractJsonLdRecipe(`<script type="application/ld+json">${echoed}</script>`)?.steps).toEqual([
+      { text: 'Chop the onion finely.' },
+    ]);
+  });
+
   it('returns null for markup without ingredients and steps so the LLM can read the page', () => {
     expect(extractJsonLdRecipe(fixture('metadata-only-recipe.html'))).toBeNull();
   });

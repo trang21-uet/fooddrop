@@ -6,11 +6,12 @@ import type { ClaudeRecipeExtractor } from './claude-recipe-extractor.js';
 import { ParseJobError } from './parse-job-error.js';
 import type { RawRecipe } from './parser.schemas.js';
 import { RecipeParsePipeline } from './recipe-parse-pipeline.service.js';
-import { fetchPublicPage } from './url-fetcher.js';
+import { fetchPublicImage, fetchPublicPage } from './url-fetcher.js';
 
 vi.mock('./url-fetcher.js', async (importOriginal) => ({
   ...(await importOriginal<typeof import('./url-fetcher.js')>()),
   fetchPublicPage: vi.fn(),
+  fetchPublicImage: vi.fn(),
 }));
 
 const fixture = (name: string): string => readFileSync(new URL(`./fixtures/${name}`, import.meta.url), 'utf8');
@@ -32,7 +33,12 @@ function setup(cache: Record<string, string> = {}) {
     extractFromText: vi.fn<ClaudeRecipeExtractor['extractFromText']>(),
     extractFromImage: vi.fn<ClaudeRecipeExtractor['extractFromImage']>(),
   };
-  const storage = { readObject: vi.fn<ObjectStorageService['readObject']>() };
+  const storage = {
+    isConfigured: true,
+    readObject: vi.fn<ObjectStorageService['readObject']>(),
+    storeRecipeImage: vi.fn<ObjectStorageService['storeRecipeImage']>(() => Promise.resolve('recipes/u1/p.jpg')),
+    viewUrl: vi.fn<ObjectStorageService['viewUrl']>((key) => Promise.resolve(`https://cdn.example/${key}`)),
+  };
   const pipeline = new RecipeParsePipeline(
     db,
     redis as unknown as Redis,
@@ -49,7 +55,10 @@ const llmRecipe: RawRecipe = {
   suggestedTags: ['breakfast'],
 };
 
-beforeEach(() => vi.mocked(fetchPublicPage).mockReset());
+beforeEach(() => {
+  vi.mocked(fetchPublicPage).mockReset();
+  vi.mocked(fetchPublicImage).mockReset();
+});
 
 describe('RecipeParsePipeline', () => {
   it('uses JSON-LD without calling the LLM, then caches the extractor output', async () => {
@@ -71,6 +80,30 @@ describe('RecipeParsePipeline', () => {
     expect(redis.set).toHaveBeenCalledWith(expect.stringMatching(/^parser:url:v\d+:[0-9a-f]{64}$/), expect.any(String), 'EX', 604800);
   });
 
+  it('takes ingredients and steps of the first version from Điện máy XANH markup, with step photos', async () => {
+    const pageUrl = 'https://www.dienmayxanh.com/vao-bep/cach-lam-heo-quay-00061';
+    vi.mocked(fetchPublicPage).mockResolvedValue({ finalUrl: pageUrl, html: fixture('dienmayxanh-two-versions.html') });
+    vi.mocked(fetchPublicImage).mockResolvedValue(Buffer.from([0xff, 0xd8, 0xff, 0xe0]));
+    const { pipeline } = setup();
+
+    const draft = await pipeline.run({ userId: 'u1', sourceType: 'url', source: pageUrl });
+
+    expect(draft).toMatchObject({ source: 'json-ld', title: 'Cách làm heo quay bằng nồi chiên không dầu', totalMinutes: 80, difficulty: 3 });
+    expect(draft.ingredients.map((item) => item.name)).toEqual(['Thịt ba chỉ heo', 'Giấm', 'Muối']);
+    expect(draft.steps).toEqual([
+      {
+        name: 'Luộc thịt',
+        text: 'Thịt mua về rửa sạch.\nLuộc 7 phút.',
+        note: 'Để ý không luộc quá lâu.',
+        images: [
+          { key: 'recipes/u1/p.jpg', url: 'https://cdn.example/recipes/u1/p.jpg' },
+          { key: 'recipes/u1/p.jpg', url: 'https://cdn.example/recipes/u1/p.jpg' },
+        ],
+      },
+      { name: 'Thành phẩm', text: 'Cắt khúc, dọn ra đĩa.', note: null, images: [] },
+    ]);
+  });
+
   it('falls back to the LLM for pages without usable JSON-LD', async () => {
     vi.mocked(fetchPublicPage).mockResolvedValue({ finalUrl: URL_, html: fixture('no-structured-data.html') });
     const { pipeline, extractor } = setup();
@@ -81,6 +114,17 @@ describe('RecipeParsePipeline', () => {
     expect(extractor.extractFromText).toHaveBeenCalledWith(expect.stringContaining('Bún chả'), URL_, ['breakfast']);
     expect(draft).toMatchObject({ source: 'llm-text', title: 'Bánh kếp', suggestedTagIds: [1] });
     expect(draft.ingredients[0]).toMatchObject({ ingredientId: 'flour-id', quantity: 200, unit: 'g' });
+  });
+
+  it('fails with not_a_recipe instead of calling the LLM when structuredOnly is set', async () => {
+    vi.mocked(fetchPublicPage).mockResolvedValue({ finalUrl: URL_, html: fixture('no-structured-data.html') });
+    const { pipeline, extractor, redis } = setup();
+
+    await expect(pipeline.run({ userId: 'u1', sourceType: 'url', source: URL_, structuredOnly: true })).rejects.toMatchObject({
+      code: 'not_a_recipe',
+    });
+    expect(extractor.extractFromText).not.toHaveBeenCalled();
+    expect(redis.set).not.toHaveBeenCalled();
   });
 
   it('serves cached extractor output without fetching, rematching against the current catalog', async () => {

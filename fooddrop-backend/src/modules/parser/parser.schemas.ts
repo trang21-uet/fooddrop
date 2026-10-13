@@ -6,6 +6,19 @@ import { PARSE_ERROR_CODES } from './parse-job-error.js';
 
 const rawQuantity = z.union([z.number().nonnegative().max(1_000_000), z.string().trim().max(40)]);
 
+/** What the LLM may fill in for a step. */
+export const llmStepSchema = z.object({
+  name: z.string().trim().max(200).nullish().describe("The step's short heading, only when the source gives one"),
+  text: z.string().trim().min(1).max(4000),
+  note: z.string().trim().max(1000).nullish().describe('A tip or warning attached to the step ("Lưu ý", "Mẹo", "Note")'),
+  timerSeconds: z.number().positive().max(86_400).nullish(),
+});
+
+/** Structured sources also give step photos; the worker copies them into object storage. */
+const rawStepSchema = llmStepSchema.extend({
+  imageUrls: z.array(z.string().trim().max(2000)).max(10).optional(),
+});
+
 /** Raw as written: quantities and units are converted by code, never by the model. */
 export const rawRecipeSchema = z.object({
   title: z.string().trim().min(1).max(200),
@@ -24,14 +37,7 @@ export const rawRecipeSchema = z.object({
       }),
     )
     .max(100),
-  steps: z
-    .array(
-      z.object({
-        text: z.string().trim().min(1).max(4000),
-        timerSeconds: z.number().positive().max(86_400).nullish(),
-      }),
-    )
-    .max(100),
+  steps: z.array(rawStepSchema).max(100),
   /** Tag slugs from the catalog (LLM) or free-form keywords (JSON-LD); matched in `draft-builder`. */
   suggestedTags: z.array(z.string().trim().max(60)).max(20).default([]),
 });
@@ -75,7 +81,16 @@ export const parsedRecipeDraftSchema = z.object({
       isNew: z.boolean(),
     }),
   ),
-  steps: z.array(z.object({ text: z.string(), timerSeconds: z.number().int().optional() })),
+  steps: z.array(
+    z.object({
+      name: z.string().nullable(),
+      text: z.string(),
+      note: z.string().nullable(),
+      /** Photos copied from the source into the user's recipe storage; pass the keys back on save. */
+      images: z.array(z.object({ key: z.string(), url: z.string().nullable() })),
+      timerSeconds: z.number().int().optional(),
+    }),
+  ),
   suggestedTagIds: z.array(z.number().int()),
 });
 

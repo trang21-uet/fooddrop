@@ -2,7 +2,7 @@ import http from 'node:http';
 import type { AddressInfo } from 'node:net';
 import zlib from 'node:zlib';
 import type { SafeLookup } from './public-address.js';
-import { assertFetchableUrl, fetchPublicPage, type FetchLimits } from './url-fetcher.js';
+import { assertFetchableUrl, fetchPublicImage, fetchPublicPage, type FetchLimits } from './url-fetcher.js';
 
 // The fake server listens on 127.0.0.1, so these tests inject a lookup that skips the public-address check.
 const loopbackLookup: SafeLookup = (_hostname, options, callback) =>
@@ -57,6 +57,16 @@ describe('fetchPublicPage', () => {
   it('returns decoded HTML', async () => {
     serve(200, { 'content-type': 'text/html; charset=utf-8' }, '<p>Phở bò</p>');
     expect(await get('/')).toEqual({ finalUrl: `${base}/`, html: '<p>Phở bò</p>' });
+  });
+
+  it('fetches images as raw bytes and refuses non-image responses on the image path', async () => {
+    const bytes = Buffer.from([0xff, 0xd8, 0xff, 0xe0]);
+    serve(200, { 'content-type': 'image/jpeg' }, bytes);
+    expect(await fetchPublicImage(`${base}/a.jpg`, limits, loopbackLookup)).toEqual(bytes);
+    await expect(get('/a.jpg')).rejects.toMatchObject({ code: 'fetch_failed' });
+
+    serve(200, { 'content-type': 'text/html' }, '<p>not an image</p>');
+    await expect(fetchPublicImage(`${base}/a.jpg`, limits, loopbackLookup)).rejects.toMatchObject({ code: 'fetch_failed' });
   });
 
   it('decompresses gzip bodies', async () => {

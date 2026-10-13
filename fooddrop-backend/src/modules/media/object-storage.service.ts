@@ -81,6 +81,15 @@ export class ObjectStorageService {
     };
   }
 
+  /** Stores a step photo the server fetched itself (recipe import); returns its key under the owner's prefix. */
+  async storeRecipeImage(userId: string, bytes: Buffer, contentType: CreateUpload['contentType']): Promise<string> {
+    const key = `${recipeImagePrefix(userId)}${randomUUID()}.${EXTENSIONS[contentType]}`;
+    await this.requireClient().send(
+      new PutObjectCommand({ Bucket: this.bucket, Key: key, Body: bytes, ContentType: contentType, ContentLength: bytes.length }),
+    );
+    return key;
+  }
+
   /** A URL the browser or app can load the object from; null when storage is not configured at all. */
   async viewUrl(key: string): Promise<string | null> {
     if (this.publicUrl) return `${this.publicUrl}/${key}`;
