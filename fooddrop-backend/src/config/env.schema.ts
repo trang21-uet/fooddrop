@@ -26,6 +26,8 @@ export const envSchema = z.object({
   PARSER_DAILY_QUOTA: z.coerce.number().int().positive().default(30),
   // Minimum gap between two imports by the same user; 0 disables it (e2e tests).
   PARSER_COOLDOWN_SECONDS: z.coerce.number().int().min(0).default(60),
+  // Food Drop spins per user per minute; 0 disables the limit.
+  GACHA_SPINS_PER_MINUTE: z.coerce.number().int().min(0).default(30),
   // S3-compatible storage (R2, MinIO) for cookbook photos. Blank credentials disable uploads.
   S3_ENDPOINT: emptyToUndefined,
   S3_REGION: z.string().default('auto'),

@@ -7,6 +7,7 @@ import { validateEnv, type Env } from './config/env.schema.js';
 import { DRIZZLE, DatabaseModule, type Database } from './database/database.module.js';
 import { RedisModule } from './redis/redis.module.js';
 import { createAuth } from './modules/auth/create-auth.js';
+import { GachaModule } from './modules/gacha/gacha.module.js';
 import { HealthModule } from './modules/health/health.module.js';
 import { MediaModule } from './modules/media/media.module.js';
 import { ParserModule } from './modules/parser/parser.module.js';
@@ -46,6 +47,7 @@ import { UnitsModule } from './modules/units/units.module.js';
     RecipesModule,
     MediaModule,
     ParserModule,
+    GachaModule,
   ],
   providers: [{ provide: APP_PIPE, useClass: ZodValidationPipe }],
 })

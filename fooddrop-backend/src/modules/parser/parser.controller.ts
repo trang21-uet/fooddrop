@@ -1,8 +1,8 @@
 import { Body, Controller, Get, Param, ParseUUIDPipe, Post, UseFilters } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ApiZodBody, ApiZodCreated, ApiZodError, ApiZodOk } from '../../common/zod-dto.js';
+import { RetryAfterFilter } from '../../common/retry-after.exception.js';
 import { CurrentUser, type CurrentUserData } from '../auth/current-user.decorator.js';
-import { ParseCooldownFilter } from './parse-cooldown.js';
 import { CreateParseJobDto, ParseJobDto, ParseRateLimitErrorDto } from './parser.schemas.js';
 import { ParserService } from './parser.service.js';
 
@@ -17,7 +17,7 @@ export class ParserController {
    * Answers 429 when the user imported less than `cooldownSeconds` ago (body has `retryAfterSeconds`) or hit the daily quota.
    */
   @Post()
-  @UseFilters(ParseCooldownFilter)
+  @UseFilters(RetryAfterFilter)
   @ApiZodBody(CreateParseJobDto)
   @ApiZodCreated(ParseJobDto)
   @ApiZodError(429, ParseRateLimitErrorDto, 'Import cooldown (`parse_cooldown`, with `retryAfterSeconds`) or daily quota (`parse_daily_quota`)', {

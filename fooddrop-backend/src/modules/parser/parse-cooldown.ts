@@ -1,40 +1,14 @@
-import {
-  type ArgumentsHost,
-  Catch,
-  type ExceptionFilter,
-  HttpException,
-  HttpStatus,
-  Inject,
-  Injectable,
-  Logger,
-  ServiceUnavailableException,
-} from '@nestjs/common';
+import { Inject, Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import type { Response } from 'express';
 import type { Redis } from 'ioredis';
+import { RetryAfterException } from '../../common/retry-after.exception.js';
 import type { Env } from '../../config/env.schema.js';
 import { REDIS_CLIENT } from '../../redis/redis.module.js';
 
 /** Body of the 429 sent while a user is cooling down; clients use `retryAfterSeconds` for their countdown. */
-export class ParseCooldownException extends HttpException {
-  constructor(readonly retryAfterSeconds: number) {
-    super(
-      { statusCode: HttpStatus.TOO_MANY_REQUESTS, code: 'parse_cooldown', message: 'Please wait before importing another recipe', retryAfterSeconds },
-      HttpStatus.TOO_MANY_REQUESTS,
-    );
-  }
-}
-
-/** Adds the standard `Retry-After` header to the cooldown 429, for HTTP clients that do not read the body. */
-@Catch(ParseCooldownException)
-export class ParseCooldownFilter implements ExceptionFilter<ParseCooldownException> {
-  catch(exception: ParseCooldownException, host: ArgumentsHost): void {
-    host
-      .switchToHttp()
-      .getResponse<Response>()
-      .status(exception.getStatus())
-      .setHeader('Retry-After', String(exception.retryAfterSeconds))
-      .json(exception.getResponse());
+export class ParseCooldownException extends RetryAfterException {
+  constructor(retryAfterSeconds: number) {
+    super(retryAfterSeconds, { code: 'parse_cooldown', message: 'Please wait before importing another recipe' });
   }
 }
 
