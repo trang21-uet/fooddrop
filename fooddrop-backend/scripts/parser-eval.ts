@@ -26,7 +26,10 @@ interface Job {
   };
 }
 
+// Some pnpm versions forward the `--` separator; parseArgs would read everything after it as positionals.
+const argv = process.argv.slice(2);
 const { values } = parseArgs({
+  args: argv[0] === '--' ? argv.slice(1) : argv,
   options: {
     token: { type: 'string' },
     api: { type: 'string', default: 'http://localhost:4000' },
