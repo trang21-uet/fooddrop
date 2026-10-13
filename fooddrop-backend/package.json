@@ -27,7 +27,8 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:seed": "tsx src/database/seed/run-seed.ts",
-    "parser:eval": "tsx scripts/parser-eval.ts"
+    "parser:eval": "tsx scripts/parser-eval.ts",
+    "import:dienmayxanh": "nest build && node dist/cli/import-dienmayxanh-recipes.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.131.0",
