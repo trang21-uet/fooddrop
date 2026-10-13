@@ -62,8 +62,9 @@
 ## Key flows
 
 ### Gacha spin
-1. Client `POST /gacha/spins { caseType, filters, lat?, lon? }`.
-2. Server loads candidate recipes, computes `weight = rarityWeight × Π weatherBoost(tag)`, draws one with a CSPRNG.
+0. The case picker reads `GET /gacha/cases` (count, rarity mix and rarest dishes per case; case rules in `gacha-cases.ts`).
+1. Client `POST /gacha/spins { caseType, caseId, lat?, lon? }`.
+2. Server loads the case's recipes (same rule as the picker), computes `weight = rarityWeight × Π weatherBoost(tag)`, draws one with a CSPRNG.
 3. Server returns `{ spinId, result, reel: RecipeCard[] (≈70 items), winningIndex, offsetJitter }`.
 4. Client animates the reel to `winningIndex` (6–8s, `cubic-bezier(0.1, 0.7, 0.1, 1)`), plays a tick each time the center marker crosses an item boundary, then reveals.
 
@@ -103,10 +104,10 @@ The browser calls the API through a same-origin rewrite (`/backend/*` → `API_I
 
 | | Web | Mobile |
 |---|---|---|
-| Tween | GSAP (`onUpdate`) or Motion | `AnimationController` + `CurvedAnimation(Cubic(0.1, 0.7, 0.1, 1))` |
+| Tween | `requestAnimationFrame` + `cubic-bezier` solver (`cubic-bezier.ts`) | `AnimationController` + `CurvedAnimation(Cubic(0.1, 0.7, 0.1, 1))` |
 | Render | `transform: translateX` + `will-change` | `Transform.translate` inside a clipped `Stack` |
 | Tick | Web Audio API `AudioBufferSourceNode` | `flutter_soloud` |
-| Reveal FX | CSS/Canvas glow by rarity | Rive or Lottie |
+| Reveal FX | CSS glow, rays and sparks by rarity | `CustomPainter` burst (Rive later) |
 
 ## Deployment (target)
 

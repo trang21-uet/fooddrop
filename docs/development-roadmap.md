@@ -10,7 +10,7 @@ Plan: [plans/261006-1706-fooddrop-mvp](../plans/261006-1706-fooddrop-mvp/plan.md
 | 04 | Mobile Recipe Hub | Complete | 100% |
 | 05 | AI Recipe Parser | In progress (eval pending) | 90% |
 | 06 | Smart Utilities (resizer, grocery, multi-timer) | In progress (device check pending) | 90% |
-| 07 | Food Drop gacha (cook case) | Pending | 0% |
+| 07 | Food Drop gacha (cook case) | In progress (device perf check pending) | 90% |
 | 08 | Context boost and Lazy case | Pending | 0% |
 | 09 | Testing, hardening and release | Pending | 0% |
 

@@ -5,7 +5,7 @@
 
 ## Overview
 - **Priority:** P0 (signature feature)
-- **Status:** Pending
+- **Status:** In progress — backend, web and mobile done; on-device perf check pending
 - Server-authoritative weighted draw + CS:GO-style reel animation with tick sound on web and mobile.
 
 ## Key Insights
@@ -14,7 +14,7 @@
 - Reel position must never pass through React/Riverpod state (would re-render per frame).
 
 ## Requirements
-- Functional: choose case (cook), optional filters (tags, max minutes); spin; reveal with rarity glow; actions "Cook this" (open recipe), "Add to grocery", "Spin again"; spin history.
+- Functional: pick a case on the "Chọn hòm" screen (Tổng hợp, Bữa sáng/trưa/tối, Nhanh gọn, Cầu kỳ), then spin it; reveal with rarity glow; actions "Cook this" (open recipe), "Add to grocery", "Spin again"; spin history.
 - Rarity weights (config): white 50, blue 25, purple 15, pink 7, red 3 (normalized over available recipes).
 - Non-functional: 60fps on mid-range Android and a 2019 laptop; reduced-motion fallback.
 
@@ -40,14 +40,15 @@
 8. Perf check: Chrome performance panel and Flutter DevTools (no jank frames during spin).
 
 ## Todo List
-- [ ] Weighted draw + distribution tests
-- [ ] Reel builder + endpoint
-- [ ] Sounds
-- [ ] Web reel + tick
-- [ ] Mobile reel + tick + haptics
-- [ ] Reveal overlay
-- [ ] Reduced-motion
-- [ ] Perf verification
+- [x] Weighted draw + distribution tests
+- [x] Reel builder + endpoint
+- [x] Sounds (synthesized by `scripts/generate-gacha-sounds.mjs`)
+- [x] Web reel + tick (rAF + own cubic-bezier instead of GSAP)
+- [x] Mobile reel + tick + haptics
+- [x] Reveal overlay (mobile uses a CustomPainter burst; no Rive asset yet)
+- [x] Case picker ("Chọn hòm" design board): `GET /gacha/cases`, spin by `caseId`, `/drop` picker → `/drop/:caseId` reel on web and mobile
+- [x] Reduced-motion
+- [ ] Perf verification (Chrome perf panel on a 2019 laptop, Flutter DevTools on a mid-range Android; no device was attached)
 
 ## Success Criteria
 - Tick count equals number of boundaries crossed; spin lands exactly on the server's result every time; 60fps measured.
