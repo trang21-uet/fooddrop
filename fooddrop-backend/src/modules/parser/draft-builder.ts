@@ -3,6 +3,7 @@ import { InvalidQuantityError, parseAmount } from '../units/normalize-quantity.j
 import { lookupUnitAlias } from '../units/unit-aliases.js';
 import { createIngredientMatcher, matchTagIds, type CatalogIngredient, type CatalogTag } from './ingredient-matcher.js';
 import { inferTagSlugs } from './infer-tag-slugs.js';
+import { shortenRecipeTitle } from './recipe-title-shortener.js';
 import type { ParsedRecipeDraft, RawRecipe } from './parser.schemas.js';
 import type { StepImage } from './step-image-importer.js';
 
@@ -99,7 +100,8 @@ export function buildDraft(raw: RawRecipe, context: DraftContext): ParsedRecipeD
 
   return {
     source: context.source,
-    title: raw.title.slice(0, 200),
+    // The full title still feeds tag inference below ("... bằng nồi chiên không dầu").
+    title: shortenRecipeTitle(raw.title, raw.suggestedTags).slice(0, 200),
     description: raw.description?.slice(0, 2000) || null,
     imageUrl: absoluteHttpUrl(raw.imageUrl, context.sourceUrl),
     sourceUrl: absoluteHttpUrl(context.sourceUrl, null),

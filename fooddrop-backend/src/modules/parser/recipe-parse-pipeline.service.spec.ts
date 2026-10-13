@@ -88,7 +88,7 @@ describe('RecipeParsePipeline', () => {
 
     const draft = await pipeline.run({ userId: 'u1', sourceType: 'url', source: pageUrl });
 
-    expect(draft).toMatchObject({ source: 'json-ld', title: 'Cách làm heo quay bằng nồi chiên không dầu', totalMinutes: 80, difficulty: 3 });
+    expect(draft).toMatchObject({ source: 'json-ld', title: 'Heo quay', totalMinutes: 80, difficulty: 3 });
     expect(draft.ingredients.map((item) => item.name)).toEqual(['Thịt ba chỉ heo', 'Giấm', 'Muối']);
     expect(draft.steps).toEqual([
       {
