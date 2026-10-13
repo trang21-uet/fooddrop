@@ -93,7 +93,7 @@ describe("RecipeImportView", () => {
                 totalMinutes: 90,
                 difficulty: 3,
                 ingredients: [{ name: "bánh phở", matchedName: null, ingredientId: null, isNew: true, quantity: 500, unit: "g", note: null }],
-                steps: [{ text: "Chan nước dùng." }],
+                steps: [{ name: null, text: "Chan nước dùng.", note: null, images: [] }],
                 suggestedTagIds: [],
               },
             }),

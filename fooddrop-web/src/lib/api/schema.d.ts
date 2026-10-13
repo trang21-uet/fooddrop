@@ -217,7 +217,13 @@ export interface components {
                     isNew: boolean;
                 }[];
                 steps: {
+                    name: string | null;
                     text: string;
+                    note: string | null;
+                    images: {
+                        key: string;
+                        url: string | null;
+                    }[];
                     timerSeconds?: number;
                 }[];
                 suggestedTagIds: number[];

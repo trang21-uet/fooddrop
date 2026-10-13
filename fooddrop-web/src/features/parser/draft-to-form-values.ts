@@ -25,10 +25,10 @@ export function draftToFormValues(draft: ParsedRecipeDraft): RecipeFormValues {
     steps:
       draft.steps.length > 0
         ? draft.steps.map((step) => ({
-            name: "",
+            name: step.name ?? "",
             text: step.text,
-            note: "",
-            images: [],
+            note: step.note ?? "",
+            images: step.images,
             timerMinutes: step.timerSeconds ? Math.min(1440, Math.ceil(step.timerSeconds / 60)) : undefined,
           }))
         : [{ ...EMPTY_STEP, images: [] }],

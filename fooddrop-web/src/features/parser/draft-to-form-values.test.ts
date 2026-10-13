@@ -24,7 +24,15 @@ const draft: ParsedRecipeDraft = {
     { name: "trứng cút", matchedName: null, ingredientId: null, isNew: true, quantity: 12.004, unit: "fruit", note: "luộc chín" },
     { name: "muối", matchedName: null, ingredientId: null, isNew: true, quantity: null, unit: null, note: "tùy khẩu vị" },
   ],
-  steps: [{ text: "Ướp thịt." }, { text: "Hầm 45 phút.", timerSeconds: 2700 }],
+  steps: [
+    {
+      name: "Ướp thịt",
+      text: "Ướp thịt.",
+      note: "Ướp ít nhất 20 phút",
+      images: [{ key: "recipes/u1/a.jpg", url: "https://cdn.example/recipes/u1/a.jpg" }],
+    },
+    { name: null, text: "Hầm 45 phút.", note: null, images: [], timerSeconds: 2700 },
+  ],
   suggestedTagIds: [3, 7],
 };
 
@@ -37,7 +45,13 @@ describe("draftToFormValues", () => {
       totalMinutes: 30,
       tagIds: [3, 7],
       steps: [
-        { name: "", text: "Ướp thịt.", note: "", images: [], timerMinutes: undefined },
+        {
+          name: "Ướp thịt",
+          text: "Ướp thịt.",
+          note: "Ướp ít nhất 20 phút",
+          images: [{ key: "recipes/u1/a.jpg", url: "https://cdn.example/recipes/u1/a.jpg" }],
+          timerMinutes: undefined,
+        },
         { name: "", text: "Hầm 45 phút.", note: "", images: [], timerMinutes: 45 },
       ],
     });
