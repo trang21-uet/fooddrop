@@ -1,10 +1,10 @@
 import { ChestIcon } from "./chest-icon";
-import { CASE_STYLES, type GachaCase } from "./gacha-case-styles";
+import { caseStyle, type GachaCase } from "./gacha-case-styles";
 import { RaritySegments } from "./rarity-segments";
 
 /** One case tile in the picker; pressed when selected. */
 export function CaseCard({ item, selected, onSelect }: { item: GachaCase; selected: boolean; onSelect: () => void }) {
-  const { name, rule, tag, color } = CASE_STYLES[item.id];
+  const { name, rule, tag, color } = caseStyle(item);
   return (
     <button
       type="button"

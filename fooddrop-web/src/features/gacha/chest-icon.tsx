@@ -18,7 +18,16 @@ export function ChestIcon({ color, tag, width = 150 }: { color: string; tag?: st
       {tag && (
         <>
           <rect x="38" y="96" width="84" height="22" rx="6" fill="#120e0d" stroke={color} strokeWidth="1.5" />
-          <text x="80" y="111" textAnchor="middle" fontSize="12" fontWeight="700" fill={color}>
+          {/* Long tag names are squeezed to fit the plate. */}
+          <text
+            x="80"
+            y="111"
+            textAnchor="middle"
+            fontSize="12"
+            fontWeight="700"
+            fill={color}
+            {...(tag.length > 10 ? { textLength: 76, lengthAdjust: "spacingAndGlyphs" } : {})}
+          >
             {tag}
           </text>
         </>

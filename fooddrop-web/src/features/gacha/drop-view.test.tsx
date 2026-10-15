@@ -41,7 +41,9 @@ const spin: GachaSpin = {
   poolSize: 3,
 };
 const dinnerCase = (recipeCount: number) => ({
-  id: "dinner",
+  id: "meal_type.dinner",
+  group: "meal_type" as const,
+  label: "Bữa tối",
   recipeCount,
   rarityCounts: { white: 0, blue: 0, purple: recipeCount, pink: 0, red: 0 },
   preview: recipeCount ? [winner] : [],
@@ -53,7 +55,7 @@ function renderView() {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
     <QueryClientProvider client={client}>
-      <DropView caseId="dinner" />
+      <DropView caseId="meal_type.dinner" />
     </QueryClientProvider>,
   );
 }
@@ -82,7 +84,7 @@ describe("DropView", () => {
     expect(dialog).toHaveTextContent("Bún chả");
     expect(screen.getByRole("link", { name: "Nấu món này" })).toHaveAttribute("href", "/recipes/win");
     expect(playReveal).toHaveBeenCalledWith("purple");
-    expect(post).toHaveBeenCalledWith("/gacha/spins", { body: { caseType: "cook", caseId: "dinner" } });
+    expect(post).toHaveBeenCalledWith("/gacha/spins", { body: { caseType: "cook", caseId: "meal_type.dinner" } });
     // History is refetched only after landing.
     await waitFor(() => expect(get.mock.calls.filter(([path]) => path === "/gacha/spins")).toHaveLength(2));
     expect(screen.getByText(/Hòm chỉ có 3 món/)).toBeInTheDocument();
@@ -111,6 +113,15 @@ describe("DropView", () => {
     renderView();
     expect(await screen.findByText("Hòm này chưa có món nào. Chọn hòm khác nhé.")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Mở hộp" })).toBeDisabled();
+  });
+
+  it("names the tag case and disables a case that no longer exists", async () => {
+    renderView();
+    expect(await screen.findByRole("link", { name: /Hòm Bữa tối · 3 công thức/ })).toHaveAttribute("href", "/drop");
+
+    cases = [];
+    renderView();
+    expect(await screen.findByText("Không còn hòm này nữa. Chọn hòm khác nhé.")).toBeInTheDocument();
   });
 
   it("does not show another case's spin", () => {

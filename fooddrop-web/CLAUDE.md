@@ -37,7 +37,7 @@ Run `lint`, `typecheck` and `test` after every change.
 ## Gacha reel
 
 - Render ~70 cards in a horizontal strip; animate a single wrapper with `transform: translateX` and `will-change: transform`.
-- `/drop` is the case picker (`case-select-view.tsx`, data from `GET /gacha/cases`, copy/colours in `gacha-case-styles.ts`); `/drop/[caseId]` the reel (`drop-view.tsx`). The store keeps the spin's `caseId` so another case's page never shows it.
+- `/drop` is the case picker (`case-select-view.tsx`, data from `GET /gacha/cases`, tabs per `group` in `CASE_TABS`, copy/colours via `caseStyle()` in `gacha-case-styles.ts`: featured cases fixed, tag cases from `label` + palette hash shared with mobile); `/drop/[caseId]` the reel (`drop-view.tsx`). The store keeps the spin's `caseId` so another case's page never shows it.
 - `features/gacha/`: `use-reel-animation.ts` runs `requestAnimationFrame` for 7 s with `reelEase` (`cubic-bezier.ts`, no GSAP) and writes `transform` on the strip; card width and gap are measured from the DOM. Geometry is pure in `reel-geometry.ts` (`targetOffset`, `slotUnderMarker`), same math as mobile.
 - Tick: when `slotUnderMarker` changes, `playTick()` (`tick-sound-player.ts`) starts a pre-decoded `AudioBuffer`. `prepareReelSounds()` builds the AudioContext when the drop page mounts (its constructor can block for seconds on a bad audio device); `unlockReelSounds()` only resumes it inside the spin click. History is invalidated only after landing so it never spoils the result.
 - Respect `prefers-reduced-motion`: shorten to a quick fade reveal.

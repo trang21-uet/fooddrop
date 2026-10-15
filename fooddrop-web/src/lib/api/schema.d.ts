@@ -217,8 +217,7 @@ export interface components {
         CreateGachaSpin: {
             /** @enum {string} */
             caseType: "cook";
-            /** @enum {string} */
-            caseId: "all" | "breakfast" | "lunch" | "dinner" | "quick" | "epic";
+            caseId: string;
         };
         ListGachaSpinsQuery: {
             /** @default 20 */
@@ -259,8 +258,10 @@ export interface components {
         };
         GachaCases: {
             items: {
+                id: string;
                 /** @enum {string} */
-                id: "all" | "breakfast" | "lunch" | "dinner" | "quick" | "epic";
+                group: "featured" | "cuisine" | "equipment" | "meal_type" | "technique" | "diet";
+                label: string | null;
                 recipeCount: number;
                 rarityCounts: {
                     white: number;

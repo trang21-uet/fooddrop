@@ -4,12 +4,12 @@ import { CubeIcon } from "@/components/ui/icons";
 import { RARITY_STYLES } from "../recipes/rarity-badge";
 import { RARITY_ORDER } from "../recipes/recipe-filters";
 import { ChestIcon } from "./chest-icon";
-import { CASE_STYLES, type GachaCase } from "./gacha-case-styles";
+import { caseStyle, type GachaCase } from "./gacha-case-styles";
 import { RaritySegments } from "./rarity-segments";
 
 /** The selected case: its rarity mix, its rarest dishes and the button that opens it. */
 export function CaseDetailPanel({ item }: { item: GachaCase }) {
-  const { name, color } = CASE_STYLES[item.id];
+  const { name, color } = caseStyle(item);
   const tiers = RARITY_ORDER.filter((rarity) => item.rarityCounts[rarity] > 0);
   const hidden = item.recipeCount - item.preview.length;
 
@@ -77,7 +77,7 @@ export function CaseDetailPanel({ item }: { item: GachaCase }) {
 
 /** Opens the case on its reel page; an empty case cannot be opened. */
 export function OpenCaseButton({ item }: { item: GachaCase }) {
-  const { name } = CASE_STYLES[item.id];
+  const { name } = caseStyle(item);
   const className = `${buttonClass("primary", "lg")} min-h-14 text-lg font-extrabold`;
   if (item.recipeCount === 0) {
     return (

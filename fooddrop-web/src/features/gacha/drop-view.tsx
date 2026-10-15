@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { CubeIcon } from "@/components/ui/icons";
 import { useSignOutOnUnauthorized } from "@/features/auth/use-sign-out-on-unauthorized";
 import { CaseReel } from "./case-reel";
-import { CASE_STYLES, type CaseId } from "./gacha-case-styles";
+import { caseStyle, type CaseId } from "./gacha-case-styles";
 import { preloadReelImages } from "./preload-reel-images";
 import { requestSpin, spinErrorMessage } from "./request-spin";
 import { RevealOverlay } from "./reveal-overlay";
@@ -22,9 +22,11 @@ const SMALL_POOL = 5;
 
 /** The reel for one case, opened from the case picker. */
 export function DropView({ caseId }: { caseId: CaseId }) {
-  const style = CASE_STYLES[caseId];
   const cases = useGachaCasesQuery();
   const current = cases.data?.find((item) => item.id === caseId);
+  // Tag cases only exist while a recipe carries the tag, so an old link can point at nothing.
+  const missing = cases.isSuccess && !current;
+  const color = current ? caseStyle(current).color : "var(--border)";
   const queryClient = useQueryClient();
   const { status, startSpin, reveal, finish, dismiss } = useGachaStore();
   // A spin from another case's page is not shown here.
@@ -74,11 +76,10 @@ export function DropView({ caseId }: { caseId: CaseId }) {
       <Link
         href="/drop"
         className="flex min-h-11 items-center gap-2 rounded-full border bg-surface-raised px-4 text-[13px] font-semibold"
-        style={{ borderColor: style.color, boxShadow: `0 0 14px -4px ${style.color}` }}
+        style={{ borderColor: color, boxShadow: `0 0 14px -4px ${color}` }}
       >
-        <span aria-hidden className="size-2 rounded-full" style={{ backgroundColor: style.color, boxShadow: `0 0 8px ${style.color}` }} />
-        {style.name}
-        {current && ` · ${current.recipeCount} công thức`}
+        <span aria-hidden className="size-2 rounded-full" style={{ backgroundColor: color, boxShadow: `0 0 8px ${color}` }} />
+        {current ? `${caseStyle(current).name} · ${current.recipeCount} công thức` : "Hòm"}
         <span className="text-accent">&nbsp;· Đổi hòm</span>
       </Link>
 
@@ -87,7 +88,7 @@ export function DropView({ caseId }: { caseId: CaseId }) {
           <CaseReel spin={spin} idleCards={current?.preview} spinning={status === "spinning" && spin !== null} onLanded={onLanded} />
         </div>
 
-        <Button variant="primary" size="lg" onClick={spinNow} disabled={busy || current?.recipeCount === 0} className="min-h-15 min-w-60 text-xl font-extrabold glow-accent">
+        <Button variant="primary" size="lg" onClick={spinNow} disabled={busy || missing || current?.recipeCount === 0} className="min-h-15 min-w-60 text-xl font-extrabold glow-accent">
           <CubeIcon width={22} height={22} />
           {spinMutation.isPending ? "Đang mở…" : status === "spinning" ? "Đang quay…" : "Mở hộp"}
         </Button>
@@ -95,6 +96,7 @@ export function DropView({ caseId }: { caseId: CaseId }) {
         <div aria-live="polite" className="flex flex-col items-center gap-1 text-center text-sm">
           {status === "spinning" && <span className="sr-only">Đang quay…</span>}
           {current?.recipeCount === 0 && <p className="text-muted">Hòm này chưa có món nào. Chọn hòm khác nhé.</p>}
+          {missing && <p className="text-muted">Không còn hòm này nữa. Chọn hòm khác nhé.</p>}
           {spinMutation.isError && (
             <p role="alert" className="text-danger">
               {spinErrorMessage(spinMutation.error)}
