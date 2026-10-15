@@ -1,7 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../data/gacha_providers.dart';
-import '../domain/gacha_case.dart';
 import '../domain/gacha_spin.dart';
 import '../domain/spin_error_message.dart';
 
@@ -31,7 +30,7 @@ class GachaController extends _$GachaController {
   GachaState build() => const GachaState();
 
   /// Opens a cook case; the server draws from the case's recipes.
-  Future<void> spin(GachaCaseId caseId) async {
+  Future<void> spin(String caseId) async {
     if (state.busy) return;
     state = GachaState(spin: state.spin, requesting: true);
     // Sounds load while the server draws; init never throws (a failure means haptic-only).

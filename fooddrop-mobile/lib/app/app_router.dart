@@ -85,10 +85,8 @@ GoRouter appRouter(Ref ref) {
               GoRoute(
                 path: ':caseId',
                 // An unknown case (old link, typo) goes back to the picker.
-                redirect: (context, state) =>
-                    GachaCaseId.fromApi(state.pathParameters['caseId']!) == null ? '/drop' : null,
-                builder: (context, state) =>
-                    DropScreen(caseId: GachaCaseId.fromApi(state.pathParameters['caseId']!)!),
+                redirect: (context, state) => isGachaCaseId(state.pathParameters['caseId']!) ? null : '/drop',
+                builder: (context, state) => DropScreen(caseId: state.pathParameters['caseId']!),
               ),
             ],
           ),

@@ -11,7 +11,7 @@ import 'case_tile.dart';
 import 'gacha_case_style.dart';
 import 'rarity_segments.dart';
 
-/// "Chọn hòm": pick a case, then open it on `/drop/:caseId`.
+/// "Chọn hòm": pick a tab and a case, then open it on `/drop/:caseId`.
 class CaseSelectScreen extends ConsumerStatefulWidget {
   const CaseSelectScreen({super.key});
 
@@ -20,52 +20,79 @@ class CaseSelectScreen extends ConsumerStatefulWidget {
 }
 
 class _CaseSelectScreenState extends ConsumerState<CaseSelectScreen> {
-  var _selected = GachaCaseId.all;
+  var _group = GachaCaseGroup.featured;
+  var _selected = 'all';
+
+  void _openTab(GachaCaseGroup group, List<GachaCaseSummary>? cases) => setState(() {
+        _group = group;
+        // Keep the bottom bar on a case of the open tab.
+        final first = cases?.where((item) => item.group == group).firstOrNull;
+        if (first != null) _selected = first.id;
+      });
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
     final cases = ref.watch(gachaCasesProvider);
-    final summary = cases.value?.where((item) => item.id == _selected).firstOrNull;
+    final visible = cases.value?.where((item) => item.group == _group).toList() ?? const <GachaCaseSummary>[];
+    final summary = visible.where((item) => item.id == _selected).firstOrNull;
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Chọn hòm')),
-      body: Column(
-        children: [
-          Expanded(
-            child: switch (cases) {
-              AsyncData(:final value) => CustomScrollView(
-                  slivers: [
-                    SliverPadding(
-                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
-                      sliver: SliverToBoxAdapter(
-                        child: Text('Mỗi hòm chứa một nhóm món.', style: TextStyle(fontSize: 14, color: colors.textMuted)),
-                      ),
-                    ),
-                    SliverPadding(
-                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-                      sliver: SliverGrid.count(
-                        crossAxisCount: 2,
-                        mainAxisSpacing: 12,
-                        crossAxisSpacing: 12,
-                        childAspectRatio: 0.86,
-                        children: [
-                          for (final item in value)
-                            CaseTile(summary: item, selected: item.id == _selected, onTap: () => setState(() => _selected = item.id)),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              AsyncError(:final error) => _Message(
-                  text: describeApiError(error),
-                  onRetry: () => ref.invalidate(gachaCasesProvider),
-                ),
-              _ => const Center(child: CircularProgressIndicator()),
-            },
+    return DefaultTabController(
+      length: GachaCaseGroup.values.length,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Chọn hòm'),
+          bottom: TabBar(
+            isScrollable: true,
+            tabAlignment: TabAlignment.start,
+            onTap: (index) => _openTab(GachaCaseGroup.values[index], cases.value),
+            tabs: [
+              for (final group in GachaCaseGroup.values)
+                Tab(text: '${gachaCaseGroupLabel(group)} ${cases.value?.where((item) => item.group == group).length ?? ''}'.trim()),
+            ],
           ),
-          if (summary != null) _SelectedCaseBar(summary: summary),
-        ],
+        ),
+        body: Column(
+          children: [
+            Expanded(
+              child: switch (cases) {
+                AsyncData() when visible.isEmpty => _Message(
+                    text: 'Chưa có công thức nào gắn thẻ ${gachaCaseGroupLabel(_group).toLowerCase()}. '
+                        'Gắn thẻ cho công thức để có hòm ở đây.',
+                  ),
+                AsyncData() => CustomScrollView(
+                    slivers: [
+                      SliverPadding(
+                        padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+                        sliver: SliverToBoxAdapter(
+                          child: Text('Mỗi hòm chứa một nhóm món.', style: TextStyle(fontSize: 14, color: colors.textMuted)),
+                        ),
+                      ),
+                      SliverPadding(
+                        padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+                        sliver: SliverGrid.count(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 12,
+                          crossAxisSpacing: 12,
+                          childAspectRatio: 0.86,
+                          children: [
+                            for (final item in visible)
+                              CaseTile(summary: item, selected: item.id == _selected, onTap: () => setState(() => _selected = item.id)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                AsyncError(:final error) => _Message(
+                    text: describeApiError(error),
+                    onRetry: () => ref.invalidate(gachaCasesProvider),
+                  ),
+                _ => const Center(child: CircularProgressIndicator()),
+              },
+            ),
+            if (summary != null) _SelectedCaseBar(summary: summary),
+          ],
+        ),
       ),
     );
   }
@@ -80,7 +107,7 @@ class _SelectedCaseBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final style = GachaCaseStyle.of(summary.id);
+    final style = GachaCaseStyle.of(summary);
     final empty = summary.recipeCount == 0;
 
     return DecoratedBox(
@@ -119,7 +146,7 @@ class _SelectedCaseBar extends StatelessWidget {
             NeonButton(
               label: 'Mở ${style.name}',
               icon: Icons.inventory_2_outlined,
-              onPressed: empty ? null : () => context.push('/drop/${summary.id.apiValue}'),
+              onPressed: empty ? null : () => context.push('/drop/${summary.id}'),
             ),
           ],
         ),
@@ -129,10 +156,10 @@ class _SelectedCaseBar extends StatelessWidget {
 }
 
 class _Message extends StatelessWidget {
-  const _Message({required this.text, required this.onRetry});
+  const _Message({required this.text, this.onRetry});
 
   final String text;
-  final VoidCallback onRetry;
+  final VoidCallback? onRetry;
 
   @override
   Widget build(BuildContext context) => Center(
@@ -142,7 +169,7 @@ class _Message extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(text, textAlign: TextAlign.center),
-              TextButton(onPressed: onRetry, child: const Text('Thử lại')),
+              if (onRetry != null) TextButton(onPressed: onRetry, child: const Text('Thử lại')),
             ],
           ),
         ),

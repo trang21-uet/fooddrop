@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fooddrop/features/gacha/data/gacha_providers.dart';
-import 'package:fooddrop/features/gacha/domain/gacha_case.dart';
 import 'package:fooddrop/features/gacha/domain/reel_geometry.dart';
 import 'package:fooddrop/features/gacha/presentation/drop_screen.dart';
 import 'package:fooddrop/features/gacha/presentation/reel_card.dart';
@@ -16,7 +15,7 @@ void main() {
 
   Future<void> pumpDrop(WidgetTester tester) => pumpRoutes(
         tester,
-        routes: [homeRoute(const DropScreen(caseId: GachaCaseId.dinner))],
+        routes: [homeRoute(const DropScreen(caseId: 'meal_type.dinner'))],
         overrides: [
           gachaRemoteProvider.overrideWithValue(remote),
           reelSoundPlayerProvider.overrideWithValue(sounds),
@@ -52,7 +51,7 @@ void main() {
     expect(sounds.reveals, [Rarity.purple]);
     expect(find.text('Bún chả'), findsWidgets);
     expect(find.text('Nấu món này'), findsOneWidget);
-    expect(remote.spins, [GachaCaseId.dinner]);
+    expect(remote.spins, ['meal_type.dinner']);
 
     await tester.tap(find.text('Quay lại lần nữa'));
     await tester.pump();
@@ -79,9 +78,18 @@ void main() {
   });
 
   testWidgets('cannot open an empty case', (tester) async {
-    remote.caseList = fakeGachaCases({GachaCaseId.all: 3});
+    remote.caseList = fakeGachaCases({'all': 3});
     await pumpDrop(tester);
     expect(find.text('Hòm này chưa có món nào. Chọn hòm khác nhé.'), findsOneWidget);
+    await tester.tap(find.text('Mở hộp'));
+    await tester.pump();
+    expect(remote.spins, isEmpty);
+  });
+
+  testWidgets('a case that no longer exists cannot be opened', (tester) async {
+    remote.caseList = fakeGachaCases({'all': 3}).where((item) => item.id == 'all').toList();
+    await pumpDrop(tester);
+    expect(find.text('Không còn hòm này nữa. Chọn hòm khác nhé.'), findsOneWidget);
     await tester.tap(find.text('Mở hộp'));
     await tester.pump();
     expect(remote.spins, isEmpty);

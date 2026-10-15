@@ -10,14 +10,16 @@ class GachaRemote {
 
   final api.FooddropApi _api;
 
-  /// Every case with its count, rarity mix and rarest dishes; cases this app does not know yet are skipped.
+  /// Every case with its count, rarity mix and rarest dishes; cases in a group this app does not know are skipped.
   Future<List<GachaCaseSummary>> cases() async {
     final response = await _api.getGachaApi().gachaControllerCases();
     return [
       for (final item in response.data!.items)
-        if (GachaCaseId.fromApi(item.id.value) case final id?)
+        if (GachaCaseGroup.fromApi(item.group.value) case final group?)
           GachaCaseSummary(
-            id: id,
+            id: item.id,
+            group: group,
+            label: item.label,
             recipeCount: item.recipeCount,
             rarityCounts: {
               Rarity.white: item.rarityCounts.white,
@@ -31,11 +33,11 @@ class GachaRemote {
     ];
   }
 
-  Future<GachaSpin> spin(GachaCaseId caseId) async {
+  Future<GachaSpin> spin(String caseId) async {
     final response = await _api.getGachaApi().gachaControllerSpin(
           createGachaSpin: api.CreateGachaSpin(
             caseType: api.CreateGachaSpinCaseTypeEnum.cook,
-            caseId: api.CreateGachaSpinCaseIdEnum.values.byName(caseId.apiValue),
+            caseId: caseId,
           ),
         );
     final spin = response.data!;

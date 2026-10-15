@@ -12,6 +12,16 @@ void main() {
       // TODO
     });
 
+    // String group
+    test('to test the property `group`', () async {
+      // TODO
+    });
+
+    // String label
+    test('to test the property `label`', () async {
+      // TODO
+    });
+
     // int recipeCount
     test('to test the property `recipeCount`', () async {
       // TODO

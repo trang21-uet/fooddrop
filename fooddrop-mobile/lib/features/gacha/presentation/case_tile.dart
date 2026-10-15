@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../app/app_theme.dart';
 import '../../../app/food_drop_colors.dart';
 import '../domain/gacha_case.dart';
 import 'chest_icon.dart';
@@ -17,7 +18,7 @@ class CaseTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final style = GachaCaseStyle.of(summary.id);
+    final style = GachaCaseStyle.of(summary);
 
     return Semantics(
       button: true,
@@ -45,7 +46,7 @@ class CaseTile extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   '${summary.recipeCount} công thức',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: style.color, fontFamily: 'monospace'),
+                  style: monoStyle(size: 12, color: style.color),
                 ),
                 const SizedBox(height: 8),
                 RaritySegments(counts: summary.rarityCounts),

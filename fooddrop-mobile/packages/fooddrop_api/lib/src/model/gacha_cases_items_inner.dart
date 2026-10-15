@@ -24,6 +24,10 @@ class GachaCasesItemsInner {
 
     required  this.id,
 
+    required  this.group,
+
+    required  this.label,
+
     required  this.recipeCount,
 
     required  this.rarityCounts,
@@ -39,7 +43,31 @@ class GachaCasesItemsInner {
   )
 
 
-  final GachaCasesItemsInnerIdEnum id;
+  final String id;
+
+
+
+  @JsonKey(
+    
+    name: r'group',
+    required: true,
+    includeIfNull: false,
+  )
+
+
+  final GachaCasesItemsInnerGroupEnum group;
+
+
+
+  @JsonKey(
+    
+    name: r'label',
+    required: true,
+    includeIfNull: true,
+  )
+
+
+  final String? label;
 
 
 
@@ -86,6 +114,8 @@ class GachaCasesItemsInner {
     @override
     bool operator ==(Object other) => identical(this, other) || other is GachaCasesItemsInner &&
       other.id == id &&
+      other.group == group &&
+      other.label == label &&
       other.recipeCount == recipeCount &&
       other.rarityCounts == rarityCounts &&
       other.preview == preview;
@@ -93,6 +123,8 @@ class GachaCasesItemsInner {
     @override
     int get hashCode =>
         id.hashCode +
+        group.hashCode +
+        (label == null ? 0 : label.hashCode) +
         recipeCount.hashCode +
         rarityCounts.hashCode +
         preview.hashCode;
@@ -108,21 +140,21 @@ class GachaCasesItemsInner {
 
 }
 
-enum GachaCasesItemsInnerIdEnum {
-@JsonValue(r'all')
-all(r'all'),
-@JsonValue(r'breakfast')
-breakfast(r'breakfast'),
-@JsonValue(r'lunch')
-lunch(r'lunch'),
-@JsonValue(r'dinner')
-dinner(r'dinner'),
-@JsonValue(r'quick')
-quick(r'quick'),
-@JsonValue(r'epic')
-epic(r'epic');
+enum GachaCasesItemsInnerGroupEnum {
+@JsonValue(r'featured')
+featured(r'featured'),
+@JsonValue(r'cuisine')
+cuisine(r'cuisine'),
+@JsonValue(r'equipment')
+equipment(r'equipment'),
+@JsonValue(r'meal_type')
+mealType(r'meal_type'),
+@JsonValue(r'technique')
+technique(r'technique'),
+@JsonValue(r'diet')
+diet(r'diet');
 
-const GachaCasesItemsInnerIdEnum(this.value);
+const GachaCasesItemsInnerGroupEnum(this.value);
 
 final String value;
 

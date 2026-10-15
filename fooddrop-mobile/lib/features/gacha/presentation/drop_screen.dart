@@ -21,16 +21,18 @@ const _smallPool = 5;
 class DropScreen extends ConsumerWidget {
   const DropScreen({super.key, required this.caseId});
 
-  final GachaCaseId caseId;
+  final String caseId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.colors;
-    final style = GachaCaseStyle.of(caseId);
     final state = ref.watch(gachaControllerProvider);
     final controller = ref.read(gachaControllerProvider.notifier);
-    final summary = ref.watch(gachaCasesProvider).value?.where((item) => item.id == caseId).firstOrNull;
+    final cases = ref.watch(gachaCasesProvider);
+    final summary = cases.value?.where((item) => item.id == caseId).firstOrNull;
     final empty = summary?.recipeCount == 0;
+    // Tag cases only exist while a recipe carries the tag, so an old link can point at nothing.
+    final missing = cases.hasValue && summary == null;
 
     ref.listen(gachaControllerProvider.select((s) => s.status), (previous, next) async {
       final result = ref.read(gachaControllerProvider).spin?.result;
@@ -50,7 +52,7 @@ class DropScreen extends ConsumerWidget {
             const SizedBox(height: 4),
             Text('Mở hộp để bếp quyết định giúp bạn.', style: TextStyle(color: colors.textMuted, fontSize: 15)),
             const SizedBox(height: 12),
-            Align(alignment: Alignment.centerLeft, child: _CaseChip(style: style, summary: summary)),
+            Align(alignment: Alignment.centerLeft, child: _CaseChip(summary: summary)),
             const SizedBox(height: 16),
           ]),
           // Edge to edge, as on the design board.
@@ -66,11 +68,15 @@ class DropScreen extends ConsumerWidget {
               label: state.status == GachaStatus.spinning ? 'Đang quay…' : 'Mở hộp',
               icon: Icons.inventory_2_outlined,
               loading: state.requesting,
-              onPressed: state.busy || empty ? null : () => controller.spin(caseId),
+              onPressed: state.busy || empty || missing ? null : () => controller.spin(caseId),
             ),
             if (empty) ...[
               const SizedBox(height: 10),
               Text('Hòm này chưa có món nào. Chọn hòm khác nhé.', style: TextStyle(color: colors.textMuted, fontSize: 13)),
+            ],
+            if (missing) ...[
+              const SizedBox(height: 10),
+              Text('Không còn hòm này nữa. Chọn hòm khác nhé.', style: TextStyle(color: colors.textMuted, fontSize: 13)),
             ],
             if (state.error != null) ...[
               const SizedBox(height: 10),
@@ -114,17 +120,18 @@ class DropScreen extends ConsumerWidget {
 
 /// "Hòm Bữa tối · 24 công thức · Đổi hòm": back to the case picker.
 class _CaseChip extends StatelessWidget {
-  const _CaseChip({required this.style, required this.summary});
+  const _CaseChip({required this.summary});
 
-  final GachaCaseStyle style;
   final GachaCaseSummary? summary;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final style = summary == null ? null : GachaCaseStyle.of(summary!);
+    final color = style?.color ?? colors.border;
     return Material(
       color: colors.surfaceRaised,
-      shape: StadiumBorder(side: BorderSide(color: style.color)),
+      shape: StadiumBorder(side: BorderSide(color: color)),
       child: InkWell(
         customBorder: const StadiumBorder(),
         onTap: () => context.canPop() ? context.pop() : context.go('/drop'),
@@ -135,12 +142,12 @@ class _CaseChip extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(width: 8, height: 8, decoration: BoxDecoration(color: style.color, shape: BoxShape.circle)),
+                Container(width: 8, height: 8, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
                 const SizedBox(width: 8),
                 Flexible(
                   child: Text.rich(
                     TextSpan(
-                      text: summary == null ? style.name : '${style.name} · ${summary!.recipeCount} công thức',
+                      text: style == null ? 'Hòm' : '${style.name} · ${summary!.recipeCount} công thức',
                       children: [TextSpan(text: ' · Đổi hòm', style: TextStyle(color: colors.accent))],
                     ),
                     maxLines: 1,

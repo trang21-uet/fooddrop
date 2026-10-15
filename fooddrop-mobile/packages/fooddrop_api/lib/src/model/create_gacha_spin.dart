@@ -45,7 +45,7 @@ class CreateGachaSpin {
   )
 
 
-  final CreateGachaSpinCaseIdEnum caseId;
+  final String caseId;
 
 
 
@@ -77,29 +77,6 @@ enum CreateGachaSpinCaseTypeEnum {
 cook(r'cook');
 
 const CreateGachaSpinCaseTypeEnum(this.value);
-
-final String value;
-
-@override
-String toString() => value;
-}
-
-
-enum CreateGachaSpinCaseIdEnum {
-@JsonValue(r'all')
-all(r'all'),
-@JsonValue(r'breakfast')
-breakfast(r'breakfast'),
-@JsonValue(r'lunch')
-lunch(r'lunch'),
-@JsonValue(r'dinner')
-dinner(r'dinner'),
-@JsonValue(r'quick')
-quick(r'quick'),
-@JsonValue(r'epic')
-epic(r'epic');
-
-const CreateGachaSpinCaseIdEnum(this.value);
 
 final String value;
 

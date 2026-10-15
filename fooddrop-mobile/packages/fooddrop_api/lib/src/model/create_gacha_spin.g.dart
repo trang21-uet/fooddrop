@@ -9,7 +9,7 @@ part of 'create_gacha_spin.dart';
 abstract class _$CreateGachaSpinCWProxy {
   CreateGachaSpin caseType(CreateGachaSpinCaseTypeEnum caseType);
 
-  CreateGachaSpin caseId(CreateGachaSpinCaseIdEnum caseId);
+  CreateGachaSpin caseId(String caseId);
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `CreateGachaSpin(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -17,10 +17,7 @@ abstract class _$CreateGachaSpinCWProxy {
   /// ```dart
   /// CreateGachaSpin(...).copyWith(id: 12, name: "My name")
   /// ````
-  CreateGachaSpin call({
-    CreateGachaSpinCaseTypeEnum caseType,
-    CreateGachaSpinCaseIdEnum caseId,
-  });
+  CreateGachaSpin call({CreateGachaSpinCaseTypeEnum caseType, String caseId});
 }
 
 /// Proxy class for `copyWith` functionality. This is a callable class and can be used as follows: `instanceOfCreateGachaSpin.copyWith(...)`. Additionally contains functions for specific fields e.g. `instanceOfCreateGachaSpin.copyWith.fieldName(...)`
@@ -34,8 +31,7 @@ class _$CreateGachaSpinCWProxyImpl implements _$CreateGachaSpinCWProxy {
       this(caseType: caseType);
 
   @override
-  CreateGachaSpin caseId(CreateGachaSpinCaseIdEnum caseId) =>
-      this(caseId: caseId);
+  CreateGachaSpin caseId(String caseId) => this(caseId: caseId);
 
   @override
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `CreateGachaSpin(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
@@ -56,7 +52,7 @@ class _$CreateGachaSpinCWProxyImpl implements _$CreateGachaSpinCWProxy {
       caseId: caseId == const $CopyWithPlaceholder()
           ? _value.caseId
           // ignore: cast_nullable_to_non_nullable
-          : caseId as CreateGachaSpinCaseIdEnum,
+          : caseId as String,
     );
   }
 }
@@ -79,10 +75,7 @@ CreateGachaSpin _$CreateGachaSpinFromJson(Map<String, dynamic> json) =>
           'caseType',
           (v) => $enumDecode(_$CreateGachaSpinCaseTypeEnumEnumMap, v),
         ),
-        caseId: $checkedConvert(
-          'caseId',
-          (v) => $enumDecode(_$CreateGachaSpinCaseIdEnumEnumMap, v),
-        ),
+        caseId: $checkedConvert('caseId', (v) => v as String),
       );
       return val;
     });
@@ -90,18 +83,9 @@ CreateGachaSpin _$CreateGachaSpinFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$CreateGachaSpinToJson(CreateGachaSpin instance) =>
     <String, dynamic>{
       'caseType': _$CreateGachaSpinCaseTypeEnumEnumMap[instance.caseType]!,
-      'caseId': _$CreateGachaSpinCaseIdEnumEnumMap[instance.caseId]!,
+      'caseId': instance.caseId,
     };
 
 const _$CreateGachaSpinCaseTypeEnumEnumMap = {
   CreateGachaSpinCaseTypeEnum.cook: 'cook',
-};
-
-const _$CreateGachaSpinCaseIdEnumEnumMap = {
-  CreateGachaSpinCaseIdEnum.all: 'all',
-  CreateGachaSpinCaseIdEnum.breakfast: 'breakfast',
-  CreateGachaSpinCaseIdEnum.lunch: 'lunch',
-  CreateGachaSpinCaseIdEnum.dinner: 'dinner',
-  CreateGachaSpinCaseIdEnum.quick: 'quick',
-  CreateGachaSpinCaseIdEnum.epic: 'epic',
 };

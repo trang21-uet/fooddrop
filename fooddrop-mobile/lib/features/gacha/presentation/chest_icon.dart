@@ -23,10 +23,16 @@ class ChestIcon extends StatelessWidget {
               top: 96 * scale,
               width: 84 * scale,
               height: 22 * scale,
-              child: Center(
-                child: Text(
-                  tag!,
-                  style: TextStyle(color: color, fontSize: 12 * scale, fontWeight: FontWeight.w700, height: 1),
+              // Long tag names shrink to fit the plate.
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 4 * scale),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    tag!,
+                    maxLines: 1,
+                    style: TextStyle(color: color, fontSize: 12 * scale, fontWeight: FontWeight.w700, height: 1),
+                  ),
                 ),
               ),
             ),

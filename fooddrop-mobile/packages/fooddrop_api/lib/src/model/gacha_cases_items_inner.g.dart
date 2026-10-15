@@ -7,7 +7,11 @@ part of 'gacha_cases_items_inner.dart';
 // **************************************************************************
 
 abstract class _$GachaCasesItemsInnerCWProxy {
-  GachaCasesItemsInner id(GachaCasesItemsInnerIdEnum id);
+  GachaCasesItemsInner id(String id);
+
+  GachaCasesItemsInner group(GachaCasesItemsInnerGroupEnum group);
+
+  GachaCasesItemsInner label(String? label);
 
   GachaCasesItemsInner recipeCount(int recipeCount);
 
@@ -24,7 +28,9 @@ abstract class _$GachaCasesItemsInnerCWProxy {
   /// GachaCasesItemsInner(...).copyWith(id: 12, name: "My name")
   /// ````
   GachaCasesItemsInner call({
-    GachaCasesItemsInnerIdEnum id,
+    String id,
+    GachaCasesItemsInnerGroupEnum group,
+    String? label,
     int recipeCount,
     GachaCasesItemsInnerRarityCounts rarityCounts,
     List<GachaSpinResult> preview,
@@ -39,7 +45,14 @@ class _$GachaCasesItemsInnerCWProxyImpl
   final GachaCasesItemsInner _value;
 
   @override
-  GachaCasesItemsInner id(GachaCasesItemsInnerIdEnum id) => this(id: id);
+  GachaCasesItemsInner id(String id) => this(id: id);
+
+  @override
+  GachaCasesItemsInner group(GachaCasesItemsInnerGroupEnum group) =>
+      this(group: group);
+
+  @override
+  GachaCasesItemsInner label(String? label) => this(label: label);
 
   @override
   GachaCasesItemsInner recipeCount(int recipeCount) =>
@@ -63,6 +76,8 @@ class _$GachaCasesItemsInnerCWProxyImpl
   /// ````
   GachaCasesItemsInner call({
     Object? id = const $CopyWithPlaceholder(),
+    Object? group = const $CopyWithPlaceholder(),
+    Object? label = const $CopyWithPlaceholder(),
     Object? recipeCount = const $CopyWithPlaceholder(),
     Object? rarityCounts = const $CopyWithPlaceholder(),
     Object? preview = const $CopyWithPlaceholder(),
@@ -71,7 +86,15 @@ class _$GachaCasesItemsInnerCWProxyImpl
       id: id == const $CopyWithPlaceholder()
           ? _value.id
           // ignore: cast_nullable_to_non_nullable
-          : id as GachaCasesItemsInnerIdEnum,
+          : id as String,
+      group: group == const $CopyWithPlaceholder()
+          ? _value.group
+          // ignore: cast_nullable_to_non_nullable
+          : group as GachaCasesItemsInnerGroupEnum,
+      label: label == const $CopyWithPlaceholder()
+          ? _value.label
+          // ignore: cast_nullable_to_non_nullable
+          : label as String?,
       recipeCount: recipeCount == const $CopyWithPlaceholder()
           ? _value.recipeCount
           // ignore: cast_nullable_to_non_nullable
@@ -104,13 +127,22 @@ GachaCasesItemsInner _$GachaCasesItemsInnerFromJson(
 ) => $checkedCreate('GachaCasesItemsInner', json, ($checkedConvert) {
   $checkKeys(
     json,
-    requiredKeys: const ['id', 'recipeCount', 'rarityCounts', 'preview'],
+    requiredKeys: const [
+      'id',
+      'group',
+      'label',
+      'recipeCount',
+      'rarityCounts',
+      'preview',
+    ],
   );
   final val = GachaCasesItemsInner(
-    id: $checkedConvert(
-      'id',
-      (v) => $enumDecode(_$GachaCasesItemsInnerIdEnumEnumMap, v),
+    id: $checkedConvert('id', (v) => v as String),
+    group: $checkedConvert(
+      'group',
+      (v) => $enumDecode(_$GachaCasesItemsInnerGroupEnumEnumMap, v),
     ),
+    label: $checkedConvert('label', (v) => v as String?),
     recipeCount: $checkedConvert('recipeCount', (v) => (v as num).toInt()),
     rarityCounts: $checkedConvert(
       'rarityCounts',
@@ -130,17 +162,19 @@ GachaCasesItemsInner _$GachaCasesItemsInnerFromJson(
 Map<String, dynamic> _$GachaCasesItemsInnerToJson(
   GachaCasesItemsInner instance,
 ) => <String, dynamic>{
-  'id': _$GachaCasesItemsInnerIdEnumEnumMap[instance.id]!,
+  'id': instance.id,
+  'group': _$GachaCasesItemsInnerGroupEnumEnumMap[instance.group]!,
+  'label': instance.label,
   'recipeCount': instance.recipeCount,
   'rarityCounts': instance.rarityCounts.toJson(),
   'preview': instance.preview.map((e) => e.toJson()).toList(),
 };
 
-const _$GachaCasesItemsInnerIdEnumEnumMap = {
-  GachaCasesItemsInnerIdEnum.all: 'all',
-  GachaCasesItemsInnerIdEnum.breakfast: 'breakfast',
-  GachaCasesItemsInnerIdEnum.lunch: 'lunch',
-  GachaCasesItemsInnerIdEnum.dinner: 'dinner',
-  GachaCasesItemsInnerIdEnum.quick: 'quick',
-  GachaCasesItemsInnerIdEnum.epic: 'epic',
+const _$GachaCasesItemsInnerGroupEnumEnumMap = {
+  GachaCasesItemsInnerGroupEnum.featured: 'featured',
+  GachaCasesItemsInnerGroupEnum.cuisine: 'cuisine',
+  GachaCasesItemsInnerGroupEnum.equipment: 'equipment',
+  GachaCasesItemsInnerGroupEnum.mealType: 'meal_type',
+  GachaCasesItemsInnerGroupEnum.technique: 'technique',
+  GachaCasesItemsInnerGroupEnum.diet: 'diet',
 };

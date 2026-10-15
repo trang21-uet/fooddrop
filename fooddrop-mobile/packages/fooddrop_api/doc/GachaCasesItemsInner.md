@@ -9,6 +9,8 @@ import 'package:fooddrop_api/api.dart';
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **String** |  | 
+**group** | **String** |  | 
+**label** | **String** |  | 
 **recipeCount** | **int** |  | 
 **rarityCounts** | [**GachaCasesItemsInnerRarityCounts**](GachaCasesItemsInnerRarityCounts.md) |  | 
 **preview** | [**List&lt;GachaSpinResult&gt;**](GachaSpinResult.md) |  | 

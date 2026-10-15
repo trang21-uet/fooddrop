@@ -25,29 +25,45 @@ final gachaSpin = GachaSpin(
   poolSize: 3,
 );
 
-GachaCaseSummary gachaCase(GachaCaseId id, {int count = 0, List<GachaCard> preview = const []}) => GachaCaseSummary(
+/// A featured case (`all`, `quick`, `epic`) or, with [label], a tag case like `meal_type.dinner`.
+GachaCaseSummary gachaCase(
+  String id, {
+  int count = 0,
+  String? label,
+  GachaCaseGroup group = GachaCaseGroup.featured,
+  List<GachaCard> preview = const [],
+}) =>
+    GachaCaseSummary(
       id: id,
+      group: group,
+      label: label,
       recipeCount: count,
       rarityCounts: {Rarity.purple: count},
       preview: preview,
     );
 
-/// Every case; only those in [counts] hold recipes.
-List<GachaCaseSummary> fakeGachaCases(Map<GachaCaseId, int> counts) => [
-      for (final id in GachaCaseId.values)
-        gachaCase(id, count: counts[id] ?? 0, preview: (counts[id] ?? 0) > 0 ? [gachaCard('p-${id.apiValue}', title: 'Phở bò')] : const []),
+/// The featured cases plus a "Bữa tối" tag case; only those in [counts] hold recipes.
+List<GachaCaseSummary> fakeGachaCases(Map<String, int> counts) => [
+      for (final id in ['all', 'quick', 'epic', 'meal_type.dinner'])
+        gachaCase(
+          id,
+          count: counts[id] ?? 0,
+          label: id == 'meal_type.dinner' ? 'Bữa tối' : null,
+          group: id == 'meal_type.dinner' ? GachaCaseGroup.mealType : GachaCaseGroup.featured,
+          preview: (counts[id] ?? 0) > 0 ? [gachaCard('p-$id', title: 'Phở bò')] : const [],
+        ),
     ];
 
 class FakeGachaRemote implements GachaRemote {
   Object? failure;
-  List<GachaCaseSummary> caseList = fakeGachaCases({GachaCaseId.all: 3, GachaCaseId.dinner: 3});
-  final spins = <GachaCaseId>[];
+  List<GachaCaseSummary> caseList = fakeGachaCases({'all': 3, 'meal_type.dinner': 3});
+  final spins = <String>[];
 
   @override
   Future<List<GachaCaseSummary>> cases() async => caseList;
 
   @override
-  Future<GachaSpin> spin(GachaCaseId caseId) async {
+  Future<GachaSpin> spin(String caseId) async {
     spins.add(caseId);
     if (failure != null) throw failure!;
     return gachaSpin;
