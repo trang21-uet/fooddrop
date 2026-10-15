@@ -1,23 +1,33 @@
 import type { Rarity } from '../../database/schema/recipes.schema.js';
-import { byRarityDesc, CASE_IDS, countByRarity, inCase, type CaseCandidate, type CaseId } from './gacha-cases.js';
+import { byRarityDesc, CASE_ID_PATTERN, countByRarity, inCase, tagCaseId, type CaseCandidate } from './gacha-cases.js';
 
 const recipe = (overrides: Partial<CaseCandidate> = {}): CaseCandidate => ({
   rarity: 'white',
   totalMinutes: 45,
-  mealTypes: [],
+  tagCaseIds: [],
   ...overrides,
 });
 
-const cases = (candidate: CaseCandidate): CaseId[] => CASE_IDS.filter((id) => inCase(id, candidate));
-
 describe('gacha cases', () => {
   it('puts every recipe in the all case', () => {
-    expect(cases(recipe())).toEqual(['all']);
+    expect(inCase('all', recipe())).toBe(true);
   });
 
-  it('sorts meals by their meal_type tags', () => {
-    expect(cases(recipe({ mealTypes: ['breakfast', 'dinner'] }))).toEqual(['all', 'breakfast', 'dinner']);
-    expect(cases(recipe({ mealTypes: ['lunch'] }))).toEqual(['all', 'lunch']);
+  it('a tag case holds the recipes carrying that tag', () => {
+    const pho = recipe({ tagCaseIds: [tagCaseId('cuisine', 'vietnamese'), tagCaseId('meal_type', 'breakfast')] });
+    expect(inCase('cuisine.vietnamese', pho)).toBe(true);
+    expect(inCase('meal_type.breakfast', pho)).toBe(true);
+    expect(inCase('meal_type.dinner', pho)).toBe(false);
+    expect(inCase('cuisine.vietnamese', recipe())).toBe(false);
+  });
+
+  it('accepts featured and <dimension>.<tag> ids only', () => {
+    for (const id of ['all', 'quick', 'epic', 'cuisine.vietnamese', 'equipment.air-fryer', 'meal_type.side-dish']) {
+      expect(CASE_ID_PATTERN.test(id)).toBe(true);
+    }
+    for (const id of ['secret', 'cuisine', 'cuisine.', 'Cuisine.x', 'a.b.c', 'cuisine.x y']) {
+      expect(CASE_ID_PATTERN.test(id)).toBe(false);
+    }
   });
 
   it('quick holds recipes of 30 minutes or less', () => {

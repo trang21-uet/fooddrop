@@ -9,6 +9,8 @@ interface Card {
 
 interface CaseView {
   id: string;
+  group: string;
+  label: string | null;
   recipeCount: number;
   rarityCounts: Record<string, number>;
   preview: Card[];
@@ -37,18 +39,27 @@ describe('gacha cases and spins (e2e)', () => {
     await fx.close();
   });
 
-  it('lists every case with its count, rarity mix and rarest dishes first', async () => {
+  it('lists the featured cases, then one case per tag the recipes carry, grouped by dimension', async () => {
     const { items } = (await fx.api(fx.alice).get('/gacha/cases').expect(200)).body as { items: CaseView[] };
     const byId = Object.fromEntries(items.map((item) => [item.id, item]));
-    expect(items.map((item) => item.id)).toEqual(['all', 'breakfast', 'lunch', 'dinner', 'quick', 'epic']);
-    expect(byId['all']).toMatchObject({ recipeCount: 3, rarityCounts: { white: 1, blue: 1, purple: 0, pink: 0, red: 1 } });
+    expect(items.map((item) => [item.id, item.group])).toEqual([
+      ['all', 'featured'],
+      ['quick', 'featured'],
+      ['epic', 'featured'],
+      ['cuisine.vietnamese', 'cuisine'],
+      ['cuisine.japanese', 'cuisine'],
+      ['equipment.air-fryer', 'equipment'],
+      ['meal_type.dinner', 'meal_type'],
+    ]);
+    expect(byId['all']).toMatchObject({ label: null, recipeCount: 3, rarityCounts: { white: 1, blue: 1, purple: 0, pink: 0, red: 1 } });
     expect(byId['all']!.preview.map((card) => card.title)).toEqual(['Phở bò', 'Cá hồi áp chảo', 'Trứng ốp la']);
-    expect(byId['breakfast']).toMatchObject({ recipeCount: 0, preview: [] });
-    expect(byId['dinner']!.preview.map((card) => card.id)).toEqual([salmon]);
+    expect(byId['cuisine.vietnamese']).toMatchObject({ label: 'Món Việt', recipeCount: 2 });
+    expect(byId['meal_type.dinner']!.preview.map((card) => card.id)).toEqual([salmon]);
     expect(byId['quick']!.recipeCount).toBe(2);
     expect(byId['epic']!.preview.map((card) => card.id)).toEqual([slow]);
 
     const bobs = (await fx.api(fx.bob).get('/gacha/cases').expect(200)).body as { items: CaseView[] };
+    expect(bobs.items.map((item) => item.id)).toEqual(['all', 'quick', 'epic']);
     expect(bobs.items.every((item) => item.recipeCount === 0)).toBe(true);
   });
 
@@ -69,11 +80,15 @@ describe('gacha cases and spins (e2e)', () => {
     expect(quickSpin.poolSize).toBe(2);
 
     expect((await spin({ caseId: 'epic' }).expect(201)).body.result.id).toBe(slow);
-    expect((await spin({ caseId: 'dinner' }).expect(201)).body.result.id).toBe(salmon);
+    expect((await spin({ caseId: 'meal_type.dinner' }).expect(201)).body.result.id).toBe(salmon);
+    expect(new Set(((await spin({ caseId: 'cuisine.vietnamese' }).expect(201)).body.reel as Card[]).map((card) => card.id))).toEqual(
+      new Set([quick, slow]),
+    );
   });
 
   it('rejects an unknown case and a client-chosen result', async () => {
     await spin({ caseId: 'secret' }).expect(400);
+    await spin({ caseId: 'cuisine.<script>' }).expect(400);
     await fx.api(fx.alice).post('/gacha/spins').send({ caseType: 'cook' }).expect(400);
     await spin({ caseType: 'lazy' }).expect(400);
     // Extra keys are stripped: the client cannot pick the result.
@@ -83,7 +98,7 @@ describe('gacha cases and spins (e2e)', () => {
   });
 
   it('answers 422 for an empty case', async () => {
-    expect((await spin({ caseId: 'breakfast' }).expect(422)).body).toMatchObject({ code: 'gacha_empty_pool' });
+    expect((await spin({ caseId: 'meal_type.breakfast' }).expect(422)).body).toMatchObject({ code: 'gacha_empty_pool' });
     expect((await spin({}, fx.bob).expect(422)).body).toMatchObject({ code: 'gacha_empty_pool' });
   });
 
@@ -97,7 +112,7 @@ describe('gacha cases and spins (e2e)', () => {
   });
 
   it('keeps a spin whose recipe was deleted, with a null result', async () => {
-    const dinner = (await spin({ caseId: 'dinner' }).expect(201)).body;
+    const dinner = (await spin({ caseId: 'meal_type.dinner' }).expect(201)).body;
     await fx.api(fx.alice).delete(`/recipes/${salmon}`).expect(204);
     const history = (await fx.api(fx.alice).get('/gacha/spins').query({ limit: 1 }).expect(200)).body;
     expect(history.items[0]).toMatchObject({ id: dinner.spinId, result: null });

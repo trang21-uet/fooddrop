@@ -778,14 +778,7 @@
           },
           "caseId": {
             "type": "string",
-            "enum": [
-              "all",
-              "breakfast",
-              "lunch",
-              "dinner",
-              "quick",
-              "epic"
-            ]
+            "pattern": "^(all|quick|epic|[a-z_]+\\.[a-z0-9-]+)$"
           }
         },
         "required": [
@@ -965,15 +958,22 @@
               "type": "object",
               "properties": {
                 "id": {
+                  "type": "string"
+                },
+                "group": {
                   "type": "string",
                   "enum": [
-                    "all",
-                    "breakfast",
-                    "lunch",
-                    "dinner",
-                    "quick",
-                    "epic"
+                    "featured",
+                    "cuisine",
+                    "equipment",
+                    "meal_type",
+                    "technique",
+                    "diet"
                   ]
+                },
+                "label": {
+                  "nullable": true,
+                  "type": "string"
                 },
                 "recipeCount": {
                   "type": "integer",
@@ -1076,6 +1076,8 @@
               },
               "required": [
                 "id",
+                "group",
+                "label",
                 "recipeCount",
                 "rarityCounts",
                 "preview"

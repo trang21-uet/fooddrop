@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { createZodDto } from '../../common/zod-dto.js';
 import { RARITIES } from '../../database/schema/recipes.schema.js';
-import { CASE_IDS } from './gacha-cases.js';
+import { CASE_GROUPS, CASE_ID_PATTERN } from './gacha-cases.js';
 
 export const CASE_TYPES = ['cook'] as const;
 
@@ -9,8 +9,8 @@ export const CASE_TYPES = ['cook'] as const;
 
 export const createSpinSchema = z.object({
   caseType: z.enum(CASE_TYPES),
-  /** Which cook case to open; `GET /gacha/cases` lists them with what they hold. */
-  caseId: z.enum(CASE_IDS),
+  /** Which cook case to open (`all`, `quick`, `epic` or `<dimension>.<tag>`); `GET /gacha/cases` lists them. */
+  caseId: z.string().regex(CASE_ID_PATTERN),
 });
 
 export const listSpinsQuerySchema = z.object({
@@ -47,7 +47,12 @@ export const gachaSpinSchema = z.object({
 export const gachaCasesSchema = z.object({
   items: z.array(
     z.object({
-      id: z.enum(CASE_IDS),
+      /** `all`, `quick`, `epic`, or `<dimension>.<tag>` for a tag case. */
+      id: z.string(),
+      /** The tab the case sits in: `featured` or the tag's dimension. */
+      group: z.enum(CASE_GROUPS),
+      /** The tag's label for a tag case; null for featured cases, whose copy the clients own. */
+      label: z.string().nullable(),
       recipeCount: z.number().int(),
       rarityCounts: z.object({
         white: z.number().int(),
