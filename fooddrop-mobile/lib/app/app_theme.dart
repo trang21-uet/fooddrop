@@ -21,7 +21,7 @@ ThemeData buildAppTheme() {
     scaffoldBackgroundColor: _colors.background,
     extensions: const [_colors],
   );
-  final textTheme = GoogleFonts.geistTextTheme(base.textTheme).apply(
+  final textTheme = GoogleFonts.beVietnamProTextTheme(base.textTheme).apply(
     bodyColor: _colors.text,
     displayColor: _colors.text,
   );
@@ -49,6 +49,6 @@ ThemeData buildAppTheme() {
   );
 }
 
-/// Geist Mono, used for quantities, timers and step numbers.
+/// JetBrains Mono (has Vietnamese glyphs), used for quantities, timers and step numbers.
 TextStyle monoStyle({double size = 13, FontWeight weight = FontWeight.w600, Color? color}) =>
-    GoogleFonts.geistMono(fontSize: size, fontWeight: weight, color: color ?? _colors.accent);
+    GoogleFonts.jetBrainsMono(fontSize: size, fontWeight: weight, color: color ?? _colors.accent);
